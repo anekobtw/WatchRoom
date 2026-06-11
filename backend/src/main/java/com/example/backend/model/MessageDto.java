@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class MessageDto {
   private String type;
   private String roomId;
-  private String videoLink;
+  private String videoUrl;
   private Long videoTimestamp;
   private Boolean playing;
 }

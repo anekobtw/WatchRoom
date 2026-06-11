@@ -19,21 +19,12 @@ public class MessageService {
       if (data == null || data.getRoomId() == null || data.getType() == null) return;
 
       switch (data.getType()) {
-        case "JOIN" -> {
-          roomService.joinRoom(data.getRoomId(), session);
-        }
+        case "JOIN" -> roomService.joinRoom(data.getRoomId(), session);
+        case "LEAVE" -> roomService.removeSession(session);
 
-        case "PLAY" -> {
-          if (data.getVideoTimestamp() != null) {
-            roomService.updateState(data.getRoomId(), data.getVideoTimestamp(), true);
-          }
-        }
+        case "SET_STATE" -> roomService.updateRoom(data);
 
-        case "PAUSE" -> {
-          if (data.getVideoTimestamp() != null) {
-            roomService.updateState(data.getRoomId(), data.getVideoTimestamp(), false);
-          }
-        }
+        default -> {}
       }
     } catch (Exception e) {
       e.printStackTrace();

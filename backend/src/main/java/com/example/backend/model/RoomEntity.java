@@ -21,7 +21,7 @@ public class RoomEntity {
   @Column(name = "room_id")
   private String roomId;
 
-  private String videoLink;
+  private String videoUrl;
   private long videoTimestamp;
   private boolean playing;
 }

@@ -38,7 +38,7 @@ public class RoomService {
                     .roomId(roomId)
                     .videoTimestamp(0L)
                     .playing(false)
-                    .videoLink(null)
+                    .videoUrl(null)
                     .build()
             )
     );
@@ -56,15 +56,15 @@ public class RoomService {
     }
   }
 
-  public void updateState(String roomId, long timestamp, boolean playing) {
-
-    RoomEntity entity = roomRepository.findById(roomId).orElse(null);
+  public void updateRoom(MessageDto dto) {
+    RoomEntity entity = roomRepository.findById(dto.getRoomId()).orElse(null);
     if (entity == null) return;
 
-    entity.setVideoTimestamp(timestamp);
-    entity.setPlaying(playing);
-    roomRepository.save(entity);
+    if (dto.getVideoUrl() != null) entity.setVideoUrl(dto.getVideoUrl());
+    if (dto.getVideoTimestamp() != null) entity.setVideoTimestamp(dto.getVideoTimestamp());
+    if (dto.getPlaying() != null) entity.setPlaying(dto.getPlaying());
 
+    roomRepository.save(entity);
     broadcast(entity);
   }
 
@@ -73,7 +73,7 @@ public class RoomService {
       MessageDto dto = MessageDto.builder()
               .type("STATE")
               .roomId(entity.getRoomId())
-              .videoLink(entity.getVideoLink())
+              .videoUrl(entity.getVideoUrl())
               .videoTimestamp(entity.getVideoTimestamp())
               .playing(entity.isPlaying())
               .build();

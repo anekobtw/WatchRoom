@@ -15,26 +15,26 @@ Joins the room. If the room with roomId doesn't exist, the room is created.
 }
 ```
 
-**PLAY:**
+**LEAVE:**
 
-Updates `playing` column in database to `false`
+Leaves the room.
 
 ```json
 {
-    "type": "PLAY",
+    "type": "LEAVE",
     "roomId": "abc123",
-    "videoTimestamp": 300
 }
 ```
 
-**PAUSE:**
+**SET_STATE:**
 
-Updates `playing` column in database to `true`
+It changes the state of the room. Can be used to play/pause/change videoTimestamp
 
 ```json
 {
-    "type": "PAUSE",
+    "type": "SET_STATE",
     "roomId": "abc12",
+    "playing": false,
     "videoTimestamp": 300
 }
 ```
