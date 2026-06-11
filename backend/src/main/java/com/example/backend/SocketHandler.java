@@ -1,6 +1,7 @@
 package com.example.backend;
 
 import com.example.backend.service.MessageService;
+import com.example.backend.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
@@ -11,9 +12,15 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 public class SocketHandler extends TextWebSocketHandler {
 
   private final MessageService messageService;
+  private final RoomService roomService;
 
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage message) {
     messageService.handle(message.getPayload(), session);
+  }
+
+  @Override
+  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    roomService.removeSession(session);
   }
 }

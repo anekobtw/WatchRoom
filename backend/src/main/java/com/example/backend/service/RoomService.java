@@ -18,10 +18,20 @@ public class RoomService {
 
   private final RoomRepository roomRepository;
   private final ObjectMapper mapper;
+  private final Map<WebSocketSession, String> sessionRoom = new ConcurrentHashMap<>();
 
   private final Map<String, Set<WebSocketSession>> sessions = new ConcurrentHashMap<>();
 
   public void joinRoom(String roomId, WebSocketSession session) {
+
+    String oldRoom = sessionRoom.put(session, roomId);
+
+    if (oldRoom != null && !oldRoom.equals(roomId)) {
+      Set<WebSocketSession> oldSet = sessions.get(oldRoom);
+      if (oldSet != null) {
+        oldSet.remove(session);
+      }
+    }
 
     RoomEntity entity = roomRepository.findById(roomId).orElseGet(() ->
             roomRepository.save(RoomEntity.builder()
@@ -36,6 +46,14 @@ public class RoomService {
     sessions.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet()).add(session);
 
     broadcast(entity);
+  }
+
+  public void removeSession(WebSocketSession session) {
+    String room = sessionRoom.remove(session);
+    if (room != null) {
+      Set<WebSocketSession> set = sessions.get(room);
+      if (set != null) set.remove(session);
+    }
   }
 
   public void updateState(String roomId, long timestamp, boolean playing) {
