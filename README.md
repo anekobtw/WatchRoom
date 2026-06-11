@@ -19,7 +19,7 @@ Joins the room. If the room with roomId doesn't exist, the room is created.
 
 Updates `playing` column in database to `false`
 
-```
+```json
 {
     "type": "PLAY",
     "roomId": "abc123",
@@ -31,7 +31,7 @@ Updates `playing` column in database to `false`
 
 Updates `playing` column in database to `true`
 
-```
+```json
 {
     "type": "PAUSE",
     "roomId": "abc12",
