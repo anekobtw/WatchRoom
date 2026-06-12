@@ -1,9 +1,19 @@
 import { useEffect } from "react";
-import { animate, stagger } from "animejs";
+import { utils, animate, stagger } from "animejs";
 
 export default function Screen() {
   useEffect(() => {
     let cancelled = false;
+
+    animate("#video-jitter", {
+      opacity: [0.02, 0.08],
+      translateX: [-1, 1],
+      translateY: [-1, 1],
+      duration: 90,
+      loop: true,
+      alternate: true,
+      ease: "linear",
+    });
 
     animate("#screen-glow", {
       opacity: [0.12, 0.28],
@@ -36,23 +46,89 @@ export default function Screen() {
       alternate: true,
     });
 
-    animate(".tdot", {
-      translateY: [0, -3],
-      duration: 400,
-      ease: "inOutSine",
-      loop: true,
-      alternate: true,
-      delay: stagger(120),
-    });
-
     const bubbles = ["#cb1", "#cb2", "#cb3", "#cb4"];
 
     const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    let dotLoopRunning = false;
+    let activeDot = 0;
+
+    const startDots = () => {
+      const dots = utils.$(".dot");
+      dotLoopRunning = true;
+
+      const cycle = () => {
+        if (!dotLoopRunning) return;
+
+        const current = dots[activeDot];
+        const next = dots[(activeDot + 1) % 3];
+
+        animate(current, {
+          translateY: [0, -7, 0],
+          scale: [1, 1.15, 1],
+          duration: 520,
+          ease: "inOutSine",
+        });
+
+        animate(current, {
+          backgroundColor: [
+            "rgba(255,255,255,0.4)",
+            "rgba(255,255,255,0.9)",
+            "rgba(255,255,255,0.4)",
+          ],
+          duration: 520,
+          ease: "linear",
+        });
+
+        animate(next, {
+          backgroundColor: ["rgba(255,255,255,0.4)", "rgba(255,255,255,0.6)"],
+          duration: 900,
+          ease: "linear",
+        });
+
+        activeDot = (activeDot + 1) % 3;
+
+        setTimeout(cycle, 320);
+      };
+
+      cycle();
+    };
+
+    const stopDots = () => {
+      dotLoopRunning = false;
+
+      utils.$(".dot").forEach((d: any) => {
+        d.style.transform = "translateY(0px) scale(1)";
+        d.style.backgroundColor = "rgba(255,255,255,0.4)";
+      });
+    };
+
+    const setTyping = (on: boolean) => {
+      const el = utils.$(".typing")[0];
+      if (!el) return;
+
+      return new Promise<void>((resolve) => {
+        animate(el, {
+          opacity: on ? [0, 1] : [1, 0],
+          translateY: on ? [4, 0] : [0, 4],
+          duration: 180,
+          ease: "outQuad",
+          onComplete: () => {
+            if (on) startDots();
+            else stopDots();
+            resolve();
+          },
+        });
+      });
+    };
 
     const chatLoop = async () => {
       while (!cancelled) {
         for (let i = 0; i < bubbles.length; i++) {
           if (cancelled) return;
+
+          await setTyping(true);
+          await delay(400);
 
           await new Promise<void>((resolve) => {
             animate(bubbles[i], {
@@ -64,10 +140,12 @@ export default function Screen() {
             });
           });
 
+          await setTyping(false);
+
           await delay(900 + i * 200);
         }
 
-        await delay(600);
+        await delay(800);
 
         await new Promise<void>((resolve) => {
           animate(bubbles, {
@@ -80,7 +158,7 @@ export default function Screen() {
           });
         });
 
-        await delay(500);
+        await delay(600);
       }
     };
 
@@ -104,6 +182,7 @@ export default function Screen() {
       <div className="relative z-20 flex h-full">
         {/* VIDEO */}
         <div className="flex-1 bg-[#0d1117] flex flex-col justify-center items-center relative overflow-hidden">
+          <div id="video-jitter" className="absolute inset-0 bg-white/5" />
           <div
             className="absolute bottom-0 left-0 h-[3px] bg-primary"
             id="video-progress"
@@ -152,19 +231,21 @@ export default function Screen() {
             </div>
           </div>
 
+          {/* Typing dots */}
+          <div className="px-3 pb-2">
+            <div className="typing opacity-0 flex gap-[4px] px-2 py-1 w-fit">
+              <span className="dot w-1.5 h-1.5 bg-white/40 rounded-full" />
+              <span className="dot w-1.5 h-1.5 bg-white/40 rounded-full" />
+              <span className="dot w-1.5 h-1.5 bg-white/40 rounded-full" />
+            </div>
+          </div>
+
           <div className="p-2 border-t border-white/10">
             <div className="bg-[#1e2a40] rounded-md h-8 px-3 flex items-center text-[0.62rem] text-white/20">
               Message...
             </div>
           </div>
         </div>
-      </div>
-
-      {/* typing indicator */}
-      <div className="absolute bottom-2 left-3 flex gap-1">
-        <span className="tdot text-white/40">.</span>
-        <span className="tdot text-white/40">.</span>
-        <span className="tdot text-white/40">.</span>
       </div>
     </div>
   );
