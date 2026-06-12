@@ -5,6 +5,40 @@ export default function Screen() {
   useEffect(() => {
     let cancelled = false;
 
+    const timeEl = document.getElementById("video-time");
+
+    const total = 12 * 60 + 18;
+
+    const state = {
+      t: 0,
+      p: 0,
+    };
+
+    animate(state, {
+      t: total,
+      p: 1,
+      duration: 18000,
+      easing: "linear",
+      loop: true,
+
+      onUpdate: () => {
+        if (!timeEl) return;
+
+        const format = (s: number) => {
+          const m = Math.floor(s / 60);
+          const sec = Math.floor(s % 60);
+          return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+        };
+
+        timeEl.textContent = `${format(state.t)} / 12:18`;
+
+        const progress = document.getElementById("video-progress");
+        if (progress) {
+          progress.style.width = `${state.p * 100}%`;
+        }
+      },
+    });
+
     animate("#video-jitter", {
       opacity: [0.02, 0.08],
       translateX: [-1, 1],
@@ -24,7 +58,6 @@ export default function Screen() {
     });
 
     animate("#video-progress", {
-      width: ["8%", "72%"],
       duration: 18000,
       ease: "linear",
       loop: true,
@@ -183,15 +216,16 @@ export default function Screen() {
         {/* VIDEO */}
         <div className="flex-1 bg-[#0d1117] flex flex-col justify-center items-center relative overflow-hidden">
           <div id="video-jitter" className="absolute inset-0 bg-white/5" />
-          <div
-            className="absolute bottom-0 left-0 h-[3px] bg-primary"
-            id="video-progress"
-          />
 
-          <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-[0_0_32px_rgba(64,89,173,0.5)]">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M5 3.5L14.5 9 5 14.5V3.5Z" fill="white" />
-            </svg>
+          <div className="absolute bottom-2 left-3 right-3">
+            <div
+              id="video-progress"
+              className="h-[3px] bg-primary rounded-full"
+            />
+
+            <div className="flex justify-between mt-1 text-[0.6rem] text-white/30">
+              <span id="video-time">00:00 / 12:18</span>
+            </div>
           </div>
         </div>
 
