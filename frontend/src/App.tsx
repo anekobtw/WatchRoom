@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import "./index.css";
 import Navbar from "./Navbar";
 import { animate, scrambleText, utils } from "animejs";
+import Screen from "./Screen";
 
 export default function App() {
   const texts = ["wherever you are", "whenever you want"];
@@ -66,60 +67,9 @@ export default function App() {
       </section>
 
       {/* Mockup */}
-      <div className="relative max-w-3xl mx-auto px-12 mb-24">
-        <div className="bg-[#1a2235] border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.5)]">
-          {/* Browser bar */}
-          <div className="bg-[#0e1520] px-4 py-3 flex items-center gap-3 border-b border-white/[0.06]">
-            <div className="w-[10px] h-[10px] rounded-full bg-critical" />
-            <div className="w-[10px] h-[10px] rounded-full bg-[#f5a623]" />
-            <div className="w-[10px] h-[10px] rounded-full bg-[#27ae60]" />
-            <div className="flex-1 bg-[#1e2a40] rounded-md px-3 py-1 text-[0.68rem] text-white/25">
-              shareview.app/room/friday-night
-            </div>
-          </div>
-          {/* Body */}
-          <div className="grid grid-cols-[3fr_1fr] h-[320px]">
-            {/* Screen */}
-            <div className="relative bg-[#0d1117] flex items-center justify-center overflow-hidden">
-              <div className="scan-lines absolute inset-0 pointer-events-none" />
-              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center z-10 shadow-[0_0_32px_rgba(64,89,173,0.5)]">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M5 3.5L14.5 9 5 14.5V3.5Z" fill="white" />
-                </svg>
-              </div>
-            </div>
-            {/* Chat */}
-            <div className="bg-[#141e2e] border-l border-white/[0.06] flex flex-col">
-              <div className="px-3 py-3 text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-white/25 border-b border-white/[0.06]">
-                Chat
-              </div>
-              <div className="flex-1 p-3 flex flex-col gap-3 overflow-hidden">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[0.58rem] text-white/25">maya</span>
-                  <div className="bg-[#1e2c42] rounded-lg px-3 py-2 text-[0.65rem] text-white/50 leading-snug">
-                    omg this part 😭
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[0.58rem] text-white/25">you</span>
-                  <div className="bg-[#2a3a6a] rounded-lg px-3 py-2 text-[0.65rem] text-white/60 leading-snug">
-                    I KNOW wait for it
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[0.58rem] text-white/25">maya</span>
-                  <div className="bg-[#1e2c42] rounded-lg px-3 py-2 text-[0.65rem] text-white/50 leading-snug">
-                    pause!! I need a snack
-                  </div>
-                </div>
-              </div>
-              <div className="p-2 border-t border-white/[0.06]">
-                <div className="bg-[#1e2a40] rounded-md h-7 px-3 flex items-center text-[0.62rem] text-white/20">
-                  Message...
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="relative w-full flex justify-center mb-24">
+        <div className="w-full max-w-3xl">
+          <Screen />
         </div>
       </div>
 
