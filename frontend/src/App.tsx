@@ -1,7 +1,33 @@
+import { useEffect } from "react";
 import "./index.css";
 import Navbar from "./Navbar";
+import { animate, scrambleText, utils } from "animejs";
 
 export default function App() {
+  const texts = ["wherever you are", "whenever you want"];
+
+  useEffect(() => {
+    const [$scramble] = utils.$(".scramble");
+    if (!$scramble) return;
+
+    let i = 0;
+
+    const run = () => {
+      animate($scramble, {
+        innerHTML: scrambleText({ text: texts[i], duration: 1100 }),
+        duration: 1200,
+        onComplete: () => {
+          setTimeout(() => {
+            i = (i + 1) % texts.length;
+            run();
+          }, 2000);
+        },
+      });
+    };
+
+    run();
+  }, []);
+
   return (
     <div
       className="min-h-screen bg-background text-text overflow-x-hidden overflow-y-hidden"
@@ -15,7 +41,9 @@ export default function App() {
         <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6 max-w-3xl mx-auto">
           Watch together,
           <br />
-          <span className="text-primary">wherever you are</span>
+          <span className="text-primary scramble whitespace-nowrap">
+            wherever you are
+          </span>
         </h1>
         <p className="text-[1.05rem] text-white/40 max-w-md mx-auto leading-relaxed mb-10">
           Sync your player with friends and chat in real-time{" "}
