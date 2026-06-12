@@ -6,13 +6,8 @@ export default function Screen() {
     let cancelled = false;
 
     const timeEl = document.getElementById("video-time");
-
     const total = 12 * 60 + 18;
-
-    const state = {
-      t: 0,
-      p: 0,
-    };
+    const state = { t: 0, p: 0 };
 
     animate(state, {
       t: total,
