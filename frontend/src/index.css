@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #4059ad;
+  --primary-hover: #31448a;
+
+  --background: #121826;
+  --text: #f9f8f8;
+
+  --critical: #d23742;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+
+  --color-background: var(--background);
+  --color-text: var(--text);
+
+  --color-critical: var(--critical);
+}
