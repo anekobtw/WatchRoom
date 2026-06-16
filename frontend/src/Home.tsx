@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import "./index.css";
 import { animate, scrambleText, utils } from "animejs";
 import Mockup from "./Mockup";
-import Cinema from "./Cinema";
 
 export default function Home() {
   const texts = ["wherever you are", "whenever you want"];
@@ -35,28 +34,40 @@ export default function Home() {
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       {/* Hero */}
-      <section className="relative overflow-hidden px-6 pb-28 pt-24 sm:pt-32 text-center mb-10">
-        <Cinema />
+      <section className="relative overflow-hidden px-6 pb-28 pt-24 sm:pt-32 mb-10 min-h-[80vh] flex items-center">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url(/poster.png)",
+            backgroundPosition: "center 57%",
+          }}
+        />
 
-        <div className="relative z-10">
-          <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6 max-w-3xl mx-auto">
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#121826] via-[#121826]/40 to-transparent" />
+
+        <div className="relative z-10 max-w-2xl text-left">
+          <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6">
             Watch together,
             <br />
             <span className="text-primary scramble whitespace-nowrap">
               wherever you are
             </span>
           </h1>
-          <p className="text-[1.05rem] text-white/40 max-w-md mx-auto leading-relaxed mb-10">
+
+          <p className="text-[1.05rem] text-white/40 leading-relaxed mb-10 max-w-md">
             Sync your player with friends and chat in real-time{" "}
             <b>Completely for free.</b>
           </p>
-          <div className="flex gap-3 justify-center flex-wrap">
+
+          <div className="flex gap-3 flex-wrap">
             <a
               href="#"
               className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
             >
               Start a room
             </a>
+
             <a
               href="#"
               className="bg-transparent hover:bg-white/5 border border-white/15 hover:border-white/30 text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
