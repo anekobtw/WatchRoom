@@ -1,100 +1,62 @@
-import { useEffect } from "react";
-import { utils, animate, stagger } from "animejs";
+import { useEffect, useRef, useCallback } from "react";
+import { animate, stagger } from "animejs";
+import "./index.css";
 
-function Mockup() {
+export default function Mockup() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useRef(false);
+  const animationCleanup = useRef<(() => void)[]>([]);
+  const dotTimeoutsRef = useRef<number[]>([]);
+  const stopDotsRef = useRef<(() => void) | null>(null);
+
+  const cleanup = useCallback(() => {
+    animationCleanup.current.forEach((fn) => fn());
+    animationCleanup.current = [];
+    dotTimeoutsRef.current.forEach((id) => clearTimeout(id));
+    dotTimeoutsRef.current = [];
+    if (stopDotsRef.current) {
+      stopDotsRef.current();
+      stopDotsRef.current = null;
+    }
+  }, []);
+
   useEffect(() => {
-    let cancelled = false;
+    mountedRef.current = true;
 
-    const timeEl = document.getElementById("video-time");
-    const total = 12 * 60 + 18;
-    const state = { t: 0, p: 0 };
+    const delay = (ms: number) =>
+      new Promise<boolean>((resolve) => {
+        const id = window.setTimeout(() => {
+          resolve(!mountedRef.current);
+        }, ms);
+        dotTimeoutsRef.current.push(id);
+        return id;
+      });
 
-    animate(state, {
-      t: total,
-      p: 1,
-      duration: 18000,
-      easing: "linear",
-      loop: true,
-      onUpdate: () => {
-        if (!timeEl) return;
-        const format = (s) => {
-          const m = Math.floor(s / 60);
-          const sec = Math.floor(s % 60);
-          return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-        };
-        timeEl.textContent = `${format(state.t)} / 12:18`;
-        const progress = document.getElementById("video-progress");
-        if (progress) {
-          progress.style.width = `${state.p * 100}%`;
-        }
-      },
-    });
+    const revertAnim = (instance: any) => {
+      if (instance && typeof instance.revert === "function") {
+        instance.revert();
+      }
+    };
 
-    animate("#video-jitter", {
-      opacity: [0.02, 0.08],
-      translateX: [-1, 1],
-      translateY: [-1, 1],
-      duration: 90,
-      loop: true,
-      alternate: true,
-      ease: "linear",
-    });
-
-    animate("#screen-glow", {
-      opacity: [0.12, 0.28],
-      duration: 1800,
-      ease: "inOutSine",
-      loop: true,
-      alternate: true,
-    });
-
-    animate("#video-progress", {
-      duration: 18000,
-      ease: "linear",
-      loop: true,
-    });
-
-    animate("#screen-scanlines", {
-      opacity: [0.06, 0.14],
-      duration: 120,
-      ease: "linear",
-      loop: true,
-      alternate: true,
-    });
-
-    animate("#screen-ray", {
-      opacity: [0.04, 0.1],
-      duration: 2400,
-      ease: "inOutSine",
-      loop: true,
-      alternate: true,
-    });
-
-    const bubbles = ["#cb1", "#cb2", "#cb3", "#cb4"];
-
-    const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-    let dotLoopRunning = false;
-    let activeDot = 0;
-
-    const startDots = () => {
-      const dots = utils.$(".dot");
-      dotLoopRunning = true;
+    const startDots = (dots: HTMLElement[]) => {
+      let activeDot = 0;
+      let running = true;
 
       const cycle = () => {
-        if (!dotLoopRunning) return;
+        if (!running || !mountedRef.current) return;
 
         const current = dots[activeDot];
-        const next = dots[(activeDot + 1) % 3];
+        const next = dots[(activeDot + 1) % dots.length];
 
-        animate(current, {
+        const a1 = animate(current, {
           translateY: [0, -7, 0],
           scale: [1, 1.15, 1],
           duration: 520,
           ease: "inOutSine",
         });
+        animationCleanup.current.push(() => revertAnim(a1));
 
-        animate(current, {
+        const a2 = animate(current, {
           backgroundColor: [
             "rgba(255,255,255,0.4)",
             "rgba(255,255,255,0.9)",
@@ -103,129 +65,249 @@ function Mockup() {
           duration: 520,
           ease: "linear",
         });
+        animationCleanup.current.push(() => revertAnim(a2));
 
-        animate(next, {
+        const a3 = animate(next, {
           backgroundColor: ["rgba(255,255,255,0.4)", "rgba(255,255,255,0.6)"],
           duration: 900,
           ease: "linear",
         });
+        animationCleanup.current.push(() => revertAnim(a3));
 
-        activeDot = (activeDot + 1) % 3;
+        activeDot = (activeDot + 1) % dots.length;
 
-        setTimeout(cycle, 320);
+        const id = window.setTimeout(cycle, 320);
+        dotTimeoutsRef.current.push(id);
       };
 
       cycle();
-    };
 
-    const stopDots = () => {
-      dotLoopRunning = false;
-
-      utils.$(".dot").forEach((d: any) => {
-        d.style.transform = "translateY(0px) scale(1)";
-        d.style.backgroundColor = "rgba(255,255,255,0.4)";
-      });
-    };
-
-    const setTyping = (on: boolean) => {
-      const el = utils.$(".typing")[0];
-      if (!el) return;
-
-      return new Promise<void>((resolve) => {
-        animate(el, {
-          opacity: on ? [0, 1] : [1, 0],
-          translateY: on ? [4, 0] : [0, 4],
-          duration: 180,
-          ease: "outQuad",
-          onComplete: () => {
-            if (on) startDots();
-            else stopDots();
-            resolve();
-          },
+      return () => {
+        running = false;
+        dots.forEach((d) => {
+          d.style.transform = "translateY(0px) scale(1)";
+          d.style.backgroundColor = "rgba(255,255,255,0.4)";
         });
+      };
+    };
+
+    const resetBubbles = (bubbles: HTMLElement[]) => {
+      bubbles.forEach((b) => {
+        b.style.opacity = "0";
+        b.style.transform = "translateX(-6px)";
       });
     };
 
-    const chatLoop = async () => {
-      while (!cancelled) {
+    const runChatLoop = async (
+      bubbles: HTMLElement[],
+      typingEl: HTMLElement,
+      dots: HTMLElement[],
+    ) => {
+      resetBubbles(bubbles);
+
+      while (mountedRef.current) {
         for (let i = 0; i < bubbles.length; i++) {
-          if (cancelled) return;
+          if (!mountedRef.current) return;
 
-          await setTyping(true);
-          await delay(400);
-
-          await new Promise<void>((resolve) => {
-            animate(bubbles[i], {
-              opacity: [0, 1],
-              translateX: [-6, 0],
-              duration: 340,
-              ease: "outBack(1.4)",
-              onComplete: () => resolve(),
-            });
+          const a1 = animate(typingEl, {
+            opacity: [0, 1],
+            translateY: [4, 0],
+            duration: 180,
+            ease: "outQuad",
           });
+          animationCleanup.current.push(() => revertAnim(a1));
 
-          await setTyping(false);
+          const typingReady = await delay(180);
+          if (typingReady || !mountedRef.current) return;
 
-          await delay(900 + i * 200);
+          const stopFn = startDots(dots);
+          stopDotsRef.current = stopFn;
+
+          const dotsReady = await delay(400);
+          if (dotsReady || !mountedRef.current) {
+            stopFn();
+            return;
+          }
+
+          const a2 = animate(bubbles[i], {
+            opacity: [0, 1],
+            translateX: [-6, 0],
+            duration: 340,
+            ease: "outBack(1.4)",
+          });
+          animationCleanup.current.push(() => revertAnim(a2));
+
+          const bubbleReady = await delay(340);
+          if (bubbleReady || !mountedRef.current) {
+            stopFn();
+            return;
+          }
+
+          const a3 = animate(typingEl, {
+            opacity: [1, 0],
+            translateY: [0, 4],
+            duration: 180,
+            ease: "outQuad",
+          });
+          animationCleanup.current.push(() => revertAnim(a3));
+
+          const typingOutReady = await delay(180);
+          if (typingOutReady || !mountedRef.current) {
+            stopFn();
+            return;
+          }
+          stopFn();
+          stopDotsRef.current = null;
+
+          const pauseReady = await delay(900 + i * 200);
+          if (pauseReady || !mountedRef.current) return;
         }
 
-        await delay(800);
+        const waitReady = await delay(800);
+        if (waitReady || !mountedRef.current) return;
 
-        await new Promise<void>((resolve) => {
-          animate(bubbles, {
-            opacity: [1, 0],
-            translateX: [0, -4],
-            duration: 280,
-            ease: "inQuad",
-            delay: stagger(60),
-            onComplete: () => resolve(),
-          });
+        const a4 = animate(bubbles, {
+          opacity: [1, 0],
+          translateX: [0, -4],
+          duration: 280,
+          ease: "inQuad",
+          delay: stagger(60),
         });
+        animationCleanup.current.push(() => revertAnim(a4));
 
-        await delay(600);
+        const fadeReady = await delay(280 + bubbles.length * 60 + 100);
+        if (fadeReady || !mountedRef.current) return;
+
+        resetBubbles(bubbles);
+
+        const resetReady = await delay(600);
+        if (resetReady || !mountedRef.current) return;
       }
     };
 
-    chatLoop();
+    if (!containerRef.current) return;
+
+    const node = containerRef.current;
+
+    const timeEl = node.querySelector<HTMLSpanElement>("[data-time]");
+    const videoProgress = node.querySelector<HTMLDivElement>("[data-progress]");
+    const videoJitter = node.querySelector<HTMLDivElement>("[data-jitter]");
+    const screenGlow = node.querySelector<HTMLDivElement>("[data-glow]");
+    const screenScanlines =
+      node.querySelector<HTMLDivElement>("[data-scanlines]");
+    const screenRay = node.querySelector<HTMLDivElement>("[data-ray]");
+    const typingEl = node.querySelector<HTMLDivElement>("[data-typing]");
+    const bubbles = Array.from(
+      node.querySelectorAll<HTMLDivElement>("[data-bubble]"),
+    );
+    const dots = Array.from(
+      node.querySelectorAll<HTMLSpanElement>("[data-dot]"),
+    );
+
+    const total = 12 * 60 + 18;
+    const state = { t: 0, p: 0 };
+
+    const animTime = animate(state, {
+      t: total,
+      p: 1,
+      duration: 18000,
+      easing: "linear",
+      loop: true,
+      onUpdate: () => {
+        if (!timeEl || !videoProgress) return;
+        const format = (s: number) => {
+          const m = Math.floor(s / 60);
+          const sec = Math.floor(s % 60);
+          return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+        };
+        timeEl.textContent = `${format(state.t)} / 12:18`;
+        videoProgress.style.width = `${state.p * 100}%`;
+      },
+    });
+    animationCleanup.current.push(() => revertAnim(animTime));
+
+    if (videoJitter) {
+      const a = animate(videoJitter, {
+        opacity: [0.02, 0.08],
+        translateX: [-1, 1],
+        translateY: [-1, 1],
+        duration: 90,
+        loop: true,
+        alternate: true,
+        ease: "linear",
+      });
+      animationCleanup.current.push(() => revertAnim(a));
+    }
+
+    if (screenGlow) {
+      const a = animate(screenGlow, {
+        opacity: [0.12, 0.28],
+        duration: 1800,
+        ease: "inOutSine",
+        loop: true,
+        alternate: true,
+      });
+      animationCleanup.current.push(() => revertAnim(a));
+    }
+
+    if (screenScanlines) {
+      const a = animate(screenScanlines, {
+        opacity: [0.06, 0.14],
+        duration: 120,
+        ease: "linear",
+        loop: true,
+        alternate: true,
+      });
+      animationCleanup.current.push(() => revertAnim(a));
+    }
+
+    if (screenRay) {
+      const a = animate(screenRay, {
+        opacity: [0.04, 0.1],
+        duration: 2400,
+        ease: "inOutSine",
+        loop: true,
+        alternate: true,
+      });
+      animationCleanup.current.push(() => revertAnim(a));
+    }
+
+    if (bubbles.length > 0 && typingEl && dots.length > 0) {
+      runChatLoop(bubbles, typingEl, dots);
+    }
 
     return () => {
-      cancelled = true;
+      mountedRef.current = false;
+      cleanup();
     };
-  }, []);
+  }, [cleanup]);
 
   return (
-    <section id="preview" className="px-4 sm:px-6 py-16 sm:py-20">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 sm:mb-10 max-w-2xl">
-          <span className="eyebrow text-primary-soft">The watch party</span>
-          <h2 className="display-lg mt-3">
-            A shared screen, and the group right beside it
-          </h2>
-          <p className="mt-4 text-muted">
-            Everyone sees the same frame at the same second, with the chat alive
-            on the right. This is what a room looks like.
-          </p>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
+    <section id="preview" className="px-4 sm:px-6 py-16 sm:py-20 w-full">
+      <div className="mx-auto w-full">
+        <div
+          ref={containerRef}
+          className="grid gap-4 lg:grid-cols-[1.7fr_1fr] w-full min-w-0"
+        >
           {/* Left: Video mockup */}
           <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl">
             <div className="flex items-center gap-2 border-b border-line bg-background/60 px-4 py-3">
               <span className="h-3 w-3 rounded-full bg-critical/70"></span>
-              <span className="h-3 w-3 rounded-full bg-primary-soft/50"></span>
+              <span className="h-3 w-3 rounded-full bg-primary/70"></span>
               <span className="h-3 w-3 rounded-full bg-white/15"></span>
-              <span className="ml-3 truncate text-xs text-faint">
+              <span className="ml-3 truncate text-xs text-gray-500">
                 watchtogether.app/room/movie-night
               </span>
             </div>
             <div className="relative aspect-video bg-gradient-to-br from-[#1c2540] via-[#161d31] to-[#0d1320]">
-              <div id="video-jitter" className="absolute inset-0 bg-white/5" />
+              <div data-jitter className="absolute inset-0 bg-white/5" />
               <div
-                id="screen-scanlines"
+                data-scanlines
                 className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.03)_3px)]"
               />
-              <div id="screen-glow" className="absolute inset-0 bg-primary/20" />
-              <div id="screen-ray" className="absolute inset-0 bg-white/5" />
-              
+              <div data-glow className="absolute inset-0 bg-primary/20" />
+              <div data-ray className="absolute inset-0 bg-white/5" />
+
               <div className="absolute inset-0 grid grid-cols-4 gap-px opacity-[0.06]">
                 <div className="bg-white"></div>
                 <div className="bg-white"></div>
@@ -243,75 +325,102 @@ function Mockup() {
               <div className="absolute left-4 top-4 flex items-center gap-2 rounded-md bg-critical px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-white">
                 <span className="h-1.5 w-1.5 rounded-full bg-white"></span>LIVE
               </div>
-              <div className="absolute right-4 top-4 rounded-md bg-black/40 px-2.5 py-1 text-[0.65rem] font-semibold text-text/80">
-                6 watching
-              </div>
-              <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary/90 shadow-lg shadow-primary/40">
-                <span className="ml-1 inline-block border-y-[12px] border-l-[20px] border-y-transparent border-l-text"></span>
-              </div>
             </div>
             <div className="bg-background/60 px-4 py-3">
               <div className="relative h-1.5 w-full rounded-full bg-white/10">
-                <div id="video-progress" className="absolute inset-y-0 left-0 bg-primary" style={{ width: '0%' }} />
+                <div
+                  data-progress
+                  className="absolute inset-y-0 left-0 bg-primary"
+                  style={{ width: "0%" }}
+                />
               </div>
               <div className="mt-2 flex items-center justify-between text-[0.7rem] text-faint">
-                <span id="video-time">00:00 / 12:18</span>
-                <span className="flex items-center gap-1.5 text-primary-soft">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary-soft"></span>
-                  In sync with everyone
+                <span data-time className="text-faint">
+                  00:00 / 12:18
                 </span>
-                <span>1:54:08</span>
               </div>
             </div>
           </div>
 
           {/* Right: Chat panel */}
-          <div className="flex flex-col rounded-2xl border border-line bg-surface">
+          <div className="flex flex-col rounded-2xl border border-line bg-surface/40 min-w-0 min-h-[400px]">
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
               <span className="text-sm font-bold">Room chat</span>
               <span className="text-[0.7rem] text-faint">4 online</span>
             </div>
-            <div className="flex flex-1 flex-col gap-4 p-4">
-              <div id="cb1" className="flex items-start gap-2.5 opacity-0">
-                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-gradient-to-br from-[#6f80cf] to-[#34416f]"></span>
+            <div className="flex flex-1 flex-col gap-4 p-4 overflow-hidden">
+              <div data-bubble className="flex items-start gap-2.5 opacity-0">
+                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-linear-to-br from-[#cf6f9c] to-[#6f3454]"></span>
                 <div>
-                  <div className="text-[0.7rem] font-semibold text-faint">Maya</div>
-                  <div className="mt-1 inline-block rounded-2xl px-3 py-2 text-sm rounded-tl-sm bg-surface-2 text-text/85">
-                    this part is so good
-                  </div>
-                </div>
-              </div>
-              <div id="cb2" className="flex items-start gap-2.5 flex-row-reverse text-right opacity-0">
-                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-gradient-to-br from-[#8ea0e8] to-[#4059ad]"></span>
-                <div>
-                  <div className="text-[0.7rem] font-semibold text-faint">You</div>
-                  <div className="mt-1 inline-block rounded-2xl px-3 py-2 text-sm rounded-tr-sm bg-primary text-text">
+                  <div className="text-[0.7rem] font-semibold">maya</div>
+                  <div className="mt-1 inline-block rounded-2xl px-3 py-2 text-sm rounded-tl-sm bg-surface-2 text-foreground/85">
                     omg this part 😭
                   </div>
                 </div>
               </div>
-              <div id="cb3" className="flex items-start gap-2.5 opacity-0">
-                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-gradient-to-br from-[#6f80cf] to-[#34416f]"></span>
+              <div
+                data-bubble
+                className="flex items-start gap-2.5 flex-row-reverse text-right opacity-0"
+              >
+                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-linear-to-br from-[#8ea0e8] to-[#4059ad]"></span>
                 <div>
-                  <div className="text-[0.7rem] font-semibold text-faint">Maya</div>
-                  <div className="mt-1 inline-block rounded-2xl px-3 py-2 text-sm rounded-tl-sm bg-surface-2 text-text/85">
+                  <div className="text-[0.7rem] font-semibold text-faint">
+                    you
+                  </div>
+                  <div className="mt-1 inline-block rounded-2xl px-3 py-2 text-sm rounded-tr-sm bg-primary text-foreground/85">
                     I KNOW wait for it
                   </div>
                 </div>
               </div>
-              <div id="cb4" className="flex items-start gap-2.5 opacity-0">
-                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-gradient-to-br from-[#cf6f9c] to-[#6f3454]"></span>
+              <div data-bubble className="flex items-start gap-2.5 opacity-0">
+                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-linear-to-br from-[#cf6f9c] to-[#6f3454]"></span>
                 <div>
-                  <div className="text-[0.7rem] font-semibold text-faint">Theo</div>
+                  <div className="text-[0.7rem] font-semibold text-faint">
+                    maya
+                  </div>
                   <div className="mt-1 inline-block rounded-2xl px-3 py-2 text-sm rounded-tl-sm bg-surface-2 text-text/85">
                     pause!! I need a snack
                   </div>
                 </div>
               </div>
+              <div
+                data-bubble
+                className="flex items-start gap-2.5 flex-row-reverse text-right opacity-0"
+              >
+                <span className="mt-0.5 h-7 w-7 flex-none rounded-full bg-linear-to-br from-[#8ea0e8] to-[#4059ad]"></span>
+                <div>
+                  <div className="text-[0.7rem] font-semibold text-faint">
+                    you
+                  </div>
+                  <div className="mt-1 inline-block rounded-2xl px-3 py-2 text-sm rounded-tr-sm bg-primary text-foreground/85">
+                    wait
+                  </div>
+                </div>
+              </div>
+
+              {/* typing + dots */}
+              <div
+                data-typing
+                className="flex items-center gap-1.5 px-2 py-1 opacity-0 w-fit"
+              >
+                <span
+                  data-dot
+                  className="w-1.5 h-1.5 bg-white/40 rounded-full"
+                />
+                <span
+                  data-dot
+                  className="w-1.5 h-1.5 bg-white/40 rounded-full"
+                />
+                <span
+                  data-dot
+                  className="w-1.5 h-1.5 bg-white/40 rounded-full"
+                />
+              </div>
             </div>
+
             <div className="border-t border-line p-3">
-              <div className="flex items-center gap-2 rounded-full border border-line bg-background/60 px-4 py-2.5">
-                <span className="text-sm text-faint">Say something…</span>
+              <div className="flex items-center gap-2 rounded-full border border-line bg-surface/40 px-4 py-2.5">
+                <span className="text-sm text-gray-500">Send message...</span>
                 <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-primary">
                   <span className="inline-block border-y-[5px] border-l-[8px] border-y-transparent border-l-text"></span>
                 </span>
@@ -323,5 +432,3 @@ function Mockup() {
     </section>
   );
 }
-
-export default Mockup;

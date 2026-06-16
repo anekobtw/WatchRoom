@@ -69,7 +69,7 @@ export default function Home() {
 
       {/* Mockup */}
       <div className="relative w-full flex justify-center mb-24">
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-6xl">
           <Mockup />
         </div>
       </div>
