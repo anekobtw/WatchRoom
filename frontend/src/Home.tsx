@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import "./index.css";
 import { animate, scrambleText, utils } from "animejs";
-import Screen from "./Screen";
+import Mockup from "./Mockup";
 import Cinema from "./Cinema";
 
 export default function Home() {
@@ -70,7 +70,7 @@ export default function Home() {
       {/* Mockup */}
       <div className="relative w-full flex justify-center mb-24">
         <div className="w-full max-w-3xl">
-          <Screen />
+          <Mockup />
         </div>
       </div>
 
