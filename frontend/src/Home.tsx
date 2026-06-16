@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import "./index.css";
-import Navbar from "./Navbar";
 import { animate, scrambleText, utils } from "animejs";
 import Screen from "./Screen";
 
-export default function App() {
+export default function Home() {
   const texts = ["wherever you are", "whenever you want"];
 
   useEffect(() => {
@@ -34,9 +33,6 @@ export default function App() {
       className="min-h-screen bg-background text-text overflow-x-hidden overflow-y-hidden"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
-      {/* Nav */}
-      <Navbar />
-
       {/* Hero */}
       <section className="pt-40 pb-24 px-12 text-center">
         <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6 max-w-3xl mx-auto">
