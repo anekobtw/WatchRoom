@@ -5,7 +5,14 @@
   --primary-hover: #31448a;
 
   --background: #121826;
-  --text: #f9f8f8;
+  --foreground: #f9f8f8;
+
+  --surface: #1a2340;
+  --surface-2: #223055;
+
+  /* --surface: #161d31; */
+  /* --surface-2: #1b2440; */
+  --line: rgba(255, 255, 255, 0.08);
 
   --critical: #d23742;
 }
@@ -15,7 +22,11 @@
   --color-primary-hover: var(--primary-hover);
 
   --color-background: var(--background);
-  --color-text: var(--text);
+  --color-foreground: var(--foreground);
+
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-line: var(--line);
 
   --color-critical: var(--critical);
 }

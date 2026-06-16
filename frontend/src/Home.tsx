@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import "./index.css";
 import { animate, scrambleText, utils } from "animejs";
 import Screen from "./Screen";
+import Cinema from "./Cinema";
 
 export default function Home() {
   const texts = ["wherever you are", "whenever you want"];
@@ -30,35 +31,39 @@ export default function Home() {
 
   return (
     <div
-      className="min-h-screen bg-background text-text overflow-x-hidden overflow-y-hidden"
+      className="min-h-screen bg-background text-foreground overflow-x-hidden overflow-y-hidden"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       {/* Hero */}
-      <section className="pt-40 pb-24 px-12 text-center">
-        <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6 max-w-3xl mx-auto">
-          Watch together,
-          <br />
-          <span className="text-primary scramble whitespace-nowrap">
-            wherever you are
-          </span>
-        </h1>
-        <p className="text-[1.05rem] text-white/40 max-w-md mx-auto leading-relaxed mb-10">
-          Sync your player with friends and chat in real-time{" "}
-          <b>Completely for free.</b>
-        </p>
-        <div className="flex gap-3 justify-center flex-wrap">
-          <a
-            href="#"
-            className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
-          >
-            Start a room
-          </a>
-          <a
-            href="#"
-            className="bg-transparent hover:bg-white/5 border border-white/15 hover:border-white/30 text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
-          >
-            See how it works
-          </a>
+      <section className="relative overflow-hidden px-6 pb-28 pt-24 sm:pt-32 text-center mb-10">
+        <Cinema />
+
+        <div className="relative z-10">
+          <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6 max-w-3xl mx-auto">
+            Watch together,
+            <br />
+            <span className="text-primary scramble whitespace-nowrap">
+              wherever you are
+            </span>
+          </h1>
+          <p className="text-[1.05rem] text-white/40 max-w-md mx-auto leading-relaxed mb-10">
+            Sync your player with friends and chat in real-time{" "}
+            <b>Completely for free.</b>
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <a
+              href="#"
+              className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
+            >
+              Start a room
+            </a>
+            <a
+              href="#"
+              className="bg-transparent hover:bg-white/5 border border-white/15 hover:border-white/30 text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
+            >
+              See how it works
+            </a>
+          </div>
         </div>
       </section>
 
