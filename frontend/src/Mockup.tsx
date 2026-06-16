@@ -299,7 +299,7 @@ export default function Mockup() {
                 watchtogether.app/room/movie-night
               </span>
             </div>
-            <div className="relative aspect-video bg-gradient-to-br from-[#1c2540] via-[#161d31] to-[#0d1320]">
+            <div className="relative aspect-video bg-gradient-to-br from-surface-2/10 to-surface/10">
               <div data-jitter className="absolute inset-0 bg-white/5" />
               <div
                 data-scanlines
@@ -308,20 +308,6 @@ export default function Mockup() {
               <div data-glow className="absolute inset-0 bg-primary/20" />
               <div data-ray className="absolute inset-0 bg-white/5" />
 
-              <div className="absolute inset-0 grid grid-cols-4 gap-px opacity-[0.06]">
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-                <div className="bg-white"></div>
-              </div>
               <div className="absolute left-4 top-4 flex items-center gap-2 rounded-md bg-critical px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-white">
                 <span className="h-1.5 w-1.5 rounded-full bg-white"></span>LIVE
               </div>

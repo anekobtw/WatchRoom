@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./index.css";
 import { animate, scrambleText, utils } from "animejs";
 import Mockup from "./Mockup";
+import CreateRoom from "./CreateRoom";
 
 export default function Home() {
+  const [open, setOpen] = useState(false);
+
   const texts = ["wherever you are", "whenever you want"];
 
   useEffect(() => {
@@ -29,23 +32,35 @@ export default function Home() {
   }, []);
 
   return (
-    <div
-      className="min-h-screen bg-background text-foreground overflow-x-hidden overflow-y-hidden"
-      style={{ fontFamily: "'Inter', sans-serif" }}
-    >
+    <div className="font-sans min-h-screen bg-background text-foreground overflow-x-hidden overflow-y-hidden">
+      {/* dim layer */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/70 z-40"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* modal */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <CreateRoom onClose={() => setOpen(false)} />
+        </div>
+      )}
+
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-28 pt-24 sm:pt-32 mb-10 min-h-[80vh] flex items-center">
         <img
           src="/poster.png"
-          className="absolute inset-0 w-full h-full object-cover object-[90%_56%]"
+          className="absolute inset-0 w-full h-full object-cover object-[0%_56%]"
         />
 
         <div className="absolute inset-0 bg-linear-to-b from-black via-black/10 to-transparent" />
         <div className="absolute inset-0 bg-linear-to-r from-black to-transparent" />
         <div className="absolute inset-0 bg-linear-to-r from-black to-transparent" />
-        <div className="absolute inset-0 bg-linear-to-t from-background via-background/5 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-background via-background/15 to-transparent" />
 
-        <div className="relative z-10 max-w-2xl text-left">
+        <div className="relative z-10 max-w-2xl text-left ml-15">
           <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6">
             Watch together,
             <br />
@@ -62,6 +77,7 @@ export default function Home() {
           <div className="flex gap-3 flex-wrap">
             <a
               href="#"
+              onClick={() => setOpen(true)}
               className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
             >
               Create a room
@@ -82,25 +98,6 @@ export default function Home() {
         <div className="w-full max-w-6xl">
           <Mockup />
         </div>
-      </div>
-
-      {/* Stats */}
-      <div className="max-w-5xl mx-auto px-12 pb-20 flex items-center gap-10 border-t border-white/[0.05] pt-16">
-        {[
-          ["2.4M", "Watch sessions hosted"],
-          ["180ms", "Average sync latency"],
-          ["140+", "Countries represented"],
-        ].map(([n, l], i) => (
-          <>
-            <div key={i} className="flex-1 text-center">
-              <div className="font-syne font-extrabold text-[2.4rem] tracking-[-0.03em]">
-                {n}
-              </div>
-              <div className="text-[0.8rem] text-white/25 mt-1">{l}</div>
-            </div>
-            {i < 2 && <div className="w-px self-stretch bg-white/[0.05]" />}
-          </>
-        ))}
       </div>
     </div>
   );

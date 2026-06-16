@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  --font-sans: "Inter", sans-serif;
+
   --primary: #4059ad;
   --primary-hover: #31448a;
 
