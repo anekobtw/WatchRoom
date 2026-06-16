@@ -35,16 +35,15 @@ export default function Home() {
     >
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-28 pt-24 sm:pt-32 mb-10 min-h-[80vh] flex items-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url(/poster.png)",
-            backgroundPosition: "center 57%",
-          }}
+        <img
+          src="/poster.png"
+          className="absolute inset-0 w-full h-full object-cover object-[90%_56%]"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#121826] via-[#121826]/40 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-black via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-black to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-black to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-background via-background/5 to-transparent" />
 
         <div className="relative z-10 max-w-2xl text-left">
           <h1 className="font-syne font-extrabold text-[clamp(2.8rem,6vw,5rem)] leading-[1.05] tracking-[-0.03em] mb-6">
@@ -65,7 +64,7 @@ export default function Home() {
               href="#"
               className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5"
             >
-              Start a room
+              Create a room
             </a>
 
             <a
@@ -103,26 +102,6 @@ export default function Home() {
           </>
         ))}
       </div>
-
-      {/* CTA */}
-      <section className="max-w-5xl mx-auto px-12 mb-20">
-        <div className="bg-primary/10 border border-primary/20 rounded-3xl px-12 py-20 text-center">
-          <h2 className="font-syne font-extrabold text-[clamp(1.8rem,3.5vw,2.8rem)] tracking-[-0.03em] mb-4">
-            Your next movie night
-            <br />
-            starts here
-          </h2>
-          <p className="text-white/35 text-[0.95rem] mb-10">
-            Free forever for rooms up to 8 people.
-          </p>
-          <a
-            href="#"
-            className="bg-primary hover:bg-primary-hover text-text text-[0.95rem] font-medium px-8 py-4 rounded-xl transition-all hover:-translate-y-px inline-block"
-          >
-            Create a room
-          </a>
-        </div>
-      </section>
     </div>
   );
 }
