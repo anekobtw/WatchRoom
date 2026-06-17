@@ -4,24 +4,26 @@ import { animate, scrambleText, utils } from "animejs";
 import Mockup from "./Mockup";
 
 export default function Home() {
-  const texts = ["wherever you are", "whenever you want"];
-
   useEffect(() => {
     const [$scramble] = utils.$(".scramble");
     if (!$scramble) return;
 
+    const texts = ["wherever you are", "whenever you want"];
     let i = 0;
 
-    function play() {
-      i = (i + 1) % texts.length;
-
+    const play = () => {
       animate($scramble, {
-        innerHTML: scrambleText({ text: texts[i] }),
-        duration: 4000,
-        loop: true,
-        loopDelay: 2000,
+        innerHTML: scrambleText({
+          text: texts[i],
+          revealRate: 15,
+          from: "left",
+        }),
+        onComplete: () => {
+          i = (i + 1) % texts.length;
+          setTimeout(play, 3000);
+        },
       });
-    }
+    };
 
     play();
   }, []);
