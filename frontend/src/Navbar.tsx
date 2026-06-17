@@ -6,31 +6,33 @@ const navLinks = new Map([
 
 export default function Navbar() {
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4">
-      <span className="font-syne font-extrabold text-lg tracking-tight text-white">
-        WatchTogether
-      </span>
+    <nav className="absolute inset-x-0 top-0 z-50">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
+        <span className="font-syne text-xl font-extrabold text-white">
+          WatchTogether
+        </span>
 
-      <div className="flex items-center gap-5 md:gap-8">
-        {[...navLinks.entries()].map(([label, href]) =>
-          label === "Get started" ? (
-            <a
-              key={label}
-              href={href}
-              className="bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-hover transition-colors shadow-sm"
-            >
-              {label}
-            </a>
-          ) : (
-            <a
-              key={label}
-              href={href}
-              className="text-sm text-white/50 hover:text-white transition-colors"
-            >
-              {label}
-            </a>
-          ),
-        )}
+        <div className="flex items-center gap-8">
+          {[...navLinks.entries()].map(([label, href]) =>
+            label === "Get started" ? (
+              <a
+                key={label}
+                href={href}
+                className="rounded-xl bg-primary/90 px-4 py-2 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-primary"
+              >
+                {label}
+              </a>
+            ) : (
+              <a
+                key={label}
+                href={href}
+                className="text-sm text-white/70 transition-colors hover:text-white"
+              >
+                {label}
+              </a>
+            ),
+          )}
+        </div>
       </div>
     </nav>
   );

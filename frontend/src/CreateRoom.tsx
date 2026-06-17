@@ -13,7 +13,7 @@ export default function CreateRoom({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="w-full max-w-md p-4">
-      <form className="bg-background border border-surface p-6 rounded-xl font-sans">
+      <form className="bg-background border border-surface p-6 rounded-xl font-inter">
         <div className="flex justify-end">
           <button
             type="button"
