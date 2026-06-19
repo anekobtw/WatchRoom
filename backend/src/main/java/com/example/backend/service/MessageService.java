@@ -35,6 +35,11 @@ public class MessageService {
           roomService.updateRoom(data, session);
         }
 
+        case "CHAT" -> {
+          String text = node.get("text").asString();
+          roomService.broadcastChat(session, text);
+        }
+
         default -> {
         }
       }

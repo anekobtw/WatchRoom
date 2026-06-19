@@ -72,40 +72,52 @@ public class RoomService {
     broadcast(entity);
   }
 
-  private void broadcast(RoomEntity entity) {
-    try {
-      StateUpdateDto dto = StateUpdateDto.builder()
-              .type("STATE")
-              .videoUrl(entity.getVideoUrl())
-              .videoTimestamp(entity.getVideoTimestamp())
-              .playing(entity.isPlaying())
-              .build();
+  public void broadcastChat(WebSocketSession sender, String text) {
+    String roomId = sessionRoom.get(sender);
+    if (roomId == null) return;
 
-      String json = mapper.writeValueAsString(dto);
+    var node = mapper.createObjectNode();
+    node.put("type", "CHAT");
+    node.put("text", text);
+    node.put("ts", System.currentTimeMillis());
+
+    broadcastToRoom(roomId, node);
+  }
+
+  private void broadcast(RoomEntity entity) {
+    var dto = StateUpdateDto.builder()
+            .type("STATE")
+            .videoUrl(entity.getVideoUrl())
+            .videoTimestamp(entity.getVideoTimestamp())
+            .playing(entity.isPlaying())
+            .build();
+
+    broadcastToRoom(entity.getRoomId(), dto);
+  }
+
+  private void broadcastToRoom(String roomId, Object payload) {
+    Set<WebSocketSession> roomSessions = sessions.get(roomId);
+    if (roomSessions == null) return;
+
+    try {
+      String json = mapper.writeValueAsString(payload);
       TextMessage msg = new TextMessage(json);
 
-      Set<WebSocketSession> roomSessions = sessions.get(entity.getRoomId());
-      if (roomSessions == null) return;
+      List<WebSocketSession> dead = new ArrayList<>();
 
-      System.out.println("ROOM ID: " + entity.getRoomId());
-      System.out.println("SESSIONS MAP: " + sessions);
-      System.out.println("TARGET SET SIZE: " + (roomSessions == null ? "NULL" : roomSessions.size()));
-
-      List<WebSocketSession> deadSessions = new ArrayList<>();
-
-      for (WebSocketSession session : roomSessions) {
+      for (WebSocketSession s : roomSessions) {
         try {
-          if (session.isOpen()) {
-            session.sendMessage(msg);
+          if (s.isOpen()) {
+            s.sendMessage(msg);
           } else {
-            deadSessions.add(session);
+            dead.add(s);
           }
         } catch (Exception e) {
-          deadSessions.add(session);
+          dead.add(s);
         }
       }
 
-      roomSessions.removeAll(deadSessions);
+      dead.forEach(roomSessions::remove);
 
     } catch (Exception e) {
       e.printStackTrace();

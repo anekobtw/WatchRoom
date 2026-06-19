@@ -1,21 +1,33 @@
 import { useRef, useState, useEffect } from "react";
 import { Send } from "lucide-react";
 
-export function Chat({ send }: { send: (msg: any) => void }) {
-  const [messages, setMessages] = useState<any[]>([]);
+export function Chat({
+  send,
+  messages,
+}: {
+  send: (msg: any) => void;
+  messages: any[];
+}) {
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const sendMsg = () => {
     if (!text.trim()) return;
-    const msg = { type: "CHAT", text, ts: Date.now() };
-    send(msg);
-    setMessages((p) => [...p, msg]);
+
+    send({
+      type: "CHAT",
+      text,
+      ts: Date.now(),
+    });
+
     setText("");
   };
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const formatTime = (ts?: number) =>
@@ -45,15 +57,17 @@ export function Chat({ send }: { send: (msg: any) => void }) {
 
         {messages.map((m, i) => {
           const prev = messages[i - 1];
-          const showTime = !prev || m.ts - prev.ts > 5 * 60 * 1000;
+          const showTime =
+            !prev || (m.ts && prev.ts && m.ts - prev.ts > 5 * 60 * 1000);
 
           return (
             <div key={i} className="flex flex-col items-end gap-1">
-              {showTime && (
+              {showTime && m.ts && (
                 <span className="text-[11px] text-foreground/30 px-1">
                   {formatTime(m.ts)}
                 </span>
               )}
+
               <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-sm leading-snug break-words">
                 {m.text}
               </div>
@@ -71,6 +85,7 @@ export function Chat({ send }: { send: (msg: any) => void }) {
             placeholder="Send a message"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-foreground/30"
           />
+
           <button
             onClick={sendMsg}
             disabled={!text.trim()}

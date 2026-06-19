@@ -1,16 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-
-type WSMessage = {
-  type: string;
-  roomId?: string;
-  videoUrl?: string;
-  videoTimestamp?: number;
-  playing?: boolean;
-};
+import { useEffect, useRef, useState, useCallback } from "react";
 
 export function useRoomWS(roomId: string | undefined) {
   const wsRef = useRef<WebSocket | null>(null);
+
   const [state, setState] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -23,10 +17,21 @@ export function useRoomWS(roomId: string | undefined) {
     };
 
     ws.onmessage = (e) => {
-      const msg: WSMessage = JSON.parse(e.data);
+      let msg: any;
+
+      try {
+        msg = JSON.parse(e.data);
+      } catch {
+        return;
+      }
 
       if (msg.type === "STATE") {
         setState(msg);
+        return;
+      }
+
+      if (msg.type === "CHAT") {
+        setMessages((prev) => [...prev, msg]);
       }
     };
 
@@ -36,12 +41,15 @@ export function useRoomWS(roomId: string | undefined) {
 
     return () => {
       ws.close();
+      wsRef.current = null;
     };
   }, [roomId]);
 
-  const send = (data: any) => {
-    wsRef.current?.send(JSON.stringify(data));
-  };
+  const send = useCallback((data: any) => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify(data));
+  }, []);
 
-  return { wsRef, state, send };
+  return { wsRef, state, messages, send };
 }

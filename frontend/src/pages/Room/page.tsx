@@ -1,121 +1,144 @@
 import { useParams } from "react-router-dom";
 import { useRoomWS } from "./useRoomWS";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useCallback } from "react";
+import YouTube from "react-youtube";
+import type { YouTubeEvent } from "react-youtube";
 import { Chat } from "./Chat";
 import { Settings } from "lucide-react";
 
+const SYNC_THRESHOLD_SECONDS = 1;
+const PERIODIC_SYNC_MS = 10_000;
+const VIDEO_COMMAND_REGEX = /^\/video\s+(\S+)/i;
+const YOUTUBE_ID_REGEX =
+  /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
+
+function extractYouTubeId(url?: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(YOUTUBE_ID_REGEX);
+  if (match) return match[1];
+  return /^[\w-]{11}$/.test(url) ? url : null; // allow a bare ID too
+}
+
 export default function Room() {
   const { id } = useParams();
-  const { state, send } = useRoomWS(id);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [url, setUrl] = useState("");
-  const [urlOpen, setUrlOpen] = useState(false);
+  const { state, send, messages } = useRoomWS(id);
 
+  const playerRef = useRef<any>(null);
+  const currentVideoId = useRef<string | null>(null);
+  const ignoreEcho = useRef(false); // true while we're applying remote state to the player
+
+  const videoId = extractYouTubeId(state?.videoUrl);
+
+  // Apply server state to the player.
   useEffect(() => {
-    if (!state || !videoRef.current) return;
-    if (state.videoUrl && videoRef.current.src !== state.videoUrl) {
-      videoRef.current.src = state.videoUrl;
-    }
-    if (typeof state.videoTimestamp === "number") {
-      videoRef.current.currentTime = state.videoTimestamp;
-    }
-    if (state.playing) {
-      videoRef.current.play();
-    } else {
-      videoRef.current.pause();
-    }
-  }, [state]);
+    const player = playerRef.current;
+    if (!state || !player || !videoId) return;
 
-  const update = (patch: any) => {
-    send({ type: "SET_STATE", ...patch });
+    ignoreEcho.current = true;
+
+    if (videoId !== currentVideoId.current) {
+      currentVideoId.current = videoId;
+      player.loadVideoById(videoId, state.videoTimestamp ?? 0);
+    } else if (
+      typeof state.videoTimestamp === "number" &&
+      Math.abs(player.getCurrentTime() - state.videoTimestamp) >
+        SYNC_THRESHOLD_SECONDS
+    ) {
+      player.seekTo(state.videoTimestamp, true);
+    }
+
+    if (state.playing) player.playVideo();
+    else player.pauseVideo();
+
+    // Give the player a moment to fire its own onStateChange for this
+    // programmatic change before we start listening again — otherwise
+    // we'd immediately echo our own update straight back to the server.
+    const t = setTimeout(() => (ignoreEcho.current = false), 300);
+    return () => clearTimeout(t);
+  }, [state, videoId]);
+
+  const reportPlaybackState = useCallback(
+    (playing: boolean) => {
+      const player = playerRef.current;
+      if (!player) return;
+      send({
+        type: "SET_STATE",
+        playing,
+        videoTimestamp: player.getCurrentTime(),
+      });
+    },
+    [send],
+  );
+
+  // This replaces the old manual play/pause/sync buttons — the player
+  // itself is now the source of truth.
+  const handlePlayerStateChange = (e: YouTubeEvent<number>) => {
+    if (ignoreEcho.current) return;
+    if (e.data === YouTube.PlayerState.PLAYING) reportPlaybackState(true);
+    else if (e.data === YouTube.PlayerState.PAUSED) reportPlaybackState(false);
   };
+
+  // Safety-net sync: YouTube's API doesn't fire an event for a seek made
+  // while paused, so this catches that case (and general drift) too.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!ignoreEcho.current) reportPlaybackState(!!state?.playing);
+    }, PERIODIC_SYNC_MS);
+    return () => clearInterval(interval);
+  }, [reportPlaybackState, state?.playing]);
+
+  // Intercept "/video {url}" before it ever becomes a chat message.
+  const sendWithCommands = useCallback(
+    (msg: any) => {
+      if (msg.type === "CHAT" && typeof msg.text === "string") {
+        const match = msg.text.trim().match(VIDEO_COMMAND_REGEX);
+        if (match) {
+          send({
+            type: "SET_STATE",
+            videoUrl: match[1],
+            videoTimestamp: 0,
+            playing: true,
+          });
+          return;
+        }
+      }
+      send(msg);
+    },
+    [send],
+  );
 
   return (
     <div className="flex h-screen bg-background text-foreground font-inter">
       <div className="flex-[3] flex flex-col p-6 gap-4 min-w-0">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-10 text-foreground/40">Room {id}</p>
-          </div>
-
+          <p className="text-10 text-foreground/40">Room {id}</p>
           <button className="cursor-pointer h-8 w-8 flex items-center justify-center rounded-md hover:bg-surface-2">
             <Settings size={20} />
           </button>
         </div>
 
         <div className="relative flex-1 rounded-2xl overflow-hidden bg-black ring-1 ring-line shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
-          <video
-            ref={videoRef}
-            className="absolute inset-0 h-full w-full object-contain bg-black"
-          />
-
-          {!state?.videoUrl && (
+          {videoId ? (
+            <YouTube
+              videoId={videoId}
+              opts={{
+                width: "100%",
+                height: "100%",
+                playerVars: { rel: 0, modestbranding: 1 },
+              }}
+              className="absolute inset-0 h-full w-full"
+              iframeClassName="h-full w-full"
+              onReady={(e) => (playerRef.current = e.target)}
+              onStateChange={handlePlayerStateChange}
+            />
+          ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/35">
               <p className="font-title text-sm uppercase">Nothing queued</p>
               <p className="text-xs text-foreground/25">
-                Type /queue {"{"}link{"}"} to the chat to
+                Type /video {"{youtube link}"} in the chat
               </p>
             </div>
           )}
-
-          <div className="absolute inset-x-3 bottom-3 rounded-xl bg-surface/80 backdrop-blur-md border border-line shadow-lg">
-            <div className="flex items-center gap-3 px-3 py-2.5">
-              <button
-                onClick={() => update({ playing: !state?.playing })}
-                className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full bg-primary hover:bg-primary-hover transition-colors shrink-0"
-              >
-                {state?.playing ? (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <rect x="1.5" y="1" width="3" height="10" fill="white" />
-                    <rect x="7.5" y="1" width="3" height="10" fill="white" />
-                  </svg>
-                ) : (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M1.5 1L10.5 6L1.5 11V1Z" fill="white" />
-                  </svg>
-                )}
-              </button>
-
-              <button
-                onClick={() =>
-                  update({ videoTimestamp: videoRef.current?.currentTime ?? 0 })
-                }
-                className="cursor-pointer font-title text-[11px] uppercase text-foreground/60 hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-surface-2 shrink-0"
-              >
-                Sync time
-              </button>
-
-              <div className="flex-1" />
-
-              <button
-                onClick={() => setUrlOpen((v) => !v)}
-                className="cursor-pointer font-title text-[11px] uppercase text-foreground/60 hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-surface-2 shrink-0"
-              >
-                {urlOpen ? "Close" : "Set video"}
-              </button>
-            </div>
-
-            {urlOpen && (
-              <div className="flex items-center gap-2 px-3 pb-3">
-                <input
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="Paste a video URL"
-                  className="flex-1 bg-surface-2 border border-line rounded-md px-3 py-1.5 text-sm placeholder:text-foreground/30 outline-none focus:ring-2 focus:ring-primary"
-                  autoFocus
-                />
-                <button
-                  onClick={() => {
-                    update({ videoUrl: url });
-                    setUrlOpen(false);
-                  }}
-                  className="cursor-pointer bg-primary hover:bg-primary-hover transition-colors text-sm rounded-md px-3 py-1.5 shrink-0"
-                >
-                  Load
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
@@ -126,7 +149,7 @@ export default function Room() {
           </p>
         </div>
         <div className="flex-1 overflow-hidden">
-          <Chat send={send} />
+          <Chat send={sendWithCommands} messages={messages} />
         </div>
       </div>
     </div>
