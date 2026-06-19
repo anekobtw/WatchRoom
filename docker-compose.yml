@@ -3,20 +3,23 @@ services:
     image: postgres:17
     container_name: shareview-db
     environment:
-      POSTGRES_DB: shareview
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
     container_name: shareview-backend
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/shareview
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: yourpassword
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "8080:8080"
+

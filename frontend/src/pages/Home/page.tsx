@@ -1,7 +1,8 @@
 import { useEffect } from "react";
-import "./index.css";
+import "../../index.css";
 import { animate, scrambleText, utils } from "animejs";
 import Mockup from "./Mockup";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   useEffect(() => {
@@ -61,12 +62,12 @@ export default function Home() {
           </p>
 
           <div className="fade-3 flex flex-col sm:flex-row gap-3">
-            <a
-              href="#"
+            <Link
+              to={`/room/${crypto.randomUUID()}`}
               className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center"
             >
               Create a room
-            </a>
+            </Link>
 
             <a
               href="#demo"

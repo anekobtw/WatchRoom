@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build containers
+        run: docker compose build
+
+      - name: Start stack
+        run: docker compose up -d
+
+      - name: Wait for backend
+        run: |
+          for i in {1..30}; do
+            curl -f http://localhost:8080/health && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Check websocket port
+        run: |
+          curl -i http://localhost:8080/ws || true
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
