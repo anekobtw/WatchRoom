@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MessageDto {
+public class StateUpdateDto {
   private String type;
   private String videoUrl;
   private Long videoTimestamp;

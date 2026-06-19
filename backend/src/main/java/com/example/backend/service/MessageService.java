@@ -1,9 +1,11 @@
 package com.example.backend.service;
 
-import com.example.backend.model.MessageDto;
+import com.example.backend.model.JoinRoomDto;
+import com.example.backend.model.StateUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Service
@@ -15,17 +17,28 @@ public class MessageService {
 
   public void handle(String message, WebSocketSession session) {
     try {
-      MessageDto data = mapper.readValue(message, MessageDto.class);
-      if (data == null || data.getRoomId() == null || data.getType() == null) return;
+      JsonNode node = mapper.readTree(message);
+      String type = node.get("type").asString();
 
-      switch (data.getType()) {
-        case "JOIN" -> roomService.joinRoom(data.getRoomId(), session);
-        case "LEAVE" -> roomService.removeSession(session);
+      switch (type) {
+        case "JOIN" -> {
+          JoinRoomDto data = mapper.treeToValue(node, JoinRoomDto.class);
+          roomService.joinRoom(data.getRoomId(), session);
+        }
 
-        case "SET_STATE" -> roomService.updateRoom(data);
+        case "LEAVE" -> {
+          roomService.removeSession(session);
+        }
 
-        default -> {}
+        case "SET_STATE" -> {
+          StateUpdateDto data = mapper.treeToValue(node, StateUpdateDto.class);
+          roomService.updateRoom(data, session);
+        }
+
+        default -> {
+        }
       }
+
     } catch (Exception e) {
       e.printStackTrace();
     }

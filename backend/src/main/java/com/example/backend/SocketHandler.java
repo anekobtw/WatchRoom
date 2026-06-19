@@ -16,11 +16,13 @@ public class SocketHandler extends TextWebSocketHandler {
 
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+    System.out.println("RAW WS MESSAGE: " + message);
     messageService.handle(message.getPayload(), session);
   }
 
   @Override
   public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    System.out.println("WS CLOSED. Session ID " + session.getId() + " Status: " + status);
     roomService.removeSession(session);
   }
 }

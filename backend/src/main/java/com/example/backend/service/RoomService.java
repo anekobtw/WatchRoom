@@ -1,8 +1,9 @@
 package com.example.backend.service;
 
-import com.example.backend.model.MessageDto;
+import com.example.backend.model.StateUpdateDto;
 import com.example.backend.model.RoomEntity;
 import com.example.backend.repository.RoomRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -18,46 +19,49 @@ public class RoomService {
 
   private final RoomRepository roomRepository;
   private final ObjectMapper mapper;
-  private final Map<WebSocketSession, String> sessionRoom = new ConcurrentHashMap<>();
 
+  private final Map<WebSocketSession, String> sessionRoom = new ConcurrentHashMap<>();
   private final Map<String, Set<WebSocketSession>> sessions = new ConcurrentHashMap<>();
 
+  @Transactional
   public void joinRoom(String roomId, WebSocketSession session) {
+    RoomEntity entity = roomRepository.findById(roomId)
+            .orElseGet(() -> roomRepository.save(
+                    RoomEntity.builder()
+                            .roomId(roomId)
+                            .videoTimestamp(0L)
+                            .playing(false)
+                            .videoUrl(null)
+                            .build()
+            ));
 
-    String oldRoom = sessionRoom.put(session, roomId);
+    sessionRoom.put(session, roomId);
 
-    if (oldRoom != null && !oldRoom.equals(roomId)) {
-      Set<WebSocketSession> oldSet = sessions.get(oldRoom);
-      if (oldSet != null) {
-        oldSet.remove(session);
-      }
-    }
-
-    RoomEntity entity = roomRepository.findById(roomId).orElseGet(() ->
-            roomRepository.save(RoomEntity.builder()
-                    .roomId(roomId)
-                    .videoTimestamp(0L)
-                    .playing(false)
-                    .videoUrl(null)
-                    .build()
-            )
-    );
-
-    sessions.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet()).add(session);
+    sessions.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet())
+            .add(session);
 
     broadcast(entity);
   }
 
   public void removeSession(WebSocketSession session) {
     String room = sessionRoom.remove(session);
-    if (room != null) {
-      Set<WebSocketSession> set = sessions.get(room);
-      if (set != null) set.remove(session);
+    if (room == null) return;
+
+    Set<WebSocketSession> set = sessions.get(room);
+    if (set == null) return;
+
+    set.remove(session);
+
+    if (set.isEmpty()) {
+      sessions.remove(room);
     }
   }
 
-  public void updateRoom(MessageDto dto) {
-    RoomEntity entity = roomRepository.findById(dto.getRoomId()).orElse(null);
+  public void updateRoom(StateUpdateDto dto, WebSocketSession session) {
+    String roomId = sessionRoom.get(session);
+    if (roomId == null) return;
+
+    RoomEntity entity = roomRepository.findById(roomId).orElse(null);
     if (entity == null) return;
 
     if (dto.getVideoUrl() != null) entity.setVideoUrl(dto.getVideoUrl());
@@ -70,9 +74,8 @@ public class RoomService {
 
   private void broadcast(RoomEntity entity) {
     try {
-      MessageDto dto = MessageDto.builder()
+      StateUpdateDto dto = StateUpdateDto.builder()
               .type("STATE")
-              .roomId(entity.getRoomId())
               .videoUrl(entity.getVideoUrl())
               .videoTimestamp(entity.getVideoTimestamp())
               .playing(entity.isPlaying())
@@ -84,17 +87,25 @@ public class RoomService {
       Set<WebSocketSession> roomSessions = sessions.get(entity.getRoomId());
       if (roomSessions == null) return;
 
-      roomSessions.removeIf(s -> {
+      System.out.println("ROOM ID: " + entity.getRoomId());
+      System.out.println("SESSIONS MAP: " + sessions);
+      System.out.println("TARGET SET SIZE: " + (roomSessions == null ? "NULL" : roomSessions.size()));
+
+      List<WebSocketSession> deadSessions = new ArrayList<>();
+
+      for (WebSocketSession session : roomSessions) {
         try {
-          if (s.isOpen()) {
-            s.sendMessage(msg);
-            return false;
+          if (session.isOpen()) {
+            session.sendMessage(msg);
+          } else {
+            deadSessions.add(session);
           }
         } catch (Exception e) {
-          e.printStackTrace();
+          deadSessions.add(session);
         }
-        return true;
-      });
+      }
+
+      roomSessions.removeAll(deadSessions);
 
     } catch (Exception e) {
       e.printStackTrace();
