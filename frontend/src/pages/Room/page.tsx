@@ -4,19 +4,19 @@ import { useRef, useEffect, useCallback } from "react";
 import YouTube from "react-youtube";
 import type { YouTubeEvent } from "react-youtube";
 import { Chat } from "./Chat";
-import { Settings } from "lucide-react";
 
 const SYNC_THRESHOLD_SECONDS = 1;
 const PERIODIC_SYNC_MS = 10_000;
 const VIDEO_COMMAND_REGEX = /^\/video\s+(\S+)/i;
 const YOUTUBE_ID_REGEX =
   /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
+const BARE_ID_REGEX = /^[\w-]{11}$/;
 
 function extractYouTubeId(url?: string | null): string | null {
   if (!url) return null;
   const match = url.match(YOUTUBE_ID_REGEX);
   if (match) return match[1];
-  return /^[\w-]{11}$/.test(url) ? url : null; // allow a bare ID too
+  return BARE_ID_REGEX.test(url) ? url : null; // allow a bare ID too
 }
 
 export default function Room() {
@@ -72,11 +72,15 @@ export default function Room() {
 
   // This replaces the old manual play/pause/sync buttons — the player
   // itself is now the source of truth.
-  const handlePlayerStateChange = (e: YouTubeEvent<number>) => {
-    if (ignoreEcho.current) return;
-    if (e.data === YouTube.PlayerState.PLAYING) reportPlaybackState(true);
-    else if (e.data === YouTube.PlayerState.PAUSED) reportPlaybackState(false);
-  };
+  const handlePlayerStateChange = useCallback(
+    (e: YouTubeEvent<number>) => {
+      if (ignoreEcho.current) return;
+      if (e.data === YouTube.PlayerState.PLAYING) reportPlaybackState(true);
+      else if (e.data === YouTube.PlayerState.PAUSED)
+        reportPlaybackState(false);
+    },
+    [reportPlaybackState],
+  );
 
   // Safety-net sync: YouTube's API doesn't fire an event for a seek made
   // while paused, so this catches that case (and general drift) too.
@@ -108,13 +112,10 @@ export default function Room() {
   );
 
   return (
-    <div className="flex h-screen bg-background text-foreground font-inter">
-      <div className="flex-[3] flex flex-col p-6 gap-4 min-w-0">
+    <div className="flex flex-col md:flex-row h-screen bg-background text-foreground font-inter">
+      <div className="flex flex-col gap-4 p-4 md:p-6 min-w-0 h-[45vh] md:h-auto md:flex-[3]">
         <div className="flex items-center justify-between">
           <p className="text-10 text-foreground/40">Room {id}</p>
-          <button className="cursor-pointer h-8 w-8 flex items-center justify-center rounded-md hover:bg-surface-2">
-            <Settings size={20} />
-          </button>
         </div>
 
         <div className="relative flex-1 rounded-2xl overflow-hidden bg-black ring-1 ring-line shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
@@ -142,13 +143,13 @@ export default function Room() {
         </div>
       </div>
 
-      <div className="flex-1 min-w-[300px] max-w-[380px] flex flex-col border-l border-line bg-surface">
+      <div className="flex-1 min-w-0 md:min-w-[300px] md:max-w-[380px] flex flex-col border-t md:border-t-0 md:border-l border-line bg-surface">
         <div className="px-4 py-4 border-b border-line">
           <p className="font-title text-[11px] uppercase text-foreground/40">
             Watching with
           </p>
         </div>
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
           <Chat send={sendWithCommands} messages={messages} />
         </div>
       </div>
