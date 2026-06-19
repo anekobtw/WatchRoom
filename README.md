@@ -21,8 +21,7 @@ Leaves the room.
 
 ```json
 {
-    "type": "LEAVE",
-    "roomId": "abc123",
+  "type": "LEAVE"
 }
 ```
 
@@ -33,9 +32,8 @@ It changes the state of the room. Can be used to play/pause/change videoTimestam
 ```json
 {
     "type": "SET_STATE",
-    "roomId": "abc12",
-    "playing": false,
+    "videoUrl": "https://youtube.com/...",
     "videoTimestamp": 300
+    "playing": false,
 }
 ```
-
