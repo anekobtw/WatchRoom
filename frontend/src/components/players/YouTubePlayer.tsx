@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useMemo,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import { useRef, useMemo, forwardRef, useImperativeHandle } from "react";
 import YouTube from "react-youtube";
 import type { PlayerAPI } from "../../types/player";
 
