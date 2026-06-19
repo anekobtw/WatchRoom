@@ -8,7 +8,7 @@ export default function Navbar() {
   return (
     <nav className="absolute inset-x-0 top-0 z-50">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
-        <span className="font-syne text-xl font-extrabold text-white">
+        <span className="font-syne text-xl font-extrabold text-foreground">
           WatchTogether
         </span>
 
@@ -18,7 +18,7 @@ export default function Navbar() {
               <a
                 key={label}
                 href={href}
-                className="rounded-xl bg-primary/90 px-4 py-2 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-primary"
+                className="rounded-xl bg-primary/90 px-4 py-2 text-sm font-medium text-foreground transition-all hover:-translate-y-0.5 hover:bg-primary"
               >
                 {label}
               </a>
@@ -26,7 +26,7 @@ export default function Navbar() {
               <a
                 key={label}
                 href={href}
-                className="text-sm text-white/70 transition-colors hover:text-white"
+                className="text-sm text-foreground/70 transition-colors hover:text-foreground"
               >
                 {label}
               </a>

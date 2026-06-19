@@ -6,11 +6,15 @@ export function useRoomWS(roomId: string | undefined) {
   useEffect(() => {
     if (!roomId) return;
 
-    const ws = new WebSocket(import.meta.env.WS_URL);
+    const url = import.meta.env.VITE_WS_URL;
+    if (!url) throw new Error("VITE_WS_URL is missing");
+
+    const ws = new WebSocket(url);
     wsRef.current = ws;
 
     ws.onopen = () => {
       console.log("Connection established");
+
       ws.send(
         JSON.stringify({
           type: "JOIN",
@@ -25,8 +29,7 @@ export function useRoomWS(roomId: string | undefined) {
     };
 
     ws.onerror = () => {
-      console.log("Connection closed due to error");
-      ws.close();
+      console.log("WebSocket error");
     };
 
     return () => {

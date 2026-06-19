@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import "../../index.css";
 import { animate, scrambleText, utils } from "animejs";
 import Mockup from "./Mockup";
 import { Link } from "react-router-dom";
@@ -55,7 +54,7 @@ export default function Home() {
             </span>
           </h1>
 
-          <p className="fade-2 text-[1.05rem] text-white/40 leading-relaxed mb-10 max-w-md">
+          <p className="fade-2 text-[1.05rem] text-foreground/40 leading-relaxed mb-10 max-w-md">
             Sync your player with friends and chat in real-time
             <br />
             <b>Completely for free.</b>
@@ -71,7 +70,7 @@ export default function Home() {
 
             <a
               href="#demo"
-              className="bg-transparent hover:bg-white/5 border border-white/15 hover:border-white/30 text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center"
+              className="bg-transparent hover:bg-foreground/5 border border-foreground/15 hover:border-foreground/30 text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center"
             >
               Watch demo
             </a>

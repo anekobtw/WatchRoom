@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MessageDto {
   private String type;
-  private String roomId;
   private String videoUrl;
   private Long videoTimestamp;
   private Boolean playing;

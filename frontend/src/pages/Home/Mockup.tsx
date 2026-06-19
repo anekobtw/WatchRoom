@@ -1,6 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
 import { animate, stagger } from "animejs";
-import "../../index.css";
 
 export default function Mockup() {
   const containerRef = useRef<HTMLDivElement>(null);
