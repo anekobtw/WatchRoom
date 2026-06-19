@@ -34,6 +34,21 @@ It changes the state of the room. Can be used to play/pause/change videoTimestam
     "type": "SET_STATE",
     "videoUrl": "https://youtube.com/...",
     "videoTimestamp": 300
-    "playing": false,
+    "playing": false
 }
 ```
+
+**CHAT:**
+
+Sends a message to the chat.
+
+```json
+{
+    "type": "CHAT",
+    "text": "A message goes here",
+    "ts": 1781868416
+}
+```
+
+
+
