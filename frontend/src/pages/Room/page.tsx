@@ -128,9 +128,7 @@ export default function Room() {
           <ChevronDown className="md:hidden" />
         </button>
 
-        <div className={`${chatOpen ? "flex" : "hidden"} md:flex flex-1`}>
-          <Chat send={handleCommand} messages={messages} />
-        </div>
+        <Chat send={handleCommand} messages={messages} />
       </div>
     </div>
   );
