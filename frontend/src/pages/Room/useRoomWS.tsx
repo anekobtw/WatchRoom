@@ -1,35 +1,37 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type WSMessage = {
+  type: string;
+  roomId?: string;
+  videoUrl?: string;
+  videoTimestamp?: number;
+  playing?: boolean;
+};
 
 export function useRoomWS(roomId: string | undefined) {
   const wsRef = useRef<WebSocket | null>(null);
+  const [state, setState] = useState<any>(null);
 
   useEffect(() => {
     if (!roomId) return;
 
-    const url = import.meta.env.VITE_WS_URL;
-    if (!url) throw new Error("VITE_WS_URL is missing");
-
-    const ws = new WebSocket(url);
+    const ws = new WebSocket(import.meta.env.VITE_WS_URL);
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log("Connection established");
+      ws.send(JSON.stringify({ type: "JOIN", roomId }));
+    };
 
-      ws.send(
-        JSON.stringify({
-          type: "JOIN",
-          roomId,
-        }),
-      );
+    ws.onmessage = (e) => {
+      const msg: WSMessage = JSON.parse(e.data);
+
+      if (msg.type === "STATE") {
+        setState(msg);
+      }
     };
 
     ws.onclose = () => {
-      console.log("Connection closed");
       wsRef.current = null;
-    };
-
-    ws.onerror = () => {
-      console.log("WebSocket error");
     };
 
     return () => {
@@ -37,5 +39,9 @@ export function useRoomWS(roomId: string | undefined) {
     };
   }, [roomId]);
 
-  return wsRef;
+  const send = (data: any) => {
+    wsRef.current?.send(JSON.stringify(data));
+  };
+
+  return { wsRef, state, send };
 }
