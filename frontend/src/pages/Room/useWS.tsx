@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
+type WSMessage =
+  | {
+      type: "STATE";
+      videoUrl?: string;
+      videoTimestamp?: number;
+      playing?: boolean;
+    }
+  | { type: "CHAT"; text: string; ts: number; roomId?: string };
+
 export function useRoomWS(roomId: string | undefined) {
   const wsRef = useRef<WebSocket | null>(null);
 
   const [state, setState] = useState<any>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<WSMessage[]>([]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -17,26 +26,15 @@ export function useRoomWS(roomId: string | undefined) {
     };
 
     ws.onmessage = (e) => {
-      let msg: any;
-
+      let msg: WSMessage;
       try {
         msg = JSON.parse(e.data);
       } catch {
         return;
       }
 
-      if (msg.type === "STATE") {
-        setState(msg);
-        return;
-      }
-
-      if (msg.type === "CHAT") {
-        setMessages((prev) => [...prev, msg]);
-      }
-    };
-
-    ws.onclose = () => {
-      wsRef.current = null;
+      if (msg.type === "STATE") setState(msg);
+      else if (msg.type === "CHAT") setMessages((p) => [...p, msg]);
     };
 
     return () => {
@@ -51,5 +49,5 @@ export function useRoomWS(roomId: string | undefined) {
     ws.send(JSON.stringify(data));
   }, []);
 
-  return { wsRef, state, messages, send };
+  return { state, messages, send };
 }

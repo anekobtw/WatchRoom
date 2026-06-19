@@ -1,101 +1,59 @@
 import { useParams } from "react-router-dom";
-import { useRoomWS } from "./useRoomWS";
-import { useRef, useEffect, useCallback } from "react";
-import YouTube from "react-youtube";
-import type { YouTubeEvent } from "react-youtube";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { ChevronDown } from "lucide-react";
 import { Chat } from "./Chat";
+import type { PlayerAPI } from "../../types/player";
+import { useRoomWS } from "./useWS";
+import YouTubePlayer from "../../components/players/YouTubePlayer";
 
 const SYNC_THRESHOLD_SECONDS = 1;
-const PERIODIC_SYNC_MS = 10_000;
-const VIDEO_COMMAND_REGEX = /^\/video\s+(\S+)/i;
-const YOUTUBE_ID_REGEX =
-  /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
-const BARE_ID_REGEX = /^[\w-]{11}$/;
-
-function extractYouTubeId(url?: string | null): string | null {
-  if (!url) return null;
-  const match = url.match(YOUTUBE_ID_REGEX);
-  if (match) return match[1];
-  return BARE_ID_REGEX.test(url) ? url : null; // allow a bare ID too
-}
 
 export default function Room() {
   const { id } = useParams();
-  const { state, send, messages } = useRoomWS(id);
+  const { state, messages, send } = useRoomWS(id);
 
-  const playerRef = useRef<any>(null);
-  const currentVideoId = useRef<string | null>(null);
-  const ignoreEcho = useRef(false); // true while we're applying remote state to the player
+  const playerRef = useRef<PlayerAPI | null>(null);
+  const ignoreEcho = useRef(false);
+  const lastVideoRef = useRef<string | null>(null);
 
-  const videoId = extractYouTubeId(state?.videoUrl);
+  const [chatOpen, setChatOpen] = useState(true);
 
-  // Apply server state to the player.
   useEffect(() => {
     const player = playerRef.current;
-    if (!state || !player || !videoId) return;
+    if (!state?.videoUrl || !player) return;
 
+    const isNewVideo = lastVideoRef.current !== state.videoUrl;
     ignoreEcho.current = true;
 
-    if (videoId !== currentVideoId.current) {
-      currentVideoId.current = videoId;
-      player.loadVideoById(videoId, state.videoTimestamp ?? 0);
-    } else if (
-      typeof state.videoTimestamp === "number" &&
-      Math.abs(player.getCurrentTime() - state.videoTimestamp) >
-        SYNC_THRESHOLD_SECONDS
-    ) {
-      player.seekTo(state.videoTimestamp, true);
+    if (isNewVideo) {
+      lastVideoRef.current = state.videoUrl;
+      player.load(state.videoUrl, state.videoTimestamp ?? 0);
+    } else {
+      const currentTime = player.getTime();
+
+      if (
+        typeof state.videoTimestamp === "number" &&
+        Math.abs(currentTime - state.videoTimestamp) > SYNC_THRESHOLD_SECONDS
+      ) {
+        player.seek(state.videoTimestamp);
+      }
     }
 
-    if (state.playing) player.playVideo();
-    else player.pauseVideo();
+    if (state.playing) player.play();
+    else player.pause();
 
-    // Give the player a moment to fire its own onStateChange for this
-    // programmatic change before we start listening again — otherwise
-    // we'd immediately echo our own update straight back to the server.
-    const t = setTimeout(() => (ignoreEcho.current = false), 300);
+    const t = setTimeout(() => {
+      ignoreEcho.current = false;
+    }, 250);
+
     return () => clearTimeout(t);
-  }, [state, videoId]);
+  }, [state]);
 
-  const reportPlaybackState = useCallback(
-    (playing: boolean) => {
-      const player = playerRef.current;
-      if (!player) return;
-      send({
-        type: "SET_STATE",
-        playing,
-        videoTimestamp: player.getCurrentTime(),
-      });
-    },
-    [send],
-  );
-
-  // This replaces the old manual play/pause/sync buttons — the player
-  // itself is now the source of truth.
-  const handlePlayerStateChange = useCallback(
-    (e: YouTubeEvent<number>) => {
-      if (ignoreEcho.current) return;
-      if (e.data === YouTube.PlayerState.PLAYING) reportPlaybackState(true);
-      else if (e.data === YouTube.PlayerState.PAUSED)
-        reportPlaybackState(false);
-    },
-    [reportPlaybackState],
-  );
-
-  // Safety-net sync: YouTube's API doesn't fire an event for a seek made
-  // while paused, so this catches that case (and general drift) too.
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!ignoreEcho.current) reportPlaybackState(!!state?.playing);
-    }, PERIODIC_SYNC_MS);
-    return () => clearInterval(interval);
-  }, [reportPlaybackState, state?.playing]);
-
-  // Intercept "/video {url}" before it ever becomes a chat message.
-  const sendWithCommands = useCallback(
+  const handleCommand = useCallback(
     (msg: any) => {
       if (msg.type === "CHAT" && typeof msg.text === "string") {
-        const match = msg.text.trim().match(VIDEO_COMMAND_REGEX);
+        const match = msg.text.trim().match(/^\/video\s+(\S+)/i);
+
         if (match) {
           send({
             type: "SET_STATE",
@@ -106,51 +64,72 @@ export default function Room() {
           return;
         }
       }
+
       send(msg);
+    },
+    [send],
+  );
+
+  const handlePlayerStateChange = useCallback(
+    (e: any) => {
+      if (ignoreEcho.current || !playerRef.current) return;
+
+      const player = playerRef.current;
+
+      if (e.data === 1) {
+        send({
+          type: "SET_STATE",
+          playing: true,
+          videoTimestamp: player.getTime(),
+        });
+      }
+
+      if (e.data === 2) {
+        send({
+          type: "SET_STATE",
+          playing: false,
+          videoTimestamp: player.getTime(),
+        });
+      }
     },
     [send],
   );
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background text-foreground font-inter">
-      <div className="flex flex-col gap-4 p-4 md:p-6 min-w-0 h-[45vh] md:h-auto md:flex-[3]">
-        <div className="flex items-center justify-between">
-          <p className="text-10 text-foreground/40">Room {id}</p>
-        </div>
+      <div className="flex flex-col flex-1 md:flex-[3] min-w-0 p-4 md:p-6 gap-4">
+        <p className="text-10 text-foreground/40">Room {id}</p>
 
-        <div className="relative flex-1 rounded-2xl overflow-hidden bg-black ring-1 ring-line shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
-          {videoId ? (
-            <YouTube
-              videoId={videoId}
-              opts={{
-                width: "100%",
-                height: "100%",
-                playerVars: { rel: 0, modestbranding: 1 },
-              }}
-              className="absolute inset-0 h-full w-full"
-              iframeClassName="h-full w-full"
-              onReady={(e) => (playerRef.current = e.target)}
+        <div className="relative flex-1 bg-black rounded-2xl overflow-hidden">
+          {state?.videoUrl ? (
+            <YouTubePlayer
+              ref={playerRef}
+              videoId={state.videoUrl}
               onStateChange={handlePlayerStateChange}
             />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/35">
-              <p className="font-title text-sm uppercase">Nothing queued</p>
-              <p className="text-xs text-foreground/25">
-                Type /video {"{youtube link}"} in the chat
-              </p>
+            <div className="absolute inset-0 flex items-center justify-center text-foreground/40">
+              Nothing queued
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex-1 min-w-0 md:min-w-[300px] md:max-w-[380px] flex flex-col border-t md:border-t-0 md:border-l border-line bg-surface">
-        <div className="px-4 py-4 border-b border-line">
-          <p className="font-title text-[11px] uppercase text-foreground/40">
-            Watching with
-          </p>
-        </div>
-        <div className="flex-1 overflow-hidden min-h-0">
-          <Chat send={sendWithCommands} messages={messages} />
+      <div
+        className={`md:flex-1 md:max-w-[380px] border-l border-line bg-surface flex flex-col ${
+          chatOpen ? "h-[30vh]" : "h-14"
+        } md:h-auto`}
+      >
+        <button
+          onClick={() => setChatOpen((v) => !v)}
+          className="px-4 py-4 border-b border-line flex justify-between"
+        >
+          Watching with
+          <ChevronDown className="md:hidden" />
+        </button>
+
+        <div className={`${chatOpen ? "flex" : "hidden"} md:flex flex-1`}>
+          <Chat send={handleCommand} messages={messages} />
         </div>
       </div>
     </div>
