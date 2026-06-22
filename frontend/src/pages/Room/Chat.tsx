@@ -1,22 +1,29 @@
 import { useRef, useState, useEffect } from "react";
 import { Send } from "lucide-react";
+import { ChatBubble } from "./ChatBubble";
 
-export function Chat({
-  send,
-  messages,
-}: {
-  send: (msg: any) => void;
-  messages: any[];
-}) {
+type ChatMessage = {
+  type: "CHAT";
+  text: string;
+  ts?: number;
+};
+
+type Props = {
+  send: (msg: ChatMessage) => void;
+  messages: ChatMessage[];
+};
+
+export function Chat({ send, messages }: Props) {
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const sendMsg = () => {
-    if (!text.trim()) return;
+    const value = text.trim();
+    if (!value) return;
 
     send({
       type: "CHAT",
-      text,
+      text: value,
       ts: Date.now(),
     });
 
@@ -29,14 +36,6 @@ export function Chat({
       behavior: "smooth",
     });
   }, [messages]);
-
-  const formatTime = (ts?: number) =>
-    ts
-      ? new Date(ts).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "";
 
   return (
     <div className="flex flex-col h-full font-inter">
@@ -55,25 +54,9 @@ export function Chat({
           </div>
         )}
 
-        {messages.map((m, i) => {
-          const prev = messages[i - 1];
-          const showTime =
-            !prev || (m.ts && prev.ts && m.ts - prev.ts > 5 * 60 * 1000);
-
-          return (
-            <div key={i} className="flex flex-col items-end gap-1">
-              {showTime && m.ts && (
-                <span className="text-[11px] text-foreground/30 px-1">
-                  {formatTime(m.ts)}
-                </span>
-              )}
-
-              <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-sm leading-snug break-words">
-                {m.text}
-              </div>
-            </div>
-          );
-        })}
+        {messages.map((m, i) => (
+          <ChatBubble key={i} message={m} previous={messages[i - 1]} />
+        ))}
       </div>
 
       <div className="border-t border-line p-3">

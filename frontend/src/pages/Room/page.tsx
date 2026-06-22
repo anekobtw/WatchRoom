@@ -1,12 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useRoomSync } from "./useRoomSync";
+import { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { Chat } from "./Chat";
 import type { PlayerAPI } from "../../types/player";
 import { useRoomWS } from "./useWS";
 import YouTubePlayer from "../../components/players/YouTubePlayer";
-
-const SYNC_THRESHOLD_SECONDS = 1;
 
 export default function Room() {
   const { id } = useParams();
@@ -18,82 +17,24 @@ export default function Room() {
 
   const [chatOpen, setChatOpen] = useState(true);
 
-  useEffect(() => {
+  useRoomSync({ playerRef, state, ignoreEcho, lastVideoRef });
+
+  const handlePlayerStateChange = (e: any) => {
+    if (ignoreEcho.current) return;
+
     const player = playerRef.current;
-    if (!state?.videoUrl || !player) return;
+    if (!player) return;
 
-    const isNewVideo = lastVideoRef.current !== state.videoUrl;
-    ignoreEcho.current = true;
+    const playing = e.data === 1 ? true : e.data === 2 ? false : null;
 
-    if (isNewVideo) {
-      lastVideoRef.current = state.videoUrl;
-      player.load(state.videoUrl, state.videoTimestamp ?? 0);
-    } else {
-      const currentTime = player.getTime();
+    if (playing === null) return;
 
-      if (
-        typeof state.videoTimestamp === "number" &&
-        Math.abs(currentTime - state.videoTimestamp) > SYNC_THRESHOLD_SECONDS
-      ) {
-        player.seek(state.videoTimestamp);
-      }
-    }
-
-    if (state.playing) player.play();
-    else player.pause();
-
-    const t = setTimeout(() => {
-      ignoreEcho.current = false;
-    }, 250);
-
-    return () => clearTimeout(t);
-  }, [state]);
-
-  const handleCommand = useCallback(
-    (msg: any) => {
-      if (msg.type === "CHAT" && typeof msg.text === "string") {
-        const match = msg.text.trim().match(/^\/video\s+(\S+)/i);
-
-        if (match) {
-          send({
-            type: "SET_STATE",
-            videoUrl: match[1],
-            videoTimestamp: 0,
-            playing: true,
-          });
-          return;
-        }
-      }
-
-      send(msg);
-    },
-    [send],
-  );
-
-  const handlePlayerStateChange = useCallback(
-    (e: any) => {
-      if (ignoreEcho.current || !playerRef.current) return;
-
-      const player = playerRef.current;
-
-      if (e.data === 1) {
-        send({
-          type: "SET_STATE",
-          playing: true,
-          videoTimestamp: player.getTime(),
-        });
-      }
-
-      if (e.data === 2) {
-        send({
-          type: "SET_STATE",
-          playing: false,
-          videoTimestamp: player.getTime(),
-        });
-      }
-    },
-    [send],
-  );
+    send({
+      type: "SET_STATE",
+      playing,
+      videoTimestamp: player.getTime(),
+    });
+  };
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background text-foreground font-inter">
@@ -128,7 +69,7 @@ export default function Room() {
           <ChevronDown className="md:hidden" />
         </button>
 
-        <Chat send={handleCommand} messages={messages} />
+        <Chat send={send} messages={messages} />
       </div>
     </div>
   );
