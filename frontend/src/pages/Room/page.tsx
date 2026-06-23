@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
-import { useRoomSync } from "./useRoomSync";
 import { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { Chat } from "./Chat";
 import type { PlayerAPI } from "../../types/player";
 import { useRoomWS } from "./useWS";
+import type { OutgoingMessage } from "../../types/ws";
 import YouTubePlayer from "../../components/players/YouTubePlayer";
 
 export default function Room() {
@@ -13,11 +13,8 @@ export default function Room() {
 
   const playerRef = useRef<PlayerAPI | null>(null);
   const ignoreEcho = useRef(false);
-  const lastVideoRef = useRef<string | null>(null);
 
   const [chatOpen, setChatOpen] = useState(true);
-
-  useRoomSync({ playerRef, state, ignoreEcho, lastVideoRef });
 
   const handlePlayerStateChange = (e: any) => {
     if (ignoreEcho.current) return;
@@ -26,14 +23,17 @@ export default function Room() {
     if (!player) return;
 
     const playing = e.data === 1 ? true : e.data === 2 ? false : null;
-
     if (playing === null) return;
 
-    send({
-      type: "SET_STATE",
-      playing,
-      videoTimestamp: player.getTime(),
-    });
+    const msg: OutgoingMessage = {
+      type: "UPDATE",
+      data: {
+        videoTimestamp: player.getTime(),
+        playing,
+      },
+    };
+
+    send(msg);
   };
 
   return (
@@ -42,10 +42,10 @@ export default function Room() {
         <p className="text-10 text-foreground/40">Room {id}</p>
 
         <div className="relative flex-1 bg-black rounded-2xl overflow-hidden">
-          {state?.videoUrl ? (
+          {state?.type === "STATE" && state.data.videoUrl ? (
             <YouTubePlayer
               ref={playerRef}
-              videoId={state.videoUrl}
+              videoId={state.data.videoUrl}
               onStateChange={handlePlayerStateChange}
             />
           ) : (

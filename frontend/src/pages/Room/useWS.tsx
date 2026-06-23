@@ -1,21 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-
-type WSMessage =
-  | {
-      type: "STATE";
-      videoUrl?: string;
-      videoTimestamp?: number;
-      playing?: boolean;
-    }
-  | { type: "CHAT"; text: string; ts: number; roomId?: string }
-  | { type: "INIT"; myId: string };
+import type { WsMessage, OutgoingMessage } from "../../types/ws";
 
 export function useRoomWS(roomId: string | undefined) {
   const wsRef = useRef<WebSocket | null>(null);
 
-  const [state, setState] = useState<any>(null);
-  const [messages, setMessages] = useState<WSMessage[]>([]);
-  const [myId, setMyId] = useState<string | null>(null);
+  const [state, setState] = useState<WsMessage | null>(null);
+  const [messages, setMessages] = useState<WsMessage[]>([]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -24,24 +14,31 @@ export function useRoomWS(roomId: string | undefined) {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "JOIN", roomId }));
+      ws.send(JSON.stringify({ type: "JOIN", data: { roomId } }));
     };
 
     ws.onmessage = (e) => {
-      let msg: WSMessage;
+      let msg: WsMessage;
+
       try {
         msg = JSON.parse(e.data);
       } catch {
         return;
       }
 
-      if (msg.type === "INIT") {
-        setMyId(msg.myId);
+      if (msg.type === "STATE") {
+        setState(msg);
         return;
       }
 
-      if (msg.type === "STATE") setState(msg);
-      else if (msg.type === "CHAT") setMessages((p) => [...p, msg]);
+      if (msg.type === "CHAT") {
+        setMessages((prev) => [...prev, msg]);
+        return;
+      }
+
+      if (msg.type === "ERROR") {
+        setMessages((prev) => [...prev, msg]);
+      }
     };
 
     return () => {
@@ -50,11 +47,12 @@ export function useRoomWS(roomId: string | undefined) {
     };
   }, [roomId]);
 
-  const send = useCallback((data: any) => {
+  const send = useCallback((data: OutgoingMessage) => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
     ws.send(JSON.stringify(data));
   }, []);
 
-  return { state, messages, send, myId };
+  return { state, messages, send };
 }

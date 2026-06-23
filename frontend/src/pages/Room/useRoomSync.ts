@@ -1,18 +1,13 @@
-import { useEffect, RefObject } from "react";
+import { useEffect } from "react";
 import type { PlayerAPI } from "../../types/player";
+import type { WsMessage } from "../../types/ws";
 
 const SYNC_THRESHOLD_SECONDS = 1;
 const ECHO_TIMEOUT_MS = 250;
 
-type RoomState = {
-  videoUrl?: string;
-  videoTimestamp?: number;
-  playing?: boolean;
-};
-
 type Props = {
-  playerRef: RefObject<PlayerAPI | null>;
-  state: RoomState | null;
+  playerRef: React.RefObject<PlayerAPI | null>;
+  state: WsMessage | null;
   ignoreEcho: React.RefObject<boolean>;
   lastVideoRef: React.RefObject<string | null>;
 };
@@ -26,27 +21,30 @@ export function useRoomSync({
   useEffect(() => {
     const player = playerRef.current;
 
-    if (!state?.videoUrl || !player) return;
+    if (!player) return;
+    if (!state || state.type !== "STATE") return;
+    if (!state.data.videoUrl) return;
 
-    const isNewVideo = lastVideoRef.current !== state.videoUrl;
+    const isNewVideo = lastVideoRef.current !== state.data.videoUrl;
 
     ignoreEcho.current = true;
 
     if (isNewVideo) {
-      lastVideoRef.current = state.videoUrl;
-      player.load(state.videoUrl, state.videoTimestamp ?? 0);
+      lastVideoRef.current = state.data.videoUrl;
+      player.load(state.data.videoUrl, state.data.videoTimestamp ?? 0);
     } else {
       const currentTime = player.getTime();
 
       if (
-        typeof state.videoTimestamp === "number" &&
-        Math.abs(currentTime - state.videoTimestamp) > SYNC_THRESHOLD_SECONDS
+        typeof state.data.videoTimestamp === "number" &&
+        Math.abs(currentTime - state.data.videoTimestamp) >
+          SYNC_THRESHOLD_SECONDS
       ) {
-        player.seek(state.videoTimestamp);
+        player.seek(state.data.videoTimestamp);
       }
     }
 
-    if (state.playing) {
+    if (state.data.playing) {
       player.play();
     } else {
       player.pause();
