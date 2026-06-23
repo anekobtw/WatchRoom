@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import type { PlayerAPI } from "../../types/player";
-import type { WsMessage } from "../../types/ws";
+import type { ServerToClient } from "../../types/ws";
 
 const SYNC_THRESHOLD_SECONDS = 1;
 const ECHO_TIMEOUT_MS = 250;
 
 type Props = {
   playerRef: React.RefObject<PlayerAPI | null>;
-  state: WsMessage | null;
+  state: ServerToClient | null;
   ignoreEcho: React.RefObject<boolean>;
   lastVideoRef: React.RefObject<string | null>;
 };

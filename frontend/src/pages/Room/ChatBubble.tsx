@@ -1,37 +1,19 @@
-type ChatMessage = {
-  text: string;
-  ts?: number;
-};
-
-function formatTime(ts?: number) {
-  if (!ts) return "";
-
-  return new Date(ts).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import type { ChatMessage } from "../../types/ws";
 
 export function ChatBubble({
   message,
-  previous,
+  isMine,
 }: {
   message: ChatMessage;
-  previous?: ChatMessage;
+  isMine: boolean;
 }) {
-  const showTime =
-    !previous ||
-    (message.ts && previous.ts && message.ts - previous.ts > 5 * 60 * 1000);
-
   return (
-    <div className="flex flex-col items-end gap-1">
-      {showTime && message.ts && (
-        <span className="text-[11px] text-foreground/30 px-1">
-          {formatTime(message.ts)}
-        </span>
-      )}
-
-      <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-sm leading-snug break-words">
+    <div className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[70%] px-3 py-2 rounded-lg text-sm ${
+          isMine ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
+        }`}
+      >
         {message.text}
       </div>
     </div>

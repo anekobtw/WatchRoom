@@ -19,28 +19,31 @@ public class MessageService {
   public void handle(String message, WebSocketSession session) {
     try {
       JsonNode node = mapper.readTree(message);
-      String type = node.get("type").asString();
+
+      String type = node.has("type") ? node.get("type").asText() : null;
       JsonNode data = node.get("data");
+
+      if (type == null) return;
 
       switch (type) {
         case "JOIN" -> {
-          roomService.joinRoom(mapper.treeToValue(data, JoinRoomDto.class), session);
+          if (data == null) return;
+          JoinRoomDto dto = mapper.treeToValue(data, JoinRoomDto.class);
+          if (dto.getClientId() == null || dto.getRoomId() == null) return;
+          roomService.joinRoom(dto, session);
         }
 
         case "UPDATE" -> {
+          if (data == null) return;
           roomService.updateRoom(mapper.treeToValue(data, RoomUpdateDto.class), session);
         }
 
-        case "CHAT" -> {;
+        case "CHAT" -> {
+          if (data == null) return;
           roomService.sendChatMessage(mapper.treeToValue(data, ChatDto.class), session);
         }
 
-        case "LEAVE" -> {
-          roomService.removeSession(session);
-        }
-
-        default -> {
-        }
+        case "LEAVE" -> roomService.removeSession(session);
       }
 
     } catch (Exception e) {

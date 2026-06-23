@@ -3,13 +3,14 @@ import { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { Chat } from "./Chat";
 import type { PlayerAPI } from "../../types/player";
-import { useRoomWS } from "./useWS";
-import type { OutgoingMessage } from "../../types/ws";
 import YouTubePlayer from "../../components/players/YouTubePlayer";
+import { useTypedWS } from "./useTypedWS";
+import type { ClientToServer } from "../../types/ws";
 
 export default function Room() {
   const { id } = useParams();
-  const { state, messages, send } = useRoomWS(id);
+
+  const { state, messages, send } = useTypedWS(id);
 
   const playerRef = useRef<PlayerAPI | null>(null);
   const ignoreEcho = useRef(false);
@@ -25,7 +26,7 @@ export default function Room() {
     const playing = e.data === 1 ? true : e.data === 2 ? false : null;
     if (playing === null) return;
 
-    const msg: OutgoingMessage = {
+    const msg: ClientToServer = {
       type: "UPDATE",
       data: {
         videoTimestamp: player.getTime(),
