@@ -1,4 +1,4 @@
-package com.example.backend.model;
+package com.example.backend.model.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JoinRoomDto {
-  private String type;
-  private String roomId;
+public class ErrorView {
+  private String errorMessage;
 }

@@ -1,4 +1,4 @@
-import { useRef, useMemo, forwardRef, useImperativeHandle } from "react";
+import { useRef, forwardRef, useImperativeHandle } from "react";
 import YouTube from "react-youtube";
 import type { PlayerAPI } from "../../types/player";
 
@@ -10,7 +10,7 @@ function extractYouTubeId(url?: string | null): string | null {
   if (!url) return null;
   const match = url.match(YOUTUBE_ID_REGEX);
   if (match) return match[1];
-  return BARE_ID_REGEX.test(url) ? url : null; // allow a bare ID too
+  return BARE_ID_REGEX.test(url) ? url : null;
 }
 
 type Props = {
@@ -23,7 +23,7 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
   ref,
 ) {
   const playerRef = useRef<any>(null);
-  const resolvedId = useMemo(() => extractYouTubeId(videoId), [videoId]);
+  const resolvedId = extractYouTubeId(videoId);
 
   useImperativeHandle(ref, () => ({
     load: (url: string, timestamp = 0) => {

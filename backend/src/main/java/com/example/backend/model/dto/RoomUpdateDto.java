@@ -1,4 +1,4 @@
-package com.example.backend.model;
+package com.example.backend.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StateUpdateDto {
-  private String type;
+public class RoomUpdateDto {
   private String videoUrl;
   private Long videoTimestamp;
   private Boolean playing;

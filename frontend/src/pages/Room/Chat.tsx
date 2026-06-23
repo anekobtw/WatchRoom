@@ -6,6 +6,7 @@ type ChatMessage = {
   type: "CHAT";
   text: string;
   ts?: number;
+  senderId: string;
 };
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 export function Chat({ send, messages }: Props) {
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const senderId = useRef(crypto.randomUUID());
 
   const sendMsg = () => {
     const value = text.trim();
@@ -25,6 +27,7 @@ export function Chat({ send, messages }: Props) {
       type: "CHAT",
       text: value,
       ts: Date.now(),
+      senderId: senderId.current,
     });
 
     setText("");

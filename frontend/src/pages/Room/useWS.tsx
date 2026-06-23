@@ -7,13 +7,15 @@ type WSMessage =
       videoTimestamp?: number;
       playing?: boolean;
     }
-  | { type: "CHAT"; text: string; ts: number; roomId?: string };
+  | { type: "CHAT"; text: string; ts: number; roomId?: string }
+  | { type: "INIT"; myId: string };
 
 export function useRoomWS(roomId: string | undefined) {
   const wsRef = useRef<WebSocket | null>(null);
 
   const [state, setState] = useState<any>(null);
   const [messages, setMessages] = useState<WSMessage[]>([]);
+  const [myId, setMyId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!roomId) return;
@@ -33,6 +35,11 @@ export function useRoomWS(roomId: string | undefined) {
         return;
       }
 
+      if (msg.type === "INIT") {
+        setMyId(msg.myId);
+        return;
+      }
+
       if (msg.type === "STATE") setState(msg);
       else if (msg.type === "CHAT") setMessages((p) => [...p, msg]);
     };
@@ -49,5 +56,5 @@ export function useRoomWS(roomId: string | undefined) {
     ws.send(JSON.stringify(data));
   }, []);
 
-  return { state, messages, send };
+  return { state, messages, send, myId };
 }

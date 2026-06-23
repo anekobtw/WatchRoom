@@ -1,7 +1,8 @@
 package com.example.backend.service;
 
-import com.example.backend.model.JoinRoomDto;
-import com.example.backend.model.StateUpdateDto;
+import com.example.backend.model.dto.ChatDto;
+import com.example.backend.model.dto.JoinRoomDto;
+import com.example.backend.model.dto.RoomUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -19,25 +20,23 @@ public class MessageService {
     try {
       JsonNode node = mapper.readTree(message);
       String type = node.get("type").asString();
+      JsonNode data = node.get("data");
 
       switch (type) {
         case "JOIN" -> {
-          JoinRoomDto data = mapper.treeToValue(node, JoinRoomDto.class);
-          roomService.joinRoom(data.getRoomId(), session);
+          roomService.joinRoom(mapper.treeToValue(data, JoinRoomDto.class), session);
+        }
+
+        case "UPDATE" -> {
+          roomService.updateRoom(mapper.treeToValue(data, RoomUpdateDto.class), session);
+        }
+
+        case "CHAT" -> {;
+          roomService.sendChatMessage(mapper.treeToValue(data, ChatDto.class), session);
         }
 
         case "LEAVE" -> {
           roomService.removeSession(session);
-        }
-
-        case "SET_STATE" -> {
-          StateUpdateDto data = mapper.treeToValue(node, StateUpdateDto.class);
-          roomService.updateRoom(data, session);
-        }
-
-        case "CHAT" -> {
-          String text = node.get("text").asString();
-          roomService.broadcastChat(session, text);
         }
 
         default -> {

@@ -1,20 +1,23 @@
 package com.example.backend.service;
 
-import com.example.backend.model.RoomEntity;
-import com.example.backend.model.StateUpdateDto;
+import com.example.backend.model.dto.ChatDto;
+import com.example.backend.model.dto.JoinRoomDto;
+import com.example.backend.model.dto.RoomUpdateDto;
+import com.example.backend.model.entity.RoomEntity;
+import com.example.backend.model.view.ChatView;
+import com.example.backend.model.view.ErrorView;
+import com.example.backend.model.view.WsMessage;
 import com.example.backend.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.node.ObjectNode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 @RequiredArgsConstructor
@@ -23,124 +26,148 @@ public class RoomService {
   private final RoomRepository roomRepository;
   private final ObjectMapper mapper;
 
-  private final Map<String, Set<WebSocketSession>> rooms = new ConcurrentHashMap<>();
+  private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(14);
 
-  public void joinRoom(String roomId, WebSocketSession session) {
+  private final Map<String, WebSocketSession> sessionsByClientId = new ConcurrentHashMap<>();
+  private final Map<WebSocketSession, String> sessionToClientId = new ConcurrentHashMap<>();
 
-    rooms.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet());
+  private final Map<String, String> clientToRoom = new ConcurrentHashMap<>();
+  private final Map<String, Set<String>> roomToClients = new ConcurrentHashMap<>();
 
-    for (Set<WebSocketSession> sessions : rooms.values()) {
-      sessions.remove(session);
+  public void joinRoom(JoinRoomDto data, WebSocketSession session) {
+    String clientId = data.getClientId();
+    String roomId = data.getRoomId();
+
+    RoomEntity entity = roomRepository.findById(roomId).orElse(null);
+
+    if (entity == null) {
+      roomRepository.save(RoomEntity.builder()
+              .roomId(roomId)
+              .adminId(clientId)
+              .hashedPassword(passwordEncoder.encode(data.getRawPassword()))
+              .videoUrl(null)
+              .videoTimestamp(0L)
+              .playing(false)
+              .build());
+    } else {
+      if (!passwordEncoder.matches(data.getRawPassword(), entity.getHashedPassword())) {
+        sendError(session, "Invalid password");
+        return;
+      }
     }
 
-    rooms.get(roomId).add(session);
+    removeSession(session);
 
-    RoomEntity entity = roomRepository.findById(roomId)
-            .orElseGet(() -> roomRepository.save(
-                    RoomEntity.builder()
-                            .roomId(roomId)
-                            .videoUrl(null)
-                            .videoTimestamp(0L)
-                            .playing(false)
-                            .build()
-            ));
+    sessionsByClientId.put(clientId, session);
+    sessionToClientId.put(session, clientId);
 
-    broadcastState(entity);
+    clientToRoom.put(clientId, roomId);
+
+    roomToClients
+            .computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet())
+            .add(clientId);
   }
 
-  public void updateRoom(StateUpdateDto dto, WebSocketSession session) {
-
-    String roomId = findRoom(session);
-    if (roomId == null) return;
+  public void updateRoom(RoomUpdateDto data, WebSocketSession session) {
+    String clientId = sessionToClientId.get(session);
+    String roomId = clientToRoom.get(clientId);
 
     RoomEntity entity = roomRepository.findById(roomId).orElse(null);
     if (entity == null) return;
 
-    if (dto.getVideoUrl() != null) entity.setVideoUrl(dto.getVideoUrl());
-    if (dto.getVideoTimestamp() != null) entity.setVideoTimestamp(dto.getVideoTimestamp());
-    if (dto.getPlaying() != null) entity.setPlaying(dto.getPlaying());
+    if (!Objects.equals(entity.getAdminId(), clientId)) {
+      sendError(session, "Unauthorized");
+      return;
+    }
+
+    if (data.getVideoUrl() != null) entity.setVideoUrl(data.getVideoUrl());
+    if (data.getVideoTimestamp() != null) entity.setVideoTimestamp(data.getVideoTimestamp());
+    if (data.getPlaying() != null) entity.setPlaying(data.getPlaying());
 
     roomRepository.save(entity);
 
-    broadcastState(entity);
+    RoomUpdateDto payload = RoomUpdateDto.builder()
+            .videoUrl(entity.getVideoUrl())
+            .videoTimestamp(entity.getVideoTimestamp())
+            .playing(entity.isPlaying())
+            .build();
+
+    WsMessage message = WsMessage.builder()
+            .type("STATE")
+            .data(payload)
+            .build();
+
+    broadcastToRoom(roomId, message);
   }
 
-  public void broadcastChat(WebSocketSession sender, String text) {
-
-    String roomId = findRoom(sender);
+  public void sendChatMessage(ChatDto data, WebSocketSession session) {
+    String roomId = clientToRoom.get(sessionToClientId.get(session));
     if (roomId == null) return;
 
-    ObjectNode node = mapper.createObjectNode();
-    node.put("type", "CHAT");
-    node.put("text", text);
-    node.put("ts", System.currentTimeMillis());
+    ChatView payload = ChatView.builder()
+            .text(data.getText())
+            .ts(System.currentTimeMillis())
+            .senderClientId(sessionToClientId.get(session))
+            .build();
 
-    broadcast(roomId, node);
+    WsMessage message = WsMessage.builder()
+            .type("CHAT")
+            .data(payload)
+            .build();
+
+    broadcastToRoom(roomId, message);
   }
 
-  private void broadcastState(RoomEntity entity) {
+  private void broadcastToRoom(String roomId, Object payload) {
+    Set<String> clients = roomToClients.get(roomId);
+    if (clients == null || clients.isEmpty()) return;
 
-    ObjectNode node = mapper.createObjectNode();
-    node.put("type", "STATE");
-    node.put("videoUrl", entity.getVideoUrl());
-    node.put("videoTimestamp", entity.getVideoTimestamp());
-    node.put("playing", entity.isPlaying());
-
-    broadcast(entity.getRoomId(), node);
+    for (String clientId : clients) {
+      WebSocketSession session = sessionsByClientId.get(clientId);
+      if (session != null) {
+        send(session, payload);
+      }
+    }
   }
 
-  private void broadcast(String roomId, Object payload) {
+  private void sendError(WebSocketSession session, String message) {
+    ErrorView payload = ErrorView.builder()
+            .errorMessage(message)
+            .build();
 
-    Set<WebSocketSession> sessions = rooms.get(roomId);
-    if (sessions == null) return;
+    WsMessage msg = WsMessage.builder()
+            .type("ERROR")
+            .data(payload)
+            .build();
 
-    List<WebSocketSession> dead = new ArrayList<>();
+    send(session, msg);
+  }
+
+  private void send(WebSocketSession session, Object payload) {
+    if (session == null || !session.isOpen()) return;
 
     try {
       String json = mapper.writeValueAsString(payload);
-      TextMessage message = new TextMessage(json);
-
-      for (WebSocketSession session : sessions) {
-        try {
-          if (session.isOpen()) {
-            session.sendMessage(message);
-          } else {
-            dead.add(session);
-          }
-        } catch (Exception e) {
-          dead.add(session);
-        }
-      }
-
-      dead.forEach(sessions::remove);
-
-      if (sessions.isEmpty()) {
-        rooms.remove(roomId);
-      }
-
+      session.sendMessage(new TextMessage(json));
     } catch (Exception e) {
-      e.printStackTrace();
+      removeSession(session);
     }
-  }
-
-  private String findRoom(WebSocketSession session) {
-    for (var entry : rooms.entrySet()) {
-      if (entry.getValue().contains(session)) {
-        return entry.getKey();
-      }
-    }
-    return null;
   }
 
   public void removeSession(WebSocketSession session) {
-    String roomId = findRoom(session);
+    String clientId = sessionToClientId.remove(session);
+    if (clientId == null) return;
+
+    sessionsByClientId.remove(clientId);
+
+    String roomId = clientToRoom.remove(clientId);
     if (roomId == null) return;
 
-    Set<WebSocketSession> sessions = rooms.get(roomId);
-    if (sessions != null) {
-      sessions.remove(session);
-      if (sessions.isEmpty()) {
-        rooms.remove(roomId);
+    Set<String> clients = roomToClients.get(roomId);
+    if (clients != null) {
+      clients.remove(clientId);
+      if (clients.isEmpty()) {
+        roomToClients.remove(roomId);
       }
     }
   }

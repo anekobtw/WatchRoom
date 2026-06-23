@@ -4,14 +4,55 @@
 
 Connections are listened on `ws://localhost:8080/ws`
 
-**JOIN:**
+### Message format
+
+All messages follow this structure:
+
+```json
+{
+  "type": "STRING",
+  "data": {}
+}
+```
+
+**JOIN**
 
 Joins the room. If the room with roomId doesn't exist, the room is created.
 
 ```json
 {
   "type": "JOIN",
-  "roomId": "abc123"
+  "data": {
+    "roomId": "room123",
+    "clientId": "710c2ff0-aa78-49b4-adde-9a9971f64535",
+    "rawPassword": "1234"
+  }
+}
+```
+
+**UPDATE** (Admin only)
+
+It changes the state of the room.
+
+```json
+{
+  "type": "UPDATE",
+  "data": {
+    "videoUrl": "https://example.com/video",
+    "videoTimestamp": 120,
+    "playing": true
+  }
+}
+```
+
+**CHAT**
+
+```json
+{
+  "type": "CHAT",
+  "data": {
+    "text": "hello",
+  }
 }
 ```
 
@@ -25,30 +66,4 @@ Leaves the room.
 }
 ```
 
-**SET_STATE:**
-
-It changes the state of the room. Can be used to play/pause/change videoTimestamp
-
-```json
-{
-    "type": "SET_STATE",
-    "videoUrl": "https://youtube.com/...",
-    "videoTimestamp": 300
-    "playing": false
-}
-```
-
-**CHAT:**
-
-Sends a message to the chat.
-
-```json
-{
-    "type": "CHAT",
-    "text": "A message goes here",
-    "ts": 1781868416
-}
-```
-
-
-
+``

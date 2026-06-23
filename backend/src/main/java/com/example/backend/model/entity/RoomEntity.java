@@ -1,4 +1,4 @@
-package com.example.backend.model;
+package com.example.backend.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +21,8 @@ public class RoomEntity {
   @Column(name = "room_id")
   private String roomId;
 
+  private String adminId;
+  private String hashedPassword;
   private String videoUrl;
   private long videoTimestamp;
   private boolean playing;
