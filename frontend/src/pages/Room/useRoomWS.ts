@@ -6,7 +6,7 @@ import type {
 } from "../../types/ws";
 import { getClientId } from "../../../scripts/getClientId";
 
-export function useTypedWS(roomId?: string) {
+export function useRoomWS(roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
 
   const [state, setState] = useState<ServerToClient | null>(null);
@@ -24,7 +24,7 @@ export function useTypedWS(roomId?: string) {
         data: {
           roomId,
           clientId: getClientId(),
-          rawPassword: "1234",
+          rawPassword: "1234", // TODO: change this default password to either random generation or user input
         },
       };
 
@@ -32,29 +32,23 @@ export function useTypedWS(roomId?: string) {
     };
 
     ws.onmessage = (e) => {
-      let msg: ServerToClient;
+      const msg = JSON.parse(e.data) as ServerToClient;
 
-      try {
-        msg = JSON.parse(e.data);
-      } catch {
-        return;
-      }
+      switch (msg.type) {
+        case "STATE":
+          setState(msg);
+          break;
 
-      if (msg.type === "STATE") {
-        setState(msg);
-        return;
-      }
+        case "CHAT":
+          setMessages((prev) => [...prev, msg.data]);
+          break;
 
-      if (msg.type === "CHAT") {
-        setMessages((prev) => [
-          ...prev,
-          {
-            text: msg.data.text,
-            ts: msg.data.ts,
-            senderClientId: msg.data.senderClientId,
-          },
-        ]);
-        return;
+        case "ERROR":
+          console.log("Error occured", msg.data.errorMessage);
+          break;
+
+        default:
+          return;
       }
     };
 

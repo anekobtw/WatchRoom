@@ -1,31 +1,22 @@
-FROM oven/bun AS frontend-build
-WORKDIR /frontend
-
-COPY frontend/package.json frontend/bun.lock ./
-RUN bun install --frozen-lockfile
-
-COPY frontend .
-RUN bun run build
-
-
-FROM gradle:9.5.1-jdk21 AS backend-build
+FROM gradle:9.5.1-jdk21 AS build
 WORKDIR /app
 
-COPY backend/gradle ./gradle
-COPY backend/build.gradle backend/settings.gradle ./
+COPY gradle ./gradle
+COPY build.gradle settings.gradle ./
+
 RUN gradle dependencies --no-daemon
 
-COPY backend .
-COPY --from=frontend-build /frontend/dist ./src/main/resources/static
+COPY . .
 
 RUN gradle clean build -x test --no-daemon
 
+FROM eclipse-temurin:21-jre
 
-FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
-COPY --from=backend-build /app/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
 

@@ -1,27 +1,46 @@
 import { useRef, useState, useEffect } from "react";
 import { Send } from "lucide-react";
-import { ChatBubble } from "./ChatBubble";
-import type { ChatMessage } from "../../types/ws";
+import type { ChatMessage, ClientToServer } from "../../types/ws";
 import { getClientId } from "../../../scripts/getClientId";
 
-type Props = {
-  send: (msg: any) => void;
-  messages: ChatMessage[];
-};
+function ChatBubble({
+  message,
+  isMine,
+}: {
+  message: ChatMessage;
+  isMine: boolean;
+}) {
+  return (
+    <div className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[70%] px-3 py-2 rounded-lg text-sm ${
+          isMine ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
+        }`}
+      >
+        {message.text}
+      </div>
+    </div>
+  );
+}
 
-export function Chat({ send, messages }: Props) {
+export function Chat({
+  send,
+  messages,
+}: {
+  send: (msg: ClientToServer) => void;
+  messages: ChatMessage[];
+}) {
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const clientId = useRef(getClientId());
 
   const sendMsg = () => {
-    const value = text.trim();
-    if (!value) return;
+    if (!text.trim()) return;
 
     send({
       type: "CHAT",
       data: {
-        text: value,
+        text: text.trim(),
       },
     });
 

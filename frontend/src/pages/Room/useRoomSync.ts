@@ -1,23 +1,42 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { PlayerAPI } from "../../types/player";
-import type { ServerToClient } from "../../types/ws";
+import type { ClientToServer, ServerToClient } from "../../types/ws";
 
 const SYNC_THRESHOLD_SECONDS = 1;
 const ECHO_TIMEOUT_MS = 250;
 
-type Props = {
-  playerRef: React.RefObject<PlayerAPI | null>;
-  state: ServerToClient | null;
-  ignoreEcho: React.RefObject<boolean>;
-  lastVideoRef: React.RefObject<string | null>;
-};
-
 export function useRoomSync({
-  playerRef,
   state,
-  ignoreEcho,
-  lastVideoRef,
-}: Props) {
+  send,
+}: {
+  state: ServerToClient | null;
+  send: (msg: ClientToServer) => void;
+}) {
+  const playerRef = useRef<PlayerAPI | null>(null);
+  const ignoreEcho = useRef(false);
+  const lastVideoRef = useRef<string | null>(null);
+
+  const onPlayerStateChange = useCallback(
+    (e: any) => {
+      if (ignoreEcho.current) return;
+
+      const player = playerRef.current;
+      if (!player) return;
+
+      const playing = e.data === 1 ? true : e.data === 2 ? false : null;
+      if (playing === null) return;
+
+      send({
+        type: "UPDATE",
+        data: {
+          videoTimestamp: player.getTime(),
+          playing,
+        },
+      });
+    },
+    [send],
+  );
+
   useEffect(() => {
     const player = playerRef.current;
 
@@ -55,5 +74,10 @@ export function useRoomSync({
     }, ECHO_TIMEOUT_MS);
 
     return () => clearTimeout(timeout);
-  }, [state, playerRef, ignoreEcho, lastVideoRef]);
+  }, [state]);
+
+  return {
+    playerRef,
+    onPlayerStateChange,
+  };
 }

@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:17
-    container_name: shareview-db
+    container_name: watchtogether-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -11,9 +11,8 @@ services:
 
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
-    container_name: shareview-backend
+      context: ./backend
+    container_name: watchtogether-backend
     depends_on:
       - db
     environment:
@@ -22,3 +21,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: watchtogether-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"

@@ -42,7 +42,7 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
     },
     getTime: () => {
       return playerRef.current?.getCurrentTime?.() ?? 0;
-    },
+    }
   }));
 
   return (

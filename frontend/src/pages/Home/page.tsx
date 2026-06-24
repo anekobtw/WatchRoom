@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { animate, scrambleText, utils } from "animejs";
 import Mockup from "./Mockup";
 import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Home() {
   useEffect(() => {
@@ -62,7 +63,7 @@ export default function Home() {
 
           <div className="fade-3 flex flex-col sm:flex-row gap-3">
             <Link
-              to={`/room/${crypto.randomUUID()}`}
+              to={`/room/${uuidv4()}`}
               className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center"
             >
               Create a room

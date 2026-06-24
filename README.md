@@ -1,4 +1,4 @@
-# SyncView
+# WatchTogether
 
 # websocket requests
 

@@ -1,53 +1,34 @@
 import { useParams } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Chat } from "./Chat";
-import type { PlayerAPI } from "../../types/player";
 import YouTubePlayer from "../../components/players/YouTubePlayer";
-import { useTypedWS } from "./useTypedWS";
-import type { ClientToServer } from "../../types/ws";
+import { useRoomWS } from "./useRoomWS";
+import { useRoomSync } from "./useRoomSync";
 
 export default function Room() {
   const { id } = useParams();
 
-  const { state, messages, send } = useTypedWS(id);
+  const { state, messages, send } = useRoomWS(id);
 
-  const playerRef = useRef<PlayerAPI | null>(null);
-  const ignoreEcho = useRef(false);
+  const { playerRef, onPlayerStateChange } = useRoomSync({
+    state,
+    send,
+  });
 
   const [chatOpen, setChatOpen] = useState(true);
 
-  const handlePlayerStateChange = (e: any) => {
-    if (ignoreEcho.current) return;
-
-    const player = playerRef.current;
-    if (!player) return;
-
-    const playing = e.data === 1 ? true : e.data === 2 ? false : null;
-    if (playing === null) return;
-
-    const msg: ClientToServer = {
-      type: "UPDATE",
-      data: {
-        videoTimestamp: player.getTime(),
-        playing,
-      },
-    };
-
-    send(msg);
-  };
-
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background text-foreground font-inter">
-      <div className="flex flex-col flex-1 md:flex-[3] min-w-0 p-4 md:p-6 gap-4">
-        <p className="text-10 text-foreground/40">Room {id}</p>
+      <div className="flex flex-col flex-1 md:flex-3 min-w-0 p-4 md:p-6 gap-4">
+        <p className="text-10 text-foreground/30">Room {id}</p>
 
         <div className="relative flex-1 bg-black rounded-2xl overflow-hidden">
           {state?.type === "STATE" && state.data.videoUrl ? (
             <YouTubePlayer
               ref={playerRef}
               videoId={state.data.videoUrl}
-              onStateChange={handlePlayerStateChange}
+              onStateChange={onPlayerStateChange}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-foreground/40">
