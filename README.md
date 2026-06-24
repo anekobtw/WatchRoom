@@ -56,7 +56,7 @@ It changes the state of the room.
 }
 ```
 
-**LEAVE:**
+**LEAVE**
 
 Leaves the room.
 
@@ -66,4 +66,3 @@ Leaves the room.
 }
 ```
 
-``
