@@ -1,4 +1,4 @@
-# WatchTogether
+# WatchRoom
 
 # websocket requests
 

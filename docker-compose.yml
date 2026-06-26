@@ -1,32 +1,36 @@
 services:
-  db:
+  postgres:
     image: postgres:17
-    container_name: watchtogether-db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   backend:
     build:
       context: ./backend
-    container_name: watchtogether-backend
+    container_name: watchroom-backend
     depends_on:
-      - db
+      - postgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8080:8080"
 
   frontend:
     build:
       context: ./frontend
-    container_name: watchtogether-frontend
+      args:
+        VITE_WS_URL: ${VITE_WS_URL}
+    container_name: watchroom-frontend
     depends_on:
       - backend
     ports:
       - "80:80"
+
+volumes:
+  postgres_data:

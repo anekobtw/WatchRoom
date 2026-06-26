@@ -2,24 +2,22 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-24.04
+
+    env:
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
 
     steps:
       - uses: actions/checkout@v7
-
-      - uses: docker/setup-buildx-action@v4
-
-      - uses: docker/build-push-action@v7
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Start stack
         run: docker compose up -d --build

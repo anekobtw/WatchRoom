@@ -9,7 +9,7 @@ export default function Home() {
     const [$scramble] = utils.$(".scramble");
     if (!$scramble) return;
 
-    const texts = ["wherever you are", "whenever you want"];
+    const texts = ["you", "your friends", "everyone"];
     let i = 0;
 
     const play = () => {
@@ -48,10 +48,9 @@ export default function Home() {
 
         <div className="relative z-10 max-w-2xl text-left mx-auto md:ml-15">
           <h1 className="fade-1 font-title text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-[0.01em] mb-6">
-            Watch together,
-            <br />
+            Free watchrooms for {" "}
             <span className="text-primary scramble md:whitespace-nowrap">
-              wherever you are
+              you
             </span>
           </h1>
 

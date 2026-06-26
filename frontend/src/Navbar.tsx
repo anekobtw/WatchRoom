@@ -9,7 +9,7 @@ export default function Navbar() {
     <nav className="absolute inset-x-0 top-0 z-50">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
         <span className="font-syne text-xl font-extrabold text-foreground">
-          WatchTogether
+          WatchRoom
         </span>
 
         <div className="flex items-center gap-8">

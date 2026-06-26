@@ -8,6 +8,9 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
+ARG VITE_WS_URL
+ENV VITE_WS_URL=$VITE_WS_URL
+
 RUN bun run build
 
 FROM nginx:alpine
