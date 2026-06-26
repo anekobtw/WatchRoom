@@ -49,7 +49,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Install deps
-        run: cd frontend && bun install --frozen-lockfile
+        run: cd frontend && bun install
 
       - name: Build
         run: cd frontend && bun run build
