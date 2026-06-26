@@ -40,6 +40,7 @@ jobs:
 
   deploy-frontend:
     runs-on: ubuntu-24.04
+    environment: production
 
     steps:
       - uses: actions/checkout@v7
