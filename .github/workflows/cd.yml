@@ -38,28 +38,3 @@ jobs:
             docker compose down
             docker compose up -d --build
 
-  deploy-frontend:
-    runs-on: ubuntu-24.04
-    environment: production
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install deps
-        run: cd frontend && bun install
-
-      - name: Build
-        run: cd frontend && bun run build
-        env:
-          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy frontend/dist --project-name=watchroom
-
