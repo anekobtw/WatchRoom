@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    environment: dev
 
     env:
       DB_NAME: ${{ secrets.DB_NAME }}
