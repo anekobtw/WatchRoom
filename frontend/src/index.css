@@ -98,6 +98,11 @@ body {
   animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
 }
 
+.fade-4 {
+  opacity: 0;
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1s forwards;
+}
+
 @keyframes navbar-in {
   from {
     opacity: 0;
