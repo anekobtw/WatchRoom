@@ -1,38 +1,10 @@
-import { useEffect } from "react";
-import { animate, scrambleText, utils } from "animejs";
 import Mockup from "./Mockup";
 import { Link } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 
 export default function Home() {
-  useEffect(() => {
-    const [$scramble] = utils.$(".scramble");
-    if (!$scramble) return;
-
-    const texts = ["you", "your friends", "everyone"];
-    let i = 0;
-
-    const play = () => {
-      animate($scramble, {
-        innerHTML: scrambleText({
-          text: texts[i],
-          revealRate: 15,
-          from: "left",
-        }),
-        onComplete: () => {
-          i = (i + 1) % texts.length;
-          setTimeout(play, 3000);
-        },
-      });
-    };
-
-    play();
-  }, []);
-
   return (
     <div className="font-inter min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Hero */}
-
       <section className="relative overflow-hidden px-4 sm:px-6 py-12 min-h-[95vh] flex items-center">
         <img
           src="/poster.png"
@@ -48,7 +20,6 @@ export default function Home() {
         <div className="absolute inset-0 bg-linear-to-r from-black to-transparent" />
         <div className="absolute inset-0 bg-linear-to-t from-background via-background/15 to-transparent" />
 
-
         <div className="relative z-10 w-full max-w-2xl mx-auto md:ml-15">
           <h1 className="fade-1 font-title text-4xl sm:text-6xl md:text-8xl leading-[1.05] tracking-[0.02em] text-blue-400 mb-2 wrap-break-word md:whitespace-nowrap">
             watchroom.party
@@ -58,7 +29,7 @@ export default function Home() {
             Watch anything in a shared room.
           </h2>
 
-          <p className="fade-3 text-sm sm:text-base md:text-[1.05rem] text-foreground/40 leading-relaxed mb-8 font-bold max-w-md">
+          <p className="fade-3 text-sm sm:text-base md:text-[1.05rem] text-foreground/40 leading-relaxed mb-8 max-w-md">
             Completely for free. No signup required.
           </p>
 

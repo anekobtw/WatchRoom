@@ -39,7 +39,7 @@ export default function Room() {
       </div>
 
       <div
-        className={`md:flex-1 md:max-w-[380px] border-l border-line bg-surface flex flex-col ${
+        className={`md:flex-1 md:max-w-95 border-l border-line bg-surface flex flex-col ${
           chatOpen ? "h-[30vh]" : "h-14"
         } md:h-auto`}
       >

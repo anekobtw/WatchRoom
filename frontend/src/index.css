@@ -1,14 +1,9 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Neue Montreal";
-  src: url("/fonts/NeueMontreal-Bold.woff2") format("woff2");
-  font-weight: 700;
-}
-
 @layer base {
   .font-title {
-    font-family: "Neue Montreal", sans-serif;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
   }
 
   .font-inter {
@@ -117,4 +112,44 @@ body {
 
 .navbar-enter {
   animation: navbar-in 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stars,
+.stars2,
+.stars3 {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 50px 80px, white, transparent),
+    radial-gradient(2px 2px at 200px 120px, white, transparent),
+    radial-gradient(1px 1px at 400px 300px, white, transparent),
+    radial-gradient(2px 2px at 600px 500px, white, transparent),
+    radial-gradient(1px 1px at 900px 200px, white, transparent),
+    radial-gradient(2px 2px at 1200px 600px, white, transparent),
+    radial-gradient(1px 1px at 1400px 100px, white, transparent);
+  background-size: 1600px 900px;
+}
+
+.stars {
+  opacity: 0.9;
+  animation: moveStars 80s linear infinite;
+}
+
+.stars2 {
+  opacity: 0.6;
+  animation: moveStars 140s linear infinite;
+}
+
+.stars3 {
+  opacity: 0.35;
+  animation: moveStars 220s linear infinite;
+}
+
+@keyframes moveStars {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-1200px);
+  }
 }
