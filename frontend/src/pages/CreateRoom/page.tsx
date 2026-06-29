@@ -1,4 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+}
 
 export default function CreateRoom() {
   const [roomName, setRoomName] = useState("");
@@ -6,6 +15,21 @@ export default function CreateRoom() {
   const [isPublic, setIsPublic] = useState(false);
   const [showPublicDialog, setShowPublicDialog] = useState(false);
   const [roomNameError, setRoomNameError] = useState(false);
+
+  const navigate = useNavigate();
+
+  function createRoom() {
+    const slug = slugify(roomName);
+
+    console.log({
+      roomName,
+      password: password || null,
+      public: isPublic,
+      slug,
+    });
+
+    navigate(`/room/${slug}`);
+  }
 
   function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
@@ -24,15 +48,7 @@ export default function CreateRoom() {
 
     createRoom();
   }
-
-  function createRoom() {
-    console.log({
-      roomName,
-      password: password || null,
-      public: isPublic,
-    });
-  }
-
+ 
   return (
     <>
       <div className="relative min-h-screen overflow-hidden bg-background font-inter text-foreground">
@@ -56,7 +72,7 @@ export default function CreateRoom() {
             onSubmit={handleSubmit}
             className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-2xl backdrop-blur-xl"
           >
-            <h1 className="text-3xl font-bold">Create Room</h1>
+            <h1 className="text-3xl font-bold font-title">Create Room</h1>
 
             <p className="mt-2 text-sm text-foreground/60">
               Create a private or public watch room.

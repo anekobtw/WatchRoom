@@ -36,14 +36,14 @@ export default function Home() {
           <div className="fade-4 flex flex-row gap-3">
             <Link
               to={`/create-room`}
-              className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center"
+              className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center duration-200"
             >
               Create a room
             </Link>
 
             <a
               href="#demo"
-              className="bg-transparent hover:bg-foreground/5 border border-foreground/15 hover:border-foreground/30 text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center"
+              className="bg-transparent hover:bg-foreground/5 border border-foreground/15 hover:border-foreground/30 text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center duration-200"
             >
               Join a room
             </a>

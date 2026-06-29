@@ -1,16 +1,19 @@
 const navLinks = new Map([
-  ["Features", "#features"],
   ["Log in", "#login"],
-  ["Get started", "#get-started"],
+  ["Get started", "/create-room"],
 ]);
 
 export default function Navbar() {
   return (
     <nav className="absolute inset-x-0 top-0 z-50">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
-        <span className="font-syne text-xl font-extrabold text-foreground">
-          WatchRoom
-        </span>
+      <div className="mx-auto flex h-20 max-w-9xl items-center justify-between px-8">
+        <a
+          key={"watchroom.party"}
+          href="/"
+          className="font-syne text-xl font-extrabold text-foreground"
+        >
+          watchroom.party
+        </a>
 
         <div className="flex items-center gap-8">
           {[...navLinks.entries()].map(([label, href]) =>
