@@ -84,12 +84,12 @@ export default function CreateRoom() {
                   placeholder="Movie Night"
                   className={`w-full rounded-lg border bg-transparent px-4 py-3.5 text-sm outline-none transition ${
                     roomNameError
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-gray-700 focus:border-blue-500"
+                      ? "border-critical focus:border-critical"
+                      : "border-gray-700 focus:border-primary"
                   }`}
                 />
                 {roomNameError && (
-                  <p className="mt-1.5 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-critical">
                     Room name cannot be empty
                   </p>
                 )}
@@ -104,7 +104,7 @@ export default function CreateRoom() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Leave empty for a passwordless room"
-                  className="w-full rounded-lg border border-gray-700 bg-transparent px-4 py-3.5 text-sm outline-none focus:border-blue-500 transition"
+                  className="w-full rounded-lg border border-gray-700 bg-transparent px-4 py-3.5 text-sm outline-none focus:border-primary transition"
                 />
               </div>
 
@@ -115,7 +115,7 @@ export default function CreateRoom() {
                     id="isPublic"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-700 bg-transparent text-blue-500 focus:ring-0 cursor-pointer accent-blue-500"
+                    className="h-4 w-4 rounded border-gray-700 bg-transparent text-primary focus:ring-0 cursor-pointer accent-primary"
                   />
                   <label
                     htmlFor="isPublic"
@@ -128,7 +128,7 @@ export default function CreateRoom() {
                 <div className="group relative">
                   <button
                     type="button"
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-xs text-gray-400 hover:bg-blue-600 hover:text-white transition"
+                    className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-xs text-gray-400 hover:bg-primary-hover hover:text-white transition"
                   >
                     ?
                   </button>
