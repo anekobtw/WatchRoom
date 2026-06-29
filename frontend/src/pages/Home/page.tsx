@@ -64,7 +64,7 @@ export default function Home() {
 
           <div className="fade-4 flex flex-row gap-3">
             <Link
-              to={`/room/${uuidv4()}`}
+              to={`/create-room`}
               className="bg-primary hover:bg-primary-hover text-text text-sm font-medium px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center"
             >
               Create a room
