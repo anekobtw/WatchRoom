@@ -23,23 +23,21 @@ public class MessageService {
       String type = node.has("type") ? node.get("type").asText() : null;
       JsonNode data = node.get("data");
 
+      if (data == null) return;
       if (type == null) return;
 
       switch (type) {
         case "JOIN" -> {
-          if (data == null) return;
           JoinRoomDto dto = mapper.treeToValue(data, JoinRoomDto.class);
           if (dto.getClientId() == null || dto.getRoomId() == null) return;
           roomService.joinRoom(dto, session);
         }
 
         case "UPDATE" -> {
-          if (data == null) return;
           roomService.updateRoom(mapper.treeToValue(data, RoomUpdateDto.class), session);
         }
 
         case "CHAT" -> {
-          if (data == null) return;
           roomService.sendChatMessage(mapper.treeToValue(data, ChatDto.class), session);
         }
 

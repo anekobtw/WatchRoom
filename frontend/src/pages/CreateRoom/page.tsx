@@ -55,7 +55,6 @@ export default function CreateRoom() {
         <div className="hidden md:block md:w-1/2 lg:w-7/12 relative">
           <img
             src="/nasa.jpg"
-            alt="Space background"
             loading="eager"
             className="h-full w-full object-cover"
           />
@@ -64,7 +63,7 @@ export default function CreateRoom() {
 
         <div className="w-full md:w-1/2 lg:w-5/12 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
           <div className="w-full max-w-md mx-auto">
-            <h1 className="text-4xl font-bold tracking-tight">Create Room</h1>
+            <h1 className="text-4xl font-bold tracking-tight font-title">Create Room</h1>
             <p className="mt-3 text-gray-400">
               Welcome! Please configure your watch room settings below.
             </p>

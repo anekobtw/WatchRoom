@@ -1,4 +1,4 @@
-package com.example.backend.model.dto;
+package com.example.backend.model.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JoinRoomDto {
+public class JoinRoomView {
   private String roomId;
-  private String clientId;
-  private String name;
-  private String rawPassword;
+  private String adminId;
 }

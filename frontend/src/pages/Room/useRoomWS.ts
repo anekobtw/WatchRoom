@@ -3,6 +3,7 @@ import type {
   ClientToServer,
   ServerToClient,
   ChatMessage,
+  User,
 } from "../../types/ws";
 import { getClientId } from "../../../scripts/getClientId";
 
@@ -11,6 +12,7 @@ export function useRoomWS(roomId?: string) {
 
   const [state, setState] = useState<ServerToClient | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -43,6 +45,10 @@ export function useRoomWS(roomId?: string) {
           setMessages((prev) => [...prev, msg.data]);
           break;
 
+        case "USERS":
+          setUsers(msg.data.users);
+          break;
+
         case "ERROR":
           console.log("Error occured", msg.data.errorMessage);
           break;
@@ -64,5 +70,5 @@ export function useRoomWS(roomId?: string) {
     ws.send(JSON.stringify(msg));
   }, []);
 
-  return { state, messages, send };
+  return { state, messages, users, send };
 }

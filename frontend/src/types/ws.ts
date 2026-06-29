@@ -43,6 +43,12 @@ export type ServerToClient =
       };
     }
   | {
+      type: "USERS";
+      data: {
+        users: User[];
+      };
+    }
+  | {
       type: "ERROR";
       data: {
         errorMessage: string;
@@ -53,4 +59,10 @@ export type ChatMessage = {
   text: string;
   ts: number;
   senderClientId: string;
+};
+
+export type User = {
+  clientId: string;
+  name: string;
+  admin: boolean;
 };
