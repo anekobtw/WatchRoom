@@ -51,7 +51,7 @@ export default function CreateRoom() {
 
   return (
     <>
-      <div className="flex min-h-screen bg-[#0b0f19] font-inter text-white">
+      <div className="flex min-h-screen bg-background font-inter text-white overflow-hidden">
         <div className="hidden md:block md:w-1/2 lg:w-7/12 relative">
           <img
             src="/nasa.jpg"
@@ -63,14 +63,16 @@ export default function CreateRoom() {
 
         <div className="w-full md:w-1/2 lg:w-5/12 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
           <div className="w-full max-w-md mx-auto">
-            <h1 className="text-4xl font-bold tracking-tight font-title">Create Room</h1>
+            <h1 className="text-4xl font-bold tracking-tight font-title">
+              Create Room
+            </h1>
             <p className="mt-3 text-gray-400">
               Welcome! Please configure your watch room settings below.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-10 space-y-6">
               <div className="relative">
-                <label className="absolute -top-2.5 left-3 bg-[#0b0f19] px-1 text-xs text-gray-400">
+                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-gray-400">
                   Room Name
                 </label>
                 <input
@@ -95,7 +97,7 @@ export default function CreateRoom() {
               </div>
 
               <div className="relative">
-                <label className="absolute -top-2.5 left-3 bg-[#0b0f19] px-1 text-xs text-gray-400">
+                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-gray-400">
                   Password
                 </label>
                 <input
