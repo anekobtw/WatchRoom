@@ -19,31 +19,48 @@ body {
 }
 
 :root {
-  --primary: #4059ad;
-  --primary-hover: #31448a;
+  --background: #0f1420;
+  --surface-0: #141b2a;
+  --surface-1: #1b2437;
+  --surface-2: #22304a;
+  --surface-3: #2e3f5f;
 
-  --background: #121826;
-  --foreground: #f9f8f8;
+  --text-primary: #f5f7ff;
+  --text-secondary: #b1bcd3;
+  --text-muted: #7f8aa3;
+  --text-disabled: #5b6478;
 
-  --surface: #1a2340;
-  --surface-2: #223055;
+  --primary: #5b7cfa;
+  --primary-hover: #4a69e0;
+  --primary-active: #3e58c9;
+  --primary-soft: rgba(91, 124, 250, 0.15);
 
-  /* --surface: #161d31; */
-  /* --surface-2: #1b2440; */
+  --border: #2a3550;
+
   --line: rgba(255, 255, 255, 0.08);
 
   --critical: #d23742;
 }
 
 @theme {
+  --color-background: var(--background);
+
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
+
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-soft: var(--primary-soft);
 
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
   --color-line: var(--line);
 
   --color-critical: var(--critical);

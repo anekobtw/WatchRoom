@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
-import { Send } from "lucide-react";
-import type { ChatMessage, ClientToServer } from "../../types/ws";
-import { getClientId } from "../../../scripts/getClientId";
+import { Send, Users, ArrowRightFromLine } from "lucide-react";
+import type { ChatMessage, ClientToServer } from "@/types/ws";
+import { getClientId } from "@/scripts/getClientId";
 
 function ChatBubble({
   message,
@@ -14,7 +14,7 @@ function ChatBubble({
     <div className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-[70%] px-3 py-2 rounded-lg text-sm ${
-          isMine ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
+          isMine ? "bg-primary-accent text-primary" : "bg-border text-black"
         }`}
       >
         {message.text}
@@ -23,7 +23,7 @@ function ChatBubble({
   );
 }
 
-export function Chat({
+function Chat({
   send,
   messages,
 }: {
@@ -62,9 +62,7 @@ export function Chat({
       >
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-1.5 text-center">
-            <p className="font-title text-xs uppercase text-foreground/35">
-              No messages yet
-            </p>
+            <p className="text-md text-text-secondary/35">No messages yet</p>
           </div>
         )}
 
@@ -78,7 +76,7 @@ export function Chat({
       </div>
 
       <div className="border-t border-line p-3">
-        <div className="flex items-center gap-2 rounded-full bg-surface-2 border border-line pl-4 pr-1.5 py-1.5">
+        <div className="flex items-center gap-2 rounded-full bg-surface-2 border border-border text-text-muted pl-4 pr-1.5 py-1.5">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -87,11 +85,37 @@ export function Chat({
             className="flex-1 bg-transparent text-sm outline-none"
           />
 
-          <button onClick={sendMsg} disabled={!text.trim()}>
+          <button onClick={sendMsg} disabled={!text.trim()} className="p-1">
             <Send size={13} />
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ChatSidebar({
+  send,
+  messages,
+}: {
+  send: (msg: ClientToServer) => void;
+  messages: ChatMessage[];
+}) {
+  return (
+    <aside className="flex h-full flex-col border-l border-line bg-surface-1">
+      <div className="w-full flex flex-row items-center justify-between border-b border-border px-4 py-4 text-center text-md font-semibold text-text-primary">
+        <button className="hover:bg-surface-2 rounded-xl cursor-pointer transition duration-200 p-2">
+          <ArrowRightFromLine className="text-text-primary" size={24} />
+        </button>
+        Chat
+        <button className="hover:bg-surface-2 rounded-xl cursor-pointer transition duration-200 p-2">
+          <Users />
+        </button>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <Chat send={send} messages={messages} />
+      </div>
+    </aside>
   );
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
-import type { PlayerAPI } from "../../types/player";
-import type { ClientToServer, ServerToClient } from "../../types/ws";
+import type { PlayerAPI } from "@/types/player";
+import type { ClientToServer, ServerToClient } from "@/types/ws";
 
 const SYNC_THRESHOLD_SECONDS = 1;
 const ECHO_TIMEOUT_MS = 250;

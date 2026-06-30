@@ -51,7 +51,7 @@ export default function CreateRoom() {
 
   return (
     <>
-      <div className="flex min-h-screen bg-background font-inter text-white overflow-hidden">
+      <div className="flex min-h-screen bg-background font-inter overflow-hidden">
         <div className="hidden md:block md:w-1/2 lg:w-7/12 relative">
           <img
             src="/nasa.jpg"
@@ -63,16 +63,16 @@ export default function CreateRoom() {
 
         <div className="w-full md:w-1/2 lg:w-5/12 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
           <div className="w-full max-w-md mx-auto">
-            <h1 className="text-4xl font-bold tracking-tight font-title">
+            <h1 className="text-4xl font-bold tracking-tight font-title text-text-primary">
               Create Room
             </h1>
-            <p className="mt-3 text-gray-400">
+            <p className="mt-3 text-text-secondary">
               Welcome! Please configure your watch room settings below.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-10 space-y-6">
               <div className="relative">
-                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-gray-400">
+                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-text-secondary">
                   Room Name
                 </label>
                 <input
@@ -83,10 +83,10 @@ export default function CreateRoom() {
                     if (e.target.value.trim()) setRoomNameError(false);
                   }}
                   placeholder="Movie Night"
-                  className={`w-full rounded-lg border bg-transparent px-4 py-3.5 text-sm outline-none transition ${
+                  className={`w-full rounded-lg border bg-transparent px-4 py-3.5 text-sm text-text-secondary outline-none transition ${
                     roomNameError
                       ? "border-critical focus:border-critical"
-                      : "border-gray-700 focus:border-primary"
+                      : "border-border focus:border-primary"
                   }`}
                 />
                 {roomNameError && (
@@ -97,7 +97,7 @@ export default function CreateRoom() {
               </div>
 
               <div className="relative">
-                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-gray-400">
+                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-text-secondary">
                   Password
                 </label>
                 <input
@@ -105,7 +105,7 @@ export default function CreateRoom() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Leave empty for a passwordless room"
-                  className="w-full rounded-lg border border-gray-700 bg-transparent px-4 py-3.5 text-sm outline-none focus:border-primary transition"
+                  className="w-full rounded-lg border border-border bg-transparent px-4 py-3.5 text-sm outline-none focus:border-primary transition text-text-secondary"
                 />
               </div>
 
@@ -116,11 +116,11 @@ export default function CreateRoom() {
                     id="isPublic"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-700 bg-transparent text-primary focus:ring-0 cursor-pointer accent-primary"
+                    className="h-4 w-4 rounded border-border bg-text-primary text-primary focus:ring-0 cursor-pointer accent-primary"
                   />
                   <label
                     htmlFor="isPublic"
-                    className="text-sm text-gray-300 cursor-pointer select-none"
+                    className="text-sm text-text-secondary cursor-pointer select-none"
                   >
                     Public Room
                   </label>
@@ -129,7 +129,7 @@ export default function CreateRoom() {
                 <div className="group relative">
                   <button
                     type="button"
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-xs text-gray-400 hover:bg-primary-hover hover:text-white transition"
+                    className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-2 text-xs text-text-secondary hover:bg-primary-hover hover:text-text-primary transition"
                   >
                     ?
                   </button>
@@ -142,7 +142,7 @@ export default function CreateRoom() {
 
               <button
                 type="submit"
-                className="w-full cursor-pointer rounded-lg bg-primary py-3.5 font-semibold text-white hover:bg-primary-hover transition-colors shadow-lg"
+                className="w-full cursor-pointer rounded-lg bg-primary py-3.5 font-semibold text-text-primary hover:bg-primary-hover shadow-lg duration-200 transition"
               >
                 Create Room
               </button>

@@ -289,30 +289,31 @@ export default function Mockup() {
           className="grid gap-4 lg:grid-cols-[1.7fr_1fr] w-full min-w-0"
         >
           {/* Left: Video mockup */}
-          <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl">
-            <div className="flex items-center gap-2 border-b border-line bg-background/60 px-4 py-3">
+          <div className="overflow-hidden rounded-2xl border border-primary bg-surface shadow-2xl">
+            <div className="flex items-center gap-2 border-b border-primary bg-background/60 px-4 py-3">
               <span className="h-3 w-3 rounded-full bg-critical/70"></span>
               <span className="h-3 w-3 rounded-full bg-primary/70"></span>
-              <span className="h-3 w-3 rounded-full bg-white/15"></span>
+              <span className="h-3 w-3 rounded-full bg-primary/15"></span>
               <span className="ml-3 truncate text-xs text-gray-500">
                 watchtogether.app/room/movie-night
               </span>
             </div>
-            <div className="relative aspect-video bg-gradient-to-br from-surface-2/10 to-surface/10">
-              <div data-jitter className="absolute inset-0 bg-white/5" />
+            <div className="relative aspect-video bg-linear-to-br from-surface-2/10 to-surface/10">
+              <div data-jitter className="absolute inset-0 bg-primary/5" />
               <div
                 data-scanlines
                 className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.03)_3px)]"
               />
               <div data-glow className="absolute inset-0 bg-primary/20" />
-              <div data-ray className="absolute inset-0 bg-white/5" />
+              <div data-ray className="absolute inset-0 bg-primary/5" />
 
-              <div className="absolute left-4 top-4 flex items-center gap-2 rounded-md bg-critical px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-white">
-                <span className="h-1.5 w-1.5 rounded-full bg-white"></span>LIVE
+              <div className="absolute left-4 top-4 flex items-center gap-2 rounded-md bg-critical px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                LIVE
               </div>
             </div>
             <div className="bg-background/60 px-4 py-3">
-              <div className="relative h-1.5 w-full rounded-full bg-white/10">
+              <div className="relative h-1.5 w-full rounded-full bg-primary/10">
                 <div
                   data-progress
                   className="absolute inset-y-0 left-0 bg-primary"
@@ -390,15 +391,15 @@ export default function Mockup() {
               >
                 <span
                   data-dot
-                  className="w-1.5 h-1.5 bg-white/40 rounded-full"
+                  className="w-1.5 h-1.5 bg-primary/40 rounded-full"
                 />
                 <span
                   data-dot
-                  className="w-1.5 h-1.5 bg-white/40 rounded-full"
+                  className="w-1.5 h-1.5 bg-primary/40 rounded-full"
                 />
                 <span
                   data-dot
-                  className="w-1.5 h-1.5 bg-white/40 rounded-full"
+                  className="w-1.5 h-1.5 bg-primary/40 rounded-full"
                 />
               </div>
             </div>

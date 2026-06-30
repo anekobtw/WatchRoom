@@ -4,8 +4,8 @@ import type {
   ServerToClient,
   ChatMessage,
   User,
-} from "../../types/ws";
-import { getClientId } from "../../../scripts/getClientId";
+} from "@/types/ws";
+import { getClientId } from "@/scripts/getClientId";
 
 export function useRoomWS(roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
