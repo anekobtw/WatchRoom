@@ -26,8 +26,12 @@ export default function MainContent({
     <main className="flex h-full min-w-0 flex-1 flex-col">
       <div className="flex items-center justify-between px-6 py-5">
         <div>
-          <h1 className="font-title text-text-primary text-2xl">Room {roomId}</h1>
-          <h3 className="text-text-secondary/60">{users?.length ?? 0} watching</h3>
+          <h1 className="font-title text-text-primary text-2xl">
+            Room {roomId}
+          </h1>
+          <h3 className="text-text-secondary/60">
+            {users?.length ?? 0} watching
+          </h3>
         </div>
 
         <div className="relative flex-1 max-w-xl ml-6">
