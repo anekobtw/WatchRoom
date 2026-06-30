@@ -2,7 +2,7 @@ import YouTubePlayer from "@/components/players/YouTubePlayer";
 import type { ServerToClient, User } from "@/types/ws";
 import type { PlayerAPI } from "@/types/player";
 import { useState } from "react";
-import { PlaySquare, Settings, Link2 } from "lucide-react";
+import { Settings, Link2 } from "lucide-react";
 
 type MainContentProps = {
   roomId?: string;

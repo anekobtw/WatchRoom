@@ -23,6 +23,7 @@ export default function Room() {
         <Panel minSize={40}>
           <MainContent
             roomId={id}
+            users={users}
             state={state}
             playerRef={playerRef}
             onPlayerStateChange={onPlayerStateChange}
