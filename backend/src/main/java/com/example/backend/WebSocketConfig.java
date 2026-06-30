@@ -13,6 +13,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    registry.addHandler(socketHandler, "/ws").setAllowedOrigins("http://localhost", "https://www.watchroom.party");
+    registry.addHandler(socketHandler, "/ws").setAllowedOrigins("*");
   }
 }
