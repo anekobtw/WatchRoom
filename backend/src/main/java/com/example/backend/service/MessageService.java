@@ -4,11 +4,13 @@ import com.example.backend.model.dto.ChatDto;
 import com.example.backend.model.dto.JoinRoomDto;
 import com.example.backend.model.dto.RoomUpdateDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessageService {
@@ -20,17 +22,17 @@ public class MessageService {
     try {
       JsonNode node = mapper.readTree(message);
 
-      String type = node.has("type") ? node.get("type").asText() : null;
+      String type = node.has("type") ? node.get("type").asString() : null;
       JsonNode data = node.get("data");
 
-      if (data == null) return;
-      if (type == null) return;
+      if (type == null || data == null) {
+        log.warn("Invalid WS message: {}", message);
+        return;
+      }
 
       switch (type) {
         case "JOIN" -> {
-          JoinRoomDto dto = mapper.treeToValue(data, JoinRoomDto.class);
-          if (dto.getClientId() == null || dto.getRoomId() == null) return;
-          roomService.joinRoom(dto, session);
+          roomService.joinRoom(mapper.treeToValue(data, JoinRoomDto.class), session);
         }
 
         case "UPDATE" -> {
@@ -40,12 +42,10 @@ public class MessageService {
         case "CHAT" -> {
           roomService.sendChatMessage(mapper.treeToValue(data, ChatDto.class), session);
         }
-
-        case "LEAVE" -> roomService.removeSession(session);
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Failed to process WS message: {}", message, e);
     }
   }
 }
