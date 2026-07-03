@@ -15,28 +15,19 @@ html,
 body {
   height: 100%;
   background: var(--background);
-  color: var(--foreground);
+  color: var(--primary);
 }
 
 :root {
-  --background: #0f1420;
-  --surface-0: #141b2a;
-  --surface-1: #1b2437;
-  --surface-2: #22304a;
-  --surface-3: #2e3f5f;
+  --background: #0f1010;
+  --surface-0: #131313;
+  --surface-1: #292929;
+  --surface-2: #333333;
 
-  --text-primary: #f5f7ff;
-  --text-secondary: #b1bcd3;
-  --text-muted: #7f8aa3;
-  --text-disabled: #5b6478;
+  --primary: #cdcdcd;
+  --primary-hover: #b8b8b8;
 
-  --primary: #5b7cfa;
-  --primary-hover: #4a69e0;
-  --primary-active: #3e58c9;
-  --primary-soft: rgba(91, 124, 250, 0.15);
-
-  --border: #2a3550;
-
+  --border: #2a2a2a;
   --line: rgba(255, 255, 255, 0.08);
 
   --critical: #d23742;
@@ -48,17 +39,9 @@ body {
   --color-surface-0: var(--surface-0);
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
-  --color-surface-3: var(--surface-3);
-
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-text-muted: var(--text-muted);
-  --color-text-disabled: var(--text-disabled);
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --color-primary-active: var(--primary-active);
-  --color-primary-soft: var(--primary-soft);
 
   --color-border: var(--border);
   --color-line: var(--line);

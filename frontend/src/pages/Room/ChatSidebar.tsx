@@ -62,7 +62,7 @@ function Chat({
       >
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-1.5 text-center">
-            <p className="text-md text-text-secondary/35">No messages yet</p>
+            <p className="text-md text-primary/35">No messages yet</p>
           </div>
         )}
 
@@ -102,7 +102,7 @@ export default function ChatSidebar({
   messages: ChatMessage[];
 }) {
   return (
-    <aside className="flex h-full flex-col border-l border-line bg-surface-1">
+    <aside className="flex h-full flex-col border-l border-line bg-surface-0">
       <div className="w-full flex flex-row items-center justify-between border-b border-border px-4 py-4 text-center text-md font-semibold text-text-primary">
         <button className="hover:bg-surface-2 rounded-xl cursor-pointer transition duration-200 p-2">
           <ArrowRightFromLine className="text-text-primary" size={24} />

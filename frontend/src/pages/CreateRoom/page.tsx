@@ -51,28 +51,27 @@ export default function CreateRoom() {
 
   return (
     <>
-      <div className="flex min-h-screen bg-background font-inter overflow-hidden">
-        <div className="hidden md:block md:w-1/2 lg:w-7/12 relative">
+      <div className="min-h-screen bg-background font-inter grid lg:grid-cols-12">
+        <div className="hidden lg:flex lg:col-span-6 items-center justify-center relative">
           <img
-            src="/nasa.jpg"
+            src="/astronaut.png"
             loading="eager"
-            className="h-full w-full object-cover"
+            className="fade-image w-[65%] max-w-md h-auto drop-shadow-2xl"
           />
-          <div className="absolute inset-0 bg-linear-to-r from-transparent to-[#0b0f19]/30" />
         </div>
 
-        <div className="w-full md:w-1/2 lg:w-5/12 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
-          <div className="w-full max-w-md mx-auto">
-            <h1 className="text-4xl font-bold tracking-tight font-title text-text-primary">
+        <div className="lg:col-span-6 flex items-center justify-center px-8 sm:px-16 lg:px-24 py-12">
+          <div className="w-full max-w-md">
+            <h1 className="text-4xl font-bold tracking-tight font-title text-primary">
               Create Room
             </h1>
-            <p className="mt-3 text-text-secondary">
+            <p className="mt-3 text-primary/60">
               Welcome! Please configure your watch room settings below.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-10 space-y-6">
               <div className="relative">
-                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-text-secondary">
+                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-primary/60">
                   Room Name
                 </label>
                 <input
@@ -83,7 +82,7 @@ export default function CreateRoom() {
                     if (e.target.value.trim()) setRoomNameError(false);
                   }}
                   placeholder="Movie Night"
-                  className={`w-full rounded-lg border bg-transparent px-4 py-3.5 text-sm text-text-secondary outline-none transition ${
+                  className={`w-full rounded-lg border bg-transparent px-4 py-3.5 text-sm text-primary/60 outline-none transition ${
                     roomNameError
                       ? "border-critical focus:border-critical"
                       : "border-border focus:border-primary"
@@ -97,7 +96,7 @@ export default function CreateRoom() {
               </div>
 
               <div className="relative">
-                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-text-secondary">
+                <label className="absolute -top-2.5 left-3 bg-background px-1 text-xs text-primary/60">
                   Password
                 </label>
                 <input
@@ -105,7 +104,7 @@ export default function CreateRoom() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Leave empty for a passwordless room"
-                  className="w-full rounded-lg border border-border bg-transparent px-4 py-3.5 text-sm outline-none focus:border-primary transition text-text-secondary"
+                  className="w-full rounded-lg border border-border bg-transparent px-4 py-3.5 text-sm outline-none focus:border-primary transition text-primary/60"
                 />
               </div>
 
@@ -120,7 +119,7 @@ export default function CreateRoom() {
                   />
                   <label
                     htmlFor="isPublic"
-                    className="text-sm text-text-secondary cursor-pointer select-none"
+                    className="text-sm text-primary/60 cursor-pointer select-none"
                   >
                     Public Room
                   </label>
@@ -129,11 +128,11 @@ export default function CreateRoom() {
                 <div className="group relative">
                   <button
                     type="button"
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-2 text-xs text-text-secondary hover:bg-primary-hover hover:text-text-primary transition"
+                    className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-2 text-xs text-primary hover:bg-primary-hover hover:text-background transition"
                   >
                     ?
                   </button>
-                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-64 rounded-lg bg-gray-800 p-3 text-xs text-gray-300 opacity-0 transition group-hover:opacity-100 shadow-xl border border-gray-700">
+                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-64 rounded-lg bg-background p-3 text-xs text-primary opacity-0 transition group-hover:opacity-100 shadow-xl border border-border">
                     Public rooms appear on the main page. Private rooms are only
                     accessible via direct link.
                   </div>
@@ -142,13 +141,13 @@ export default function CreateRoom() {
 
               <button
                 type="submit"
-                className="w-full cursor-pointer rounded-lg bg-primary py-3.5 font-semibold text-text-primary hover:bg-primary-hover shadow-lg duration-200 transition"
+                className="w-full cursor-pointer rounded-lg bg-primary py-3.5 font-semibold text-background hover:bg-primary-hover shadow-lg duration-200 transition"
               >
                 Create Room
               </button>
             </form>
 
-            <div className="mt-8 text-center text-sm text-gray-500">
+            <div className="mt-8 text-center text-sm text-primary/60">
               Want to join an existing room?{" "}
               <span className="text-primary hover:underline cursor-pointer">
                 Browse rooms
@@ -160,16 +159,16 @@ export default function CreateRoom() {
 
       {showPublicDialog && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6 z-50">
-          <div className="w-full max-w-sm rounded-xl border border-gray-800 bg-[#0b0f19] p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-white">Public Room</h2>
-            <p className="mt-3 text-sm text-gray-400">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-background p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-primary">Public Room</h2>
+            <p className="mt-3 text-sm text-primary/60">
               This room has no password and will be accessible by anyone.
               Continue?
             </p>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowPublicDialog(false)}
-                className="flex-1 cursor-pointer rounded-lg border border-gray-700 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-800 transition"
+                className="flex-1 cursor-pointer rounded-lg border border-border py-2.5 text-sm font-medium text-primary hover:bg-surface-0 transition duration-200"
               >
                 Cancel
               </button>
@@ -178,7 +177,7 @@ export default function CreateRoom() {
                   setShowPublicDialog(false);
                   createRoom();
                 }}
-                className="flex-1 cursor-pointer rounded-lg bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition"
+                className="flex-1 cursor-pointer rounded-lg bg-primary py-2.5 text-sm font-medium text-background hover:bg-primary-hover transition"
               >
                 Create
               </button>

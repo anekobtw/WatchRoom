@@ -26,24 +26,24 @@ export default function MainContent({
     <main className="flex h-full min-w-0 flex-1 flex-col">
       <div className="flex items-center justify-between px-6 py-5">
         <div>
-          <h1 className="font-title text-text-primary text-2xl">
+          <h1 className="font-title text-primary text-2xl">
             Room {roomId}
           </h1>
-          <h3 className="text-text-secondary/60">
+          <h3 className="text-primary/60">
             {users?.length ?? 0} watching
           </h3>
         </div>
 
         <div className="relative flex-1 max-w-xl ml-6">
           <div className="flex items-center gap-2 rounded-xl bg-surface-2 px-3 py-2 w-full">
-            <Link2 size={16} className="text-text-primary/50" />
+            <Link2 size={16} className="text-primary/50" />
 
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onFocus={() => setOpenQueue(true)}
               placeholder="Paste video link..."
-              className="flex-1 bg-transparent text-sm outline-none text-text-primary/80 placeholder:text-foreground/40"
+              className="flex-1 bg-transparent text-sm outline-none text-primary/80 placeholder:text-foreground/40"
             />
 
             <button
@@ -51,14 +51,14 @@ export default function MainContent({
                 if (!input) return;
                 setInput("");
               }}
-              className="rounded-lg text-text-primary bg-primary hover:bg-primary-hover transition duration-200 px-3 py-1 text-xs cursor-pointer"
+              className="rounded-lg text-background bg-primary hover:bg-primary-hover transition duration-200 px-3 py-1 text-xs cursor-pointer"
             >
               Add
             </button>
           </div>
         </div>
 
-        <button className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover px-4 py-2 text-sm transition duration-200 ml-3 text-text-primary">
+        <button className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover px-4 py-2 text-sm transition duration-200 ml-3 text-background">
           <Settings size={16} />
           Room Settings
         </button>
@@ -86,11 +86,11 @@ export default function MainContent({
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-lg font-medium text-text-primary/70">
+              <p className="text-lg font-medium text-primary/70">
                 Nothing is in the queue
               </p>
 
-              <p className="mt-1 text-sm text-text-secondary/40">
+              <p className="mt-1 text-sm text-primary/40">
                 Add a video to the queue to start watching together.
               </p>
             </div>
