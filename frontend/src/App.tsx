@@ -3,8 +3,9 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import Home from "./pages/Home/page";
 import Room from "./pages/Room/page";
-import CreateRoom from "./pages/CreateRoom/page";
+import JoinRoom from "./pages/JoinRoom/page";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -33,15 +34,16 @@ export default function App() {
               <Page>
                 <Navbar />
                 <Home />
+                <Footer />
               </Page>
             }
           />
 
           <Route
-            path="/create-room"
+            path="/join-room"
             element={
               <Page>
-                <CreateRoom />
+                <JoinRoom />
               </Page>
             }
           />

@@ -1,7 +1,6 @@
 const navLinks = new Map([
   ["Home", "/"],
-  ["How it works", "/how-it-works"],
-  ["Create a room", "/create-room"],
+  ["Getting started", "/how-it-works"],
 ]);
 
 export default function Navbar() {
@@ -22,7 +21,7 @@ export default function Navbar() {
             <a
               key={label}
               href={href}
-              className="text-sm font-medium text-primary/70 transition duration-200 hover:text-primary"
+              className="text-sm text-primary transition duration-200 hover:text-primary-hover"
             >
               {label}
             </a>
