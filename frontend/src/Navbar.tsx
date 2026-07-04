@@ -11,9 +11,10 @@ export default function Navbar() {
         <a
           key={"watchroom.party"}
           href="/"
-          className="font-syne text-xl font-extrabold text-primary"
+          className="font-title text-xl font-extrabold text-primary"
         >
-          watchroom.party
+          watchroom
+          <span className="text-accent">.party</span>
         </a>
 
         <div className="flex items-center gap-8">

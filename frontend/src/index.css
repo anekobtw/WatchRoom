@@ -2,12 +2,15 @@
 
 @layer base {
   .font-title {
-    font-family: "Montserrat", sans-serif;
-    font-weight: 700;
+    font-family: "Fraunces", sans-serif;
   }
 
   .font-inter {
     font-family: "Inter", sans-serif;
+  }
+
+  .font-mulish {
+    font-family: "Mulish", sans-serif;
   }
 }
 
@@ -19,13 +22,15 @@ body {
 }
 
 :root {
-  --background: #0f1010;
+  --background: #d9cfc7;
   --surface-0: #131313;
   --surface-1: #292929;
   --surface-2: #333333;
 
-  --primary: #cdcdcd;
-  --primary-hover: #b8b8b8;
+  --primary: #2b2623;
+  --primary-hover: #0c0908;
+
+  --accent: #b8472c;
 
   --border: #2a2a2a;
   --line: rgba(255, 255, 255, 0.08);
@@ -42,6 +47,7 @@ body {
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
 
   --color-border: var(--border);
   --color-line: var(--line);
