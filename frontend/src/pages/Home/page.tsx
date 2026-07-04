@@ -1,51 +1,89 @@
-import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
-export default function Home() {
+export default function WatchtogethermParty() {
   return (
-    <div className="font-inter min-h-screen bg-background text-foreground overflow-x-hidden">
-      {/* Hero */}
-      <section className="relative overflow-hidden min-h-[95vh] flex items-center justify-center px-4 sm:px-6 py-12">
-        <img
-          src="/poster.png"
-          aria-hidden="true"
-          className="fade-image absolute inset-0 w-full h-full object-cover scale-200 sm:scale-100 sm:object-[0%_56%]"
-          loading="eager"
-        />
+    <div className="min-h-screen bg-background text-primary font-mulish">
+      {/* Hero Section */}
+      <section className="min-h-[90vh] flex items-center px-6 py-20 lg:py-45">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div>
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-title font-bold leading-tight mb-6">
+              Watching alone is optional. <br />
+              Stay in sync, even when you are apart.
+            </h1>
 
-        <div className="absolute inset-0 bg-linear-to-b from-background via-black/40 to-transparent" />
-        <div className="absolute inset-0 bg-linear-to-b from-background to-transparent" />
-        <div className="absolute inset-0 bg-linear-to-b from-background to-transparent sm:hidden" />
-        <div className="absolute inset-0 bg-linear-to-r from-background to-transparent" />
-        <div className="absolute inset-0 bg-linear-to-t from-background via-background/15 to-transparent" />
+            <p className="text-lg text-primary/60 mb-12 leading-relaxed max-w-md">
+              Pick a film, send the link, and end up in the same front row.
+            </p>
 
-        <div className="relative z-10 flex flex-col items-center text-center max-w-4xl">
-          <h1 className="fade-1 font-title text-4xl sm:text-6xl md:text-9xl leading-[1.05] tracking-[0.02em] text-primary mb-2 wrap-break-word">
-            watchroom.party
-          </h1>
+            <div className="flex flex-wrap gap-2">
+              <button className="bg-primary hover:bg-primary-hover text-background px-6 py-3 rounded-lg font-semibold text-sm inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200 cursor-pointer">
+                Create a room
+                <ChevronRight size={18} />
+              </button>
 
-          <h2 className="fade-2 font-title text-xl sm:text-3xl md:text-5xl leading-[1.1] tracking-[0.02em] text-primary/60 mb-4">
-            Watch anything in a shared room.
-          </h2>
-
-          <p className="fade-3 text-sm sm:text-base md:text-[1.05rem] text-primary/40 leading-relaxed mb-8 max-w-md mx-auto">
-            Completely for free. No signup required.
-          </p>
-
-          <div className="fade-4 flex justify-center gap-2 sm:gap-3">
-            <Link
-              to="/create-room"
-              className="bg-primary hover:bg-primary-hover text-background text-xs sm:text-sm font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center duration-200"
-            >
-              Create a room
-            </Link>
-
-            <Link
-              to="/create-room"
-              className="bg-primary hover:bg-primary-hover text-background text-xs sm:text-sm font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all hover:-translate-y-0.5 text-center duration-200"
-            >
-              Join a room
-            </Link>
+              <button className="bg-primary hover:bg-primary-hover text-background px-6 py-3 rounded-lg font-semibold text-sm inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200 cursor-pointer">
+                Join a room
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
+
+          <div className="font-title">
+            <h2 className="text-3xl md:text-4xl lg:text-6xl italic border-l-4 border-l-accent pl-6 pb-2 leading-tight">
+              "Movie nights used to feel like this."
+            </h2>
+
+            <p className="text-lg md:text-xl lg:text-2xl pl-6 mt-3">
+              <span className="text-accent">@thegeneralist01</span>, 2026
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="bg-primary text-background py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+              <h3 className="text-xl font-title font-bold mb-3">No signup</h3>
+              <p className="text-background/60">
+                Start watching in seconds. No accounts, no subscriptions, no
+                fuss.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-title font-bold mb-3">
+                Synchronized
+              </h3>
+              <p className="text-background/60">
+                Everyone stays in sync automatically. Pause together, talk
+                together.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-title font-bold mb-3">Any content</h3>
+              <p className="text-background/60">
+                YouTube, Netflix, your screen—bring whatever you want to watch.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Footer */}
+      <section className="bg-background text-primary py-16 px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl font-title font-bold mb-6">
+            Ready to gather?
+          </h2>
+          <p className="text-lg text-primary/60 mb-8">
+            Create a room and send the link. That's all there is to it.
+          </p>
+          <button className="bg-primary hover:bg-primary-hover text-background cursor-pointer px-8 py-4 rounded-lg font-semibold text-lg inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200">
+            Create a room now
+            <ChevronRight size={20} />
+          </button>
         </div>
       </section>
     </div>
