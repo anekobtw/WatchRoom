@@ -1,6 +1,7 @@
 const navLinks = new Map([
-  ["Log in", "#login"],
-  ["Get started", "/create-room"],
+  ["Home", "/"],
+  ["How it works", "/how-it-works"],
+  ["Create a room", "/create-room"],
 ]);
 
 export default function Navbar() {
@@ -10,31 +11,21 @@ export default function Navbar() {
         <a
           key={"watchroom.party"}
           href="/"
-          className="font-syne text-xl font-extrabold text-foreground"
+          className="font-syne text-xl font-extrabold text-primary"
         >
           watchroom.party
         </a>
 
         <div className="flex items-center gap-8">
-          {[...navLinks.entries()].map(([label, href]) =>
-            label === "Get started" ? (
-              <a
-                key={label}
-                href={href}
-                className="rounded-xl bg-primary/90 px-4 py-2 text-sm font-medium text-foreground transition-all hover:-translate-y-0.5 hover:bg-primary"
-              >
-                {label}
-              </a>
-            ) : (
-              <a
-                key={label}
-                href={href}
-                className="text-sm text-foreground/70 transition-colors hover:text-foreground"
-              >
-                {label}
-              </a>
-            ),
-          )}
+          {[...navLinks.entries()].map(([label, href]) => (
+            <a
+              key={label}
+              href={href}
+              className="text-sm font-medium text-primary/70 transition duration-200 hover:text-primary"
+            >
+              {label}
+            </a>
+          ))}
         </div>
       </div>
     </nav>
