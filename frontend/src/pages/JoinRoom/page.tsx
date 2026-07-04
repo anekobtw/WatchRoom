@@ -58,7 +58,9 @@ export default function JoinRoom() {
           {code.map((val, idx) => (
             <input
               key={idx}
-              ref={(el) => (inputsRef.current[idx] = el)}
+              ref={(el) => {
+                inputsRef.current[idx] = el;
+              }}
               value={val}
               onChange={(e) => handleChange(e.target.value, idx)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
