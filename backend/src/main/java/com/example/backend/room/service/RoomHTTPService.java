@@ -4,27 +4,37 @@ import com.example.backend.auth.service.ConnectionTokenService;
 import com.example.backend.room.model.entity.RoomEntity;
 import com.example.backend.room.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
 public class RoomHTTPService {
 
   private final RoomRepository roomRepository;
-  private final PasswordEncoder passwordEncoder;
   private final ConnectionTokenService joinTokenService;
 
-  public ResponseEntity<String> createRoom(String roomId, String clientId) {
-    if (!roomId.matches("^[A-Z0-9]{6}$")) {
-      return ResponseEntity.badRequest().body("Room ID must be exactly 6 characters long and contain only uppercase English letters and digits.");
-    }
+  private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+  private final SecureRandom random = new SecureRandom();
 
-    if (roomRepository.existsById(roomId)) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body("A room with this Room ID already exists");
+  private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+  public String generateRandomId() {
+    StringBuilder sb = new StringBuilder(6);
+    for (int i = 0; i < 6; i++) {
+      sb.append(CHARS.charAt(random.nextInt(CHARS.length())));
     }
+    return sb.toString();
+  }
+
+  public ResponseEntity<String> createRoom(String clientId) {
+    String roomId;
+    do {
+      roomId = generateRandomId();
+    } while (roomRepository.existsById(roomId));
 
     roomRepository.save(RoomEntity.builder()
             .roomId(roomId)
@@ -36,7 +46,7 @@ public class RoomHTTPService {
             .build()
     );
 
-    return ResponseEntity.ok(joinTokenService.issue(roomId, clientId));
+    return ResponseEntity.ok(roomId);
   }
 
   public ResponseEntity<String> joinRoom(String roomId, String clientId, String rawPassword) {

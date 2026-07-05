@@ -26,6 +26,7 @@ services:
       context: ./frontend
       args:
         VITE_WS_URL: ${VITE_WS_URL}
+        VITE_HTTP_URL: ${VITE_HTTP_URL}
     container_name: watchroom-frontend
     depends_on:
       - backend

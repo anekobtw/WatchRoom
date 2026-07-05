@@ -1,5 +1,7 @@
+import { getClientId } from "@/scripts/getClientId";
 import { ChevronRight } from "lucide-react";
-import generateRoomId from "@/scripts/generateRoomId";
+import { setJoinToken } from "@/scripts/joinToken";
+import { useNavigate } from "react-router-dom";
 
 function StepCard({
   index,
@@ -23,7 +25,32 @@ function StepCard({
   );
 }
 
-export default function WatchtogethermParty() {
+export default function Home() {
+  const navigate = useNavigate();
+
+  async function handleCreateRoom() {
+    const roomRes = await fetch(import.meta.env.VITE_HTTP_URL + "/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId: getClientId() }),
+    });
+    const roomId = await roomRes.text();
+
+    const joinTokenRes = await fetch(import.meta.env.VITE_HTTP_URL + "/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        roomId: roomId,
+        clientId: getClientId(),
+      }),
+    });
+    const joinToken = await joinTokenRes.text();
+
+    setJoinToken(joinToken);
+
+    navigate(`/room/${roomId}`);
+  }
+
   return (
     <div className="min-h-screen bg-background text-primary font-mulish">
       {/* Hero Section */}
@@ -40,13 +67,13 @@ export default function WatchtogethermParty() {
             </p>
 
             <div className="flex flex-wrap gap-2">
-              <a
+              <button
                 className="bg-primary hover:bg-primary-hover text-background px-6 py-3 rounded-lg font-semibold text-sm inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200 cursor-pointer"
-                href={`/${generateRoomId()}`}
+                onClick={handleCreateRoom}
               >
                 Create a room
                 <ChevronRight size={18} />
-              </a>
+              </button>
 
               <a
                 className="bg-primary hover:bg-primary-hover text-background px-6 py-3 rounded-lg font-semibold text-sm inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200 cursor-pointer"
@@ -155,13 +182,13 @@ export default function WatchtogethermParty() {
           <p className="text-lg text-background/60 mb-8">
             Create a room and send the link. That's all there is to it.
           </p>
-          <a
+          <button
             className="bg-background hover:bg-background/90 text-primary cursor-pointer px-8 py-4 rounded-lg font-semibold text-lg inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200"
-            href={`/${generateRoomId()}`}
+            onClick={handleCreateRoom}
           >
             Create a room now
             <ChevronRight size={20} />
-          </a>
+          </button>
         </div>
       </section>
     </div>

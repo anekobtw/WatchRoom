@@ -5,7 +5,7 @@ import type {
   ChatMessage,
   User,
 } from "@/types/ws";
-import { getClientId } from "@/scripts/getClientId";
+import { getJoinToken } from "@/scripts/joinToken";
 
 export function useRoomWS(roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
@@ -22,11 +22,10 @@ export function useRoomWS(roomId?: string) {
 
     ws.onopen = () => {
       const join: ClientToServer = {
-        type: "JOIN",
+        type: "CONNECT",
         data: {
-          roomId,
-          clientId: getClientId(),
-          rawPassword: "1234", // TODO: change this default password to either random generation or user input
+          joinToken: getJoinToken() ?? "",
+          name: "John Doe", // TODO: change the default name to something else
         },
       };
 
@@ -39,18 +38,12 @@ export function useRoomWS(roomId?: string) {
       switch (msg.type) {
         case "STATE":
           setState(msg);
-          break;
-
-        case "CHAT":
-          setMessages((prev) => [...prev, msg.data]);
-          break;
-
-        case "USERS":
-          setUsers(msg.data.users);
-          break;
-
-        case "ERROR":
-          console.log("Error occured", msg.data.errorMessage);
+          if (msg.data.messages) {
+            setMessages(msg.data.messages);
+          }
+          if (msg.data.users) {
+            setUsers(msg.data.users);
+          }
           break;
 
         default:
