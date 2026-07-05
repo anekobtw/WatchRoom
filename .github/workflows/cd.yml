@@ -44,5 +44,5 @@ jobs:
             EOF
 
             docker compose down
-            docker compose up -d --build backend postgres
+            docker compose up -d --build backend postgres nginx
 
