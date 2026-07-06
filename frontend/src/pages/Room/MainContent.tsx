@@ -26,9 +26,7 @@ export default function MainContent({
     <main className="flex h-full min-w-0 flex-1 flex-col font-mulish text-background bg-primary">
       <div className="flex items-center justify-between px-6 py-5">
         <div>
-          <h1 className="font-title font-semibold text-2xl text-background">
-            Room {roomId}
-          </h1>
+          <h1 className="font-title font-semibold text-2xl">Room {roomId}</h1>
           <h3 className="text-background/60">{users?.length ?? 0} watching</h3>
         </div>
 
@@ -56,7 +54,7 @@ export default function MainContent({
           </div>
         </div>
 
-        <button className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-background text-primary hover:bg-background/90 px-4 py-2 text-sm transition duration-200 ml-3">
+        <button className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-background text-primary hover:bg-background/90 px-4 py-2 text-sm transition duration-200 ml-3 font-semibold">
           <Settings size={16} />
           Room Settings
         </button>

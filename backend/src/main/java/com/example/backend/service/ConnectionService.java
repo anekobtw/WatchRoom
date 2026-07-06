@@ -1,5 +1,8 @@
 package com.example.backend.service;
 
+import com.example.backend.model.entity.ChatMessageEntity;
+import com.example.backend.model.enums.WsType;
+import com.example.backend.model.view.ChatMessageView;
 import com.example.backend.model.websocket.ConnectionToken;
 import com.example.backend.model.view.UserView;
 import com.example.backend.model.websocket.RoomState;
@@ -14,11 +17,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
 
+import java.lang.reflect.Array;
 import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -60,13 +61,15 @@ public class ConnectionService {
 
     if (connectionId == null) return;
 
-    if (getTokenInfo(connectionId).getExpiresAt().isBefore(Instant.now())) {
+    ConnectionToken connectionToken = getTokenInfo(connectionId);
+
+    if (connectionToken.getExpiresAt().isBefore(Instant.now())) {
       removeConnectionId(connectionId);
     } else {
-      getTokenInfo(connectionId).setConnected(false);
+      connectionToken.setConnected(false);
     }
 
-    broadcastState(getTokenInfo(connectionId).getRoomId());
+    broadcastState(connectionToken.getRoomId());
   }
 
   public ConnectionToken getTokenInfo(String connectionId) {
@@ -96,27 +99,41 @@ public class ConnectionService {
             .map(t -> UserView.builder()
                     .name(t.getName())
                     .admin(Objects.equals(t.getConnectionId(), roomAdminConnectionId))
-                    .build())
+                    .build()
+            )
             .collect(Collectors.toSet());
 
-    WsMessage payload = WsMessage.builder()
-            .type("STATE")
-            .data(RoomState.builder()
-                    .roomId(roomId)
-                    .videoUrl(room.getVideoUrl())
-                    .videoTimestamp(room.getVideoTimestamp())
-                    .playing(room.isPlaying())
-                    .users(roomUsers)
-                    .messages(messageRepository.findTop100ByRoomIdOrderByTsDesc(room.getRoomId()))
-                    .build())
-            .build();
+    List<ChatMessageEntity> rawMessages = messageRepository.findTop100ByRoomIdOrderByTsDesc(roomId);
 
-    String json = mapper.writeValueAsString(payload);
+    tokens.values().stream()
+            .filter(t -> roomId.equals(t.getRoomId()) && t.isConnected())
+            .forEach(t -> {
+              String connectionId = t.getConnectionId();
 
-    tokens.entrySet().stream()
-            .filter(e -> roomId.equals(e.getValue().getRoomId()))
-            .map(Map.Entry::getKey)
-            .forEach(id -> broadcastToUser(id, json));
+              List<ChatMessageView> messages = rawMessages.stream()
+                      .map(message -> ChatMessageView.builder()
+                              .senderName(message.getSenderName())
+                              .text(message.getText())
+                              .ts(message.getTs())
+                              .mine(Objects.equals(message.getSenderConnectionId(), connectionId))
+                              .build()
+                      )
+                      .toList();
+
+              WsMessage<Object> payload = WsMessage.builder()
+                      .type(WsType.STATE)
+                      .data(RoomState.builder()
+                              .roomId(roomId)
+                              .videoUrl(room.getVideoUrl())
+                              .videoTimestamp(room.getVideoTimestamp())
+                              .playing(room.isPlaying())
+                              .users(roomUsers)
+                              .messages(messages)
+                              .build())
+                      .build();
+
+              broadcastToUser(connectionId, mapper.writeValueAsString(payload));
+            });
   }
 
   private void broadcastToUser(String connectionId, String json) {
@@ -127,8 +144,13 @@ public class ConnectionService {
     try {
       client.getSession().sendMessage(new TextMessage(json));
     } catch (Exception e) {
-      log.warn("Failed to send message to session", e);
-      removeConnectionId(connectionId);
+      log.warn("Failed to send message", e);
+
+      if (client.getExpiresAt().isBefore(Instant.now())) {
+        removeConnectionId(connectionId);
+      } else {
+        client.setConnected(false);
+      }
     }
   }
 }

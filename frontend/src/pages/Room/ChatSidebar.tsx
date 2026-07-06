@@ -3,18 +3,17 @@ import { Send, Users, ArrowRightFromLine } from "lucide-react";
 import type { ChatMessage, ClientToServer } from "@/types/ws";
 import { getConnectionId } from "@/scripts/connectionId";
 
-function ChatBubble({
-  message,
-  isMine,
-}: {
-  message: ChatMessage;
-  isMine: boolean;
-}) {
+function ChatBubble({ message }: { message: ChatMessage }) {
+  console.log(message.text);
+  console.log(message.isMine);
+
   return (
-    <div className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}>
+    <div
+      className={`flex w-full ${message.isMine ? "justify-end" : "justify-start"}`}
+    >
       <div
         className={`max-w-[70%] px-3 py-2 rounded-lg text-sm border border-line ${
-          isMine
+          message.isMine
             ? "bg-background text-primary"
             : "bg-primary-surface-0 text-background"
         }`}
@@ -68,8 +67,8 @@ function Chat({
           </div>
         )}
 
-        {messages.map((m, i) => (
-          <ChatBubble key={i} message={m} isMine={true} />
+        {messages.map((m, idx) => (
+          <ChatBubble key={idx} message={m} />
         ))}
       </div>
 

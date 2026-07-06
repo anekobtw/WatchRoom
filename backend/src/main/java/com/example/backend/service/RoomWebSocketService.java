@@ -63,6 +63,7 @@ public class RoomWebSocketService {
 
     ChatMessageEntity message = ChatMessageEntity.builder()
             .roomId(connectionToken.getRoomId())
+            .senderConnectionId(connectionToken.getConnectionId())
             .senderName(connectionToken.getName())
             .text(data.getText())
             .ts(System.currentTimeMillis())

@@ -37,9 +37,10 @@ export type ServerToClient = {
 };
 
 export type ChatMessage = {
-  senderClientId: string;
+  senderName: string;
   text: string;
   ts: number;
+  isMine: boolean;
 };
 
 export type User = {

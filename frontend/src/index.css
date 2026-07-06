@@ -17,7 +17,6 @@
 html,
 body {
   height: 100%;
-  background: var(--background);
   color: var(--primary);
 }
 
@@ -44,7 +43,6 @@ body {
 
   --color-surface-0: var(--surface-0);
   --color-surface-1: var(--surface-1);
-  --color-surface-2: var(--surface-2);
 
   --color-primary: var(--primary);
   --color-primary-surface-0: var(--primary-surface-0);

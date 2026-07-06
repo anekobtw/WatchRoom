@@ -7,7 +7,17 @@ import JoinRoom from "./pages/JoinRoom/page";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
-function Page({ children }: { children: React.ReactNode }) {
+function Page({
+  children,
+  animated = true,
+}: {
+  children: React.ReactNode;
+  animated?: boolean;
+}) {
+  if (!animated) {
+    return <div className="min-h-screen">{children}</div>;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -25,7 +35,7 @@ export default function App() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-primary">
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route
@@ -51,7 +61,7 @@ export default function App() {
           <Route
             path="/room/:id"
             element={
-              <Page>
+              <Page animated={false}>
                 <Room />
               </Page>
             }

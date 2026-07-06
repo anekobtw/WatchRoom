@@ -1,6 +1,6 @@
 package com.example.backend.model.websocket;
 
-import com.example.backend.model.projection.ChatMessageProjection;
+import com.example.backend.model.view.ChatMessageView;
 import com.example.backend.model.view.UserView;
 import lombok.Builder;
 
@@ -14,5 +14,5 @@ public record RoomState(
         Long videoTimestamp,
         boolean playing,
         Set<UserView> users,
-        List<ChatMessageProjection> messages
+        List<ChatMessageView> messages
 ) { }
