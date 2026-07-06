@@ -1,3 +1,4 @@
+import { setConnectionToken } from "@/scripts/connectionToken";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -32,11 +33,25 @@ export default function JoinRoom() {
     }
   }
 
-  function handleSubmit(e: React.SubmitEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     const finalCode = code.join("");
     if (finalCode.length !== CODE_LENGTH) return;
-    navigate(`/room/${finalCode}`);
+
+    const response = await fetch(import.meta.env.VITE_HTTP_URL + "/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        roomId: finalCode,
+      }),
+    });
+
+    if (response.status != 200) return;
+
+    const data = await response.json();
+    setConnectionToken(data.connectionId);
+
+    navigate(`/room/${data.roomId}`);
   }
 
   return (

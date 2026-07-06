@@ -19,7 +19,7 @@ public class ChatMessageEntity {
   private Long id;
 
   private String roomId;
-  private String senderClientId;
+  private String senderName;
   private String text;
   private Long ts;
 }

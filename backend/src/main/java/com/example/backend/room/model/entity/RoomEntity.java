@@ -21,7 +21,7 @@ public class RoomEntity {
   @Column(name = "room_id")
   private String roomId;
 
-  private String adminId;
+  private String adminConnectionId;
   private String hashedPassword;
   private String videoUrl;
   private long videoTimestamp;

@@ -1,7 +1,5 @@
 package com.example.backend.room.service;
 
-import com.example.backend.auth.model.ConnectionToken;
-import com.example.backend.auth.service.ConnectionTokenService;
 import com.example.backend.room.model.dto.ChatDto;
 import com.example.backend.room.model.dto.ConnectRoomDto;
 import com.example.backend.room.model.dto.RoomUpdateDto;
@@ -9,8 +7,8 @@ import com.example.backend.room.model.entity.ChatMessageEntity;
 import com.example.backend.room.model.entity.RoomEntity;
 import com.example.backend.room.repository.ChatMessageRepository;
 import com.example.backend.room.repository.RoomRepository;
-import com.example.backend.websocket.session.ClientInfo;
-import com.example.backend.websocket.session.SessionManager;
+import com.example.backend.auth.model.ConnectionToken;
+import com.example.backend.auth.service.ConnectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -19,37 +17,33 @@ import org.springframework.web.socket.WebSocketSession;
 @RequiredArgsConstructor
 public class RoomWebSocketService {
 
-  private final ConnectionTokenService joinTokenService;
+  private final ConnectionService connectionService;
   private final RoomRepository roomRepository;
-  private final SessionManager sessionManager;
+  private final ConnectionService sessionManager;
   private final ChatMessageRepository messageRepository;
 
   public void connectRoom(ConnectRoomDto data, WebSocketSession session) {
-    ConnectionToken token = joinTokenService.consume(data.getJoinToken());
+    ConnectionToken token = connectionService.getTokenInfo(data.getConnectionToken());
 
-    RoomEntity entity = roomRepository.findById(token.roomId()).orElse(null);
+    RoomEntity entity = roomRepository.findById(token.getRoomId()).orElse(null);
 
     if (entity == null) {
       return;
     }
 
-    sessionManager.addSession(
-            session,
-            token.roomId(),
-            token.clientId(),
-            data.getName()
-    );
+    token.setSession(session);
+    token.setName(data.getName());
 
-    sessionManager.broadcastState(token.roomId());
+    connectionService.broadcastState(token.getRoomId());
   }
 
   public void updateRoom(RoomUpdateDto data, WebSocketSession session) {
-    if (!sessionManager.validateAdmin(session)) {
+    if (!connectionService.validateSession(data.getConnectionId(), session)) {
       return;
     }
 
-    ClientInfo client = sessionManager.getClientInfo(session);
-    if (client == null) return;
+    ConnectionToken client = connectionService.getTokenInfo(data.getConnectionId());
+
     RoomEntity room = roomRepository.findById(client.getRoomId()).orElse(null);
     if (room == null) return;
 
@@ -59,18 +53,21 @@ public class RoomWebSocketService {
 
     roomRepository.save(room);
 
-    sessionManager.broadcastState(room.getRoomId());
+    connectionService.broadcastState(room.getRoomId());
   }
 
   public void sendChatMessage(ChatDto data, WebSocketSession session) {
-    ClientInfo client = sessionManager.getClientInfo(session);
-    if (client == null) return;
+    if (!connectionService.validateSession(data.getConnectionId(), session)) {
+      return;
+    }
+
+    ConnectionToken client = connectionService.getTokenInfo(data.getConnectionId());
 
     ChatMessageEntity message = ChatMessageEntity.builder()
             .roomId(client.getRoomId())
+            .senderName(client.getName())
             .text(data.getText())
             .ts(System.currentTimeMillis())
-            .senderClientId(client.getClientId())
             .build();
 
     messageRepository.save(message);

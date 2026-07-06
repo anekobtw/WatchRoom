@@ -2,13 +2,14 @@ export type ClientToServer =
   | {
       type: "CONNECT";
       data: {
-        joinToken: string;
+        connectionToken: string;
         name: string;
       };
     }
   | {
       type: "UPDATE";
       data: {
+        connectionToken: string;
         videoUrl?: string;
         videoTimestamp?: number;
         playing?: boolean;
@@ -17,6 +18,7 @@ export type ClientToServer =
   | {
       type: "CHAT";
       data: {
+        connectionToken: string;
         text: string;
       };
     };
@@ -40,7 +42,6 @@ export type ChatMessage = {
 };
 
 export type User = {
-  clientId: string;
   name: string;
-  roomId: string;
+  isAdmin: boolean;
 };

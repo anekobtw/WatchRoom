@@ -1,9 +1,21 @@
 package com.example.backend.auth.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.web.socket.WebSocketSession;
+
 import java.time.Instant;
 
-public record ConnectionToken(
-        String roomId,
-        String clientId,
-        Instant expiresAt
-) { }
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ConnectionToken {
+  private String connectionId;
+  private WebSocketSession session;
+  private String name;
+  private String roomId;
+  private Instant expiresAt;
+}

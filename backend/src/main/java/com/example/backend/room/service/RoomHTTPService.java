@@ -1,7 +1,8 @@
 package com.example.backend.room.service;
 
-import com.example.backend.auth.service.ConnectionTokenService;
+import com.example.backend.auth.service.ConnectionService;
 import com.example.backend.room.model.entity.RoomEntity;
+import com.example.backend.room.model.view.JoinRoomView;
 import com.example.backend.room.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import java.security.SecureRandom;
 public class RoomHTTPService {
 
   private final RoomRepository roomRepository;
-  private final ConnectionTokenService joinTokenService;
+  private final ConnectionService connectionService;
 
   private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
   private final SecureRandom random = new SecureRandom();
@@ -30,15 +31,17 @@ public class RoomHTTPService {
     return sb.toString();
   }
 
-  public ResponseEntity<String> createRoom(String clientId) {
+  public ResponseEntity<JoinRoomView> createRoom() {
     String roomId;
     do {
       roomId = generateRandomId();
     } while (roomRepository.existsById(roomId));
 
+    String connectionId = connectionService.issueConnectionId(null, null, roomId);
+
     roomRepository.save(RoomEntity.builder()
             .roomId(roomId)
-            .adminId(clientId)
+            .adminConnectionId(connectionId)
             .hashedPassword(null)
             .videoTimestamp(0L)
             .videoUrl(null)
@@ -46,10 +49,14 @@ public class RoomHTTPService {
             .build()
     );
 
-    return ResponseEntity.ok(roomId);
+    return ResponseEntity.ok(JoinRoomView.builder()
+            .connectionId(connectionId)
+            .roomId(roomId)
+            .build()
+    );
   }
 
-  public ResponseEntity<String> joinRoom(String roomId, String clientId, String rawPassword) {
+  public ResponseEntity<?> joinRoom(String roomId, String rawPassword) {
     if (!roomId.matches("^[A-Z0-9]{6}$")) {
       return ResponseEntity.badRequest().body("Room ID must be exactly 6 characters long and contain only uppercase English letters and digits.");
     }
@@ -61,7 +68,10 @@ public class RoomHTTPService {
     }
 
     if (entity.getHashedPassword() == null) {
-      return ResponseEntity.ok(joinTokenService.issue(roomId, clientId));
+      return ResponseEntity.ok(JoinRoomView.builder()
+              .roomId(roomId)
+              .connectionId(connectionService.issueConnectionId(null, null, roomId))
+              .build());
     }
 
     if (rawPassword == null) {
@@ -69,7 +79,10 @@ public class RoomHTTPService {
     }
 
     if (passwordEncoder.matches(rawPassword, entity.getHashedPassword())) {
-      return ResponseEntity.ok(joinTokenService.issue(roomId, clientId));
+      return ResponseEntity.ok(JoinRoomView.builder()
+              .roomId(roomId)
+              .connectionId(connectionService.issueConnectionId(null, null, roomId))
+              .build());
     } else {
       return ResponseEntity.badRequest().body("The password is incorrect.");
     }

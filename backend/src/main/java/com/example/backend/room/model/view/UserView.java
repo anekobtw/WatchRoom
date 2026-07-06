@@ -1,5 +1,6 @@
-package com.example.backend.room.model.dto;
+package com.example.backend.room.model.view;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ConnectRoomDto {
-  private String connectionToken;
+public class UserView {
   private String name;
+
+  @JsonProperty("isAdmin")
+  private boolean admin;
 }

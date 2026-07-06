@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class RoomUpdateDto {
+  private String connectionId;
   private String videoUrl;
   private Long videoTimestamp;
   private Boolean playing;

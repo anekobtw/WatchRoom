@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Send, Users, ArrowRightFromLine } from "lucide-react";
 import type { ChatMessage, ClientToServer } from "@/types/ws";
-import { getClientId } from "@/scripts/getClientId";
+import { getConnectionToken } from "@/scripts/connectionToken";
 
 function ChatBubble({
   message,
@@ -32,7 +32,6 @@ function Chat({
 }) {
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const clientId = useRef(getClientId());
 
   const sendMsg = () => {
     if (!text.trim()) return;
@@ -40,6 +39,7 @@ function Chat({
     send({
       type: "CHAT",
       data: {
+        connectionToken: getConnectionToken() ?? "",
         text: text.trim(),
       },
     });
@@ -70,7 +70,7 @@ function Chat({
           <ChatBubble
             key={i}
             message={m}
-            isMine={m.senderClientId === clientId.current}
+            isMine={true} // TODO: change this always true to an actual logic
           />
         ))}
       </div>

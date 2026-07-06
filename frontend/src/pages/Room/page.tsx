@@ -17,15 +17,6 @@ export default function Room() {
     send,
   });
 
-  console.log("roomId: " + state?.data.roomId);
-  console.log("videoUrl: " + state?.data.videoUrl);
-  console.log("videoTimestamp: " + state?.data.videoTimestamp);
-  console.log("playing: " + state?.data.playing);
-  if (state?.data.users != undefined) {
-    console.log("User 0 name: " + state?.data.users[0].name);
-    console.log("User 0 clientId: " + state?.data.users[0].clientId);
-  }
-
   return (
     <div className="fade-1 h-screen overflow-hidden bg-background font-inter text-primary">
       <Group orientation="horizontal" className="h-full">

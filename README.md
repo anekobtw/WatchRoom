@@ -1,5 +1,7 @@
 # WatchRoom
 
+# connection
+
 # websocket requests
 
 Connections are listened on `ws://localhost:8080/ws`

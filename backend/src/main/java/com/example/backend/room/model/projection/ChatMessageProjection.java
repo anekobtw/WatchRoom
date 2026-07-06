@@ -1,7 +1,7 @@
 package com.example.backend.room.model.projection;
 
 public interface ChatMessageProjection {
-  String getSenderClientId();
+  String getSenderName();
   String getText();
   Long getTs();
 }

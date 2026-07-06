@@ -1,6 +1,5 @@
-import { getClientId } from "@/scripts/getClientId";
 import { ChevronRight } from "lucide-react";
-import { setJoinToken } from "@/scripts/joinToken";
+import { setConnectionToken } from "@/scripts/connectionToken";
 import { useNavigate } from "react-router-dom";
 
 function StepCard({
@@ -29,25 +28,16 @@ export default function Home() {
   const navigate = useNavigate();
 
   async function handleCreateRoom() {
-    const roomRes = await fetch(import.meta.env.VITE_HTTP_URL + "/create", {
+    const response = await fetch(import.meta.env.VITE_HTTP_URL + "/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clientId: getClientId() }),
     });
-    const roomId = await roomRes.text();
+    const data = await response.json();
 
-    const joinTokenRes = await fetch(import.meta.env.VITE_HTTP_URL + "/join", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        roomId: roomId,
-        clientId: getClientId(),
-      }),
-    });
-    const joinToken = await joinTokenRes.text();
+    const connectionId = data.connectionId;
+    setConnectionToken(connectionId);
 
-    setJoinToken(joinToken);
-
+    const roomId = data.roomId;
     navigate(`/room/${roomId}`);
   }
 

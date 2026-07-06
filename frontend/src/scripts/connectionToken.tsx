@@ -1,9 +1,9 @@
 const key = "joinToken";
 
-export const getJoinToken = () => {
+export const getConnectionToken = () => {
   return localStorage.getItem(key);
 };
 
-export const setJoinToken = (token: string) => {
+export const setConnectionToken = (token: string) => {
   localStorage.setItem(key, token);
 };
