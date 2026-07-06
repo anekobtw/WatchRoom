@@ -45,7 +45,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-primary font-mulish">
       {/* Hero Section */}
       <section className="min-h-[90vh] flex items-center px-6 py-20 lg:py-45">
-        <div className="max-w-8xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 mx-32 items-center">
+        <div className="max-w-8xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 py-12 mx-4 md:mx-12 items-center">
           <div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-title font-bold leading-tight mb-6">
               Watching alone is optional. <br />
@@ -56,22 +56,22 @@ export default function Home() {
               Pick a movie, send the link, and watch together.
             </p>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2 w-full">
               <button
-                className="bg-primary hover:bg-primary-hover text-background px-6 py-3 rounded-lg font-semibold text-sm inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200 cursor-pointer"
+                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition"
                 onClick={handleCreateRoom}
               >
                 Create a room
                 <ChevronRight size={18} />
               </button>
 
-              <a
-                className="bg-primary hover:bg-primary-hover text-background px-6 py-3 rounded-lg font-semibold text-sm inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200 cursor-pointer"
-                href="/join-room"
+              <button
+                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition"
+                onClick={() => navigate("/join-room")}
               >
                 Join a room
                 <ChevronRight size={18} />
-              </a>
+              </button>
             </div>
           </div>
 
