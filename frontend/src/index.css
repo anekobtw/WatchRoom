@@ -23,16 +23,17 @@ body {
 
 :root {
   --background: #d9cfc7;
-  --surface-0: #131313;
-  --surface-1: #292929;
-  --surface-2: #333333;
+  --surface-0: #cfc2b9;
+  --surface-1: #c5b5aa;
 
   --primary: #2b2623;
+  --primary-surface-0: #221e1c;
+  --primary-surface-1: #161412;
   --primary-hover: #0c0908;
 
   --accent: #b8472c;
 
-  --border: #2a2a2a;
+  --border: #3b322d;
   --line: rgba(255, 255, 255, 0.08);
 
   --critical: #d23742;
@@ -46,7 +47,10 @@ body {
   --color-surface-2: var(--surface-2);
 
   --color-primary: var(--primary);
+  --color-primary-surface-0: var(--primary-surface-0);
+  --color-primary-surface-1: var(--primary-surface-1);
   --color-primary-hover: var(--primary-hover);
+
   --color-accent: var(--accent);
 
   --color-border: var(--border);

@@ -1,10 +1,12 @@
 import { setConnectionToken } from "@/scripts/connectionToken";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const CODE_LENGTH = 6;
 
 export default function JoinRoom() {
+  const [loading, setLoading] = useState(false);
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
@@ -33,25 +35,33 @@ export default function JoinRoom() {
     }
   }
 
-  async function handleSubmit(e: React.SubmitEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
+
     const finalCode = code.join("");
     if (finalCode.length !== CODE_LENGTH) return;
 
-    const response = await fetch(import.meta.env.VITE_HTTP_URL + "/join", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        roomId: finalCode,
-      }),
-    });
+    setLoading(true);
 
-    if (response.status != 200) return;
+    try {
+      const response = await fetch(import.meta.env.VITE_HTTP_URL + "/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId: finalCode,
+        }),
+      });
 
-    const data = await response.json();
-    setConnectionToken(data.connectionId);
+      if (response.status != 200) return;
 
-    navigate(`/room/${data.roomId}`);
+      const data = await response.json();
+      setConnectionToken(data.connectionId);
+
+      navigate(`/room/${data.roomId}`);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -87,9 +97,17 @@ export default function JoinRoom() {
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-primary py-3.5 font-semibold text-background hover:bg-primary-hover transition duration-200 cursor-pointer max-w-md"
+          disabled={loading}
+          className="w-full rounded-lg bg-primary py-3.5 font-semibold text-background hover:bg-primary-hover transition duration-200 cursor-pointer max-w-md disabled:opacity-60 flex items-center justify-center gap-2"
         >
-          Join
+          {loading ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              Joining...
+            </>
+          ) : (
+            "Join"
+          )}
         </button>
       </form>
     </div>

@@ -1,6 +1,7 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { setConnectionToken } from "@/scripts/connectionToken";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 function StepCard({
   index,
@@ -26,19 +27,28 @@ function StepCard({
 
 export default function Home() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   async function handleCreateRoom() {
-    const response = await fetch(import.meta.env.VITE_HTTP_URL + "/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
+    if (loading) return;
+    setLoading(true);
 
-    const connectionId = data.connectionId;
-    setConnectionToken(connectionId);
+    try {
+      const response = await fetch(import.meta.env.VITE_HTTP_URL + "/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
 
-    const roomId = data.roomId;
-    navigate(`/room/${roomId}`);
+      const data = await response.json();
+
+      const connectionId = data.connectionId;
+      setConnectionToken(connectionId);
+
+      const roomId = data.roomId;
+      navigate(`/room/${roomId}`);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -58,15 +68,25 @@ export default function Home() {
 
             <div className="flex gap-2 w-full">
               <button
-                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition"
+                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition disabled:opacity-60 cursor-pointer"
                 onClick={handleCreateRoom}
+                disabled={loading}
               >
-                Create a room
-                <ChevronRight size={18} />
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    Create a room
+                    <ChevronRight size={18} />
+                  </>
+                )}
               </button>
 
               <button
-                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition"
+                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition cursor-pointer"
                 onClick={() => navigate("/join-room")}
               >
                 Join a room
