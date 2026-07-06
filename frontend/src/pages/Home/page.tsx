@@ -68,7 +68,7 @@ export default function Home() {
 
             <div className="flex gap-2 w-full">
               <button
-                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition disabled:opacity-60 cursor-pointer"
+                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition disabled:opacity-60 cursor-pointer duration-200"
                 onClick={handleCreateRoom}
                 disabled={loading}
               >
@@ -86,7 +86,7 @@ export default function Home() {
               </button>
 
               <button
-                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition cursor-pointer"
+                className="flex-1 bg-primary hover:bg-primary-hover text-background px-4 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition cursor-pointer duration-200"
                 onClick={() => navigate("/join-room")}
               >
                 Join a room
