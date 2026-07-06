@@ -25,6 +25,10 @@ public class RoomWebSocketService {
   public void connectRoom(ConnectRoomDto data, WebSocketSession session) {
     ConnectionToken token = connectionService.getTokenInfo(data.getConnectionToken());
 
+    if (!data.getRoomId().equals(token.getRoomId())) {
+      return;
+    }
+
     RoomEntity entity = roomRepository.findById(token.getRoomId()).orElse(null);
 
     if (entity == null) {

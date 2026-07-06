@@ -25,6 +25,7 @@ export function useRoomWS(roomId?: string) {
         type: "CONNECT",
         data: {
           connectionToken: getConnectionToken() ?? "",
+          roomId: roomId,
           name: "John Doe", // TODO: change the default name to something else
         },
       };

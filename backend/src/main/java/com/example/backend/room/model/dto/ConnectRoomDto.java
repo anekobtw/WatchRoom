@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ConnectRoomDto {
   private String connectionToken;
+  private String roomId;
   private String name;
 }

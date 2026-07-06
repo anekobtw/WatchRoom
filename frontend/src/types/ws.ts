@@ -3,6 +3,7 @@ export type ClientToServer =
       type: "CONNECT";
       data: {
         connectionToken: string;
+        roomId: string;
         name: string;
       };
     }
