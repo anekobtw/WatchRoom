@@ -5,7 +5,7 @@ import type {
   ChatMessage,
   User,
 } from "@/types/ws";
-import { getConnectionToken } from "@/scripts/connectionToken";
+import { getConnectionId } from "@/scripts/connectionId";
 
 export function useRoomWS(roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
@@ -23,8 +23,8 @@ export function useRoomWS(roomId?: string) {
     ws.onopen = () => {
       const join: ClientToServer = {
         type: "CONNECT",
+        connectionId: getConnectionId() ?? "",
         data: {
-          connectionToken: getConnectionToken() ?? "",
           roomId: roomId,
           name: "John Doe", // TODO: change the default name to something else
         },

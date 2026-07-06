@@ -1,4 +1,4 @@
-import { setConnectionToken } from "@/scripts/connectionToken";
+import { setConnectionId } from "@/scripts/connectionId";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -35,7 +35,7 @@ export default function JoinRoom() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     if (loading) return;
 
@@ -56,7 +56,7 @@ export default function JoinRoom() {
       if (response.status != 200) return;
 
       const data = await response.json();
-      setConnectionToken(data.connectionId);
+      setConnectionId(data.connectionId);
 
       navigate(`/room/${data.roomId}`);
     } finally {

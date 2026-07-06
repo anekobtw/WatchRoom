@@ -1,5 +1,5 @@
 import { ChevronRight, Loader2 } from "lucide-react";
-import { setConnectionToken } from "@/scripts/connectionToken";
+import { setConnectionId } from "@/scripts/connectionId";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -40,9 +40,7 @@ export default function Home() {
       });
 
       const data = await response.json();
-
-      const connectionId = data.connectionId;
-      setConnectionToken(connectionId);
+      setConnectionId(data.connectionId);
 
       const roomId = data.roomId;
       navigate(`/room/${roomId}`);

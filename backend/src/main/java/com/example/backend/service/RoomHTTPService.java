@@ -1,9 +1,8 @@
-package com.example.backend.room.service;
+package com.example.backend.service;
 
-import com.example.backend.auth.service.ConnectionService;
-import com.example.backend.room.model.entity.RoomEntity;
-import com.example.backend.room.model.view.JoinRoomView;
-import com.example.backend.room.repository.RoomRepository;
+import com.example.backend.model.entity.RoomEntity;
+import com.example.backend.model.view.JoinRoomView;
+import com.example.backend.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

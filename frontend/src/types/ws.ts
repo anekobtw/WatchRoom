@@ -1,16 +1,16 @@
 export type ClientToServer =
   | {
       type: "CONNECT";
+      connectionId: string;
       data: {
-        connectionToken: string;
         roomId: string;
         name: string;
       };
     }
   | {
       type: "UPDATE";
+      connectionId: string;
       data: {
-        connectionToken: string;
         videoUrl?: string;
         videoTimestamp?: number;
         playing?: boolean;
@@ -18,8 +18,8 @@ export type ClientToServer =
     }
   | {
       type: "CHAT";
+      connectionId: string;
       data: {
-        connectionToken: string;
         text: string;
       };
     };

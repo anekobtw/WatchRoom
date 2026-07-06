@@ -1,7 +1,7 @@
-package com.example.backend.websocket.model;
+package com.example.backend.model.websocket;
 
-import com.example.backend.room.model.projection.ChatMessageProjection;
-import com.example.backend.room.model.view.UserView;
+import com.example.backend.model.projection.ChatMessageProjection;
+import com.example.backend.model.view.UserView;
 import lombok.Builder;
 
 import java.util.List;

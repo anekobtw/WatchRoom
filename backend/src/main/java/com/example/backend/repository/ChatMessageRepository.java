@@ -1,7 +1,7 @@
-package com.example.backend.room.repository;
+package com.example.backend.repository;
 
-import com.example.backend.room.model.entity.ChatMessageEntity;
-import com.example.backend.room.model.projection.ChatMessageProjection;
+import com.example.backend.model.entity.ChatMessageEntity;
+import com.example.backend.model.projection.ChatMessageProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

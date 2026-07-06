@@ -1,8 +1,8 @@
-package com.example.backend.room.controller;
+package com.example.backend.controller;
 
-import com.example.backend.room.model.dto.JoinRoomDto;
-import com.example.backend.room.model.view.JoinRoomView;
-import com.example.backend.room.service.RoomHTTPService;
+import com.example.backend.model.dto.JoinRoomDto;
+import com.example.backend.model.view.JoinRoomView;
+import com.example.backend.service.RoomHTTPService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RoomController {
 
-  public final RoomHTTPService roomService;
+  public final RoomHTTPService roomHTTPService;
 
   @PostMapping("/create")
   public ResponseEntity<JoinRoomView> createRoom() {
-    return roomService.createRoom();
+    return roomHTTPService.createRoom();
   }
 
   @PostMapping("/join")
   public ResponseEntity<?> joinRoom(@RequestBody JoinRoomDto data) {
-    return roomService.joinRoom(data.getRoomId(), data.getRawPassword());
+    return roomHTTPService.joinRoom(data.getRoomId(), data.getRawPassword());
   }
 }

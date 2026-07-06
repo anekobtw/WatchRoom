@@ -1,6 +1,6 @@
 package com.example.backend.websocket.config;
 
-import com.example.backend.websocket.controller.WebSocketController;
+import com.example.backend.controller.WebSocketController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.*;

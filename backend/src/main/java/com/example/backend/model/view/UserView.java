@@ -1,4 +1,4 @@
-package com.example.backend.room.model.view;
+package com.example.backend.model.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

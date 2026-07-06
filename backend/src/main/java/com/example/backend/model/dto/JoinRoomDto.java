@@ -1,4 +1,4 @@
-package com.example.backend.room.model.dto;
+package com.example.backend.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

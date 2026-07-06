@@ -1,4 +1,4 @@
-package com.example.backend.auth.model;
+package com.example.backend.model.websocket;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,4 +18,5 @@ public class ConnectionToken {
   private String name;
   private String roomId;
   private Instant expiresAt;
+  private boolean connected;
 }

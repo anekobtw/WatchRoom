@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Send, Users, ArrowRightFromLine } from "lucide-react";
 import type { ChatMessage, ClientToServer } from "@/types/ws";
-import { getConnectionToken } from "@/scripts/connectionToken";
+import { getConnectionId } from "@/scripts/connectionId";
 
 function ChatBubble({
   message,
@@ -40,8 +40,8 @@ function Chat({
 
     send({
       type: "CHAT",
+      connectionId: getConnectionId() ?? "",
       data: {
-        connectionToken: getConnectionToken() ?? "",
         text: text.trim(),
       },
     });

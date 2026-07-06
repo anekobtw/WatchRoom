@@ -18,7 +18,7 @@ export default function Room() {
   });
 
   return (
-    <div className="fade-1 h-screen overflow-hidden bg-background font-inter text-primary">
+    <div className="fade-1 h-screen overflow-hidden bg-primary font-mulish text-background">
       <Group orientation="horizontal" className="h-full">
         <Panel minSize={40}>
           <MainContent

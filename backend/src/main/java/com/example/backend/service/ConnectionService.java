@@ -1,12 +1,12 @@
-package com.example.backend.auth.service;
+package com.example.backend.service;
 
-import com.example.backend.auth.model.ConnectionToken;
-import com.example.backend.room.model.view.UserView;
-import com.example.backend.websocket.model.RoomState;
-import com.example.backend.room.model.entity.RoomEntity;
-import com.example.backend.websocket.model.WsMessage;
-import com.example.backend.room.repository.ChatMessageRepository;
-import com.example.backend.room.repository.RoomRepository;
+import com.example.backend.model.websocket.ConnectionToken;
+import com.example.backend.model.view.UserView;
+import com.example.backend.model.websocket.RoomState;
+import com.example.backend.model.entity.RoomEntity;
+import com.example.backend.model.websocket.WsMessage;
+import com.example.backend.repository.ChatMessageRepository;
+import com.example.backend.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,6 +41,7 @@ public class ConnectionService {
             .name(name)
             .roomId(roomId)
             .expiresAt(Instant.now().plusSeconds(43200))  // 12 hours
+            .connected(false)
             .build());
 
     return connectionId;
@@ -61,7 +62,11 @@ public class ConnectionService {
 
     if (getTokenInfo(connectionId).getExpiresAt().isBefore(Instant.now())) {
       removeConnectionId(connectionId);
+    } else {
+      getTokenInfo(connectionId).setConnected(false);
     }
+
+    broadcastState(getTokenInfo(connectionId).getRoomId());
   }
 
   public ConnectionToken getTokenInfo(String connectionId) {
@@ -87,7 +92,7 @@ public class ConnectionService {
     String roomAdminConnectionId = room.getAdminConnectionId();
 
     Set<UserView> roomUsers = tokens.values().stream()
-            .filter(t -> roomId.equals(t.getRoomId()))
+            .filter(t -> roomId.equals(t.getRoomId()) && t.isConnected())
             .map(t -> UserView.builder()
                     .name(t.getName())
                     .admin(Objects.equals(t.getConnectionId(), roomAdminConnectionId))

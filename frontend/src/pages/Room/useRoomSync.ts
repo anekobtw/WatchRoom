@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { PlayerAPI } from "@/types/player";
 import type { ClientToServer, ServerToClient } from "@/types/ws";
-import { getConnectionToken } from "@/scripts/connectionToken";
+import { getConnectionId } from "@/scripts/connectionId";
 
 const SYNC_THRESHOLD_SECONDS = 1;
 const ECHO_TIMEOUT_MS = 250;
@@ -29,8 +29,8 @@ export function useRoomSync({
 
       send({
         type: "UPDATE",
+        connectionId: getConnectionId() ?? "",
         data: {
-          connectionToken: getConnectionToken() ?? "",
           videoTimestamp: player.getTime(),
           playing,
         },

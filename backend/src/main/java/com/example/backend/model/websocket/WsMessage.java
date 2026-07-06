@@ -1,4 +1,4 @@
-package com.example.backend.websocket.model;
+package com.example.backend.model.websocket;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WsMessage {
   private String type;
+  private String connectionId;
   private Object data;
 }

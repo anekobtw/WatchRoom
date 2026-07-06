@@ -1,4 +1,4 @@
-package com.example.backend.room.model.dto;
+package com.example.backend.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ConnectRoomDto {
-  private String connectionToken;
-  private String roomId;
-  private String name;
+public class ChatDto {
+  private String text;
 }

@@ -1,4 +1,4 @@
-package com.example.backend.room.model.projection;
+package com.example.backend.model.projection;
 
 public interface ChatMessageProjection {
   String getSenderName();

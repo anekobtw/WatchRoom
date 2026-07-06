@@ -1,7 +1,7 @@
-package com.example.backend.websocket.controller;
+package com.example.backend.controller;
 
 import com.example.backend.websocket.dispatcher.WebSocketMessageDispatcher;
-import com.example.backend.auth.service.ConnectionService;
+import com.example.backend.service.ConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

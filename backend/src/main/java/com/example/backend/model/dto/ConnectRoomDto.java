@@ -1,4 +1,4 @@
-package com.example.backend.room.model.view;
+package com.example.backend.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class JoinRoomView {
-  private String connectionId;
+@Builder
+public class ConnectRoomDto {
   private String roomId;
+  private String name;
 }
