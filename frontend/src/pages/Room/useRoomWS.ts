@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import type {
+  ChatMessage,
   ClientToServer,
   ServerToClient,
-  ChatMessage,
   User,
 } from "@/types/ws";
 import { getConnectionId } from "@/scripts/connectionId";
 
-export function useRoomWS(roomId?: string) {
+export function useRoomWS(name: string | null, roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
 
   const [state, setState] = useState<ServerToClient | null>(null);
@@ -15,7 +16,7 @@ export function useRoomWS(roomId?: string) {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    if (!roomId) return;
+    if (!roomId || !name) return;
 
     const ws = new WebSocket(import.meta.env.VITE_WS_URL);
     wsRef.current = ws;
@@ -25,8 +26,8 @@ export function useRoomWS(roomId?: string) {
         type: "CONNECT",
         connectionId: getConnectionId() ?? "",
         data: {
-          roomId: roomId,
-          name: "John Doe", // TODO: change the default name to something else
+          roomId,
+          name,
         },
       };
 
@@ -56,7 +57,7 @@ export function useRoomWS(roomId?: string) {
       ws.close();
       wsRef.current = null;
     };
-  }, [roomId]);
+  }, [roomId, name]);
 
   const send = useCallback((msg: ClientToServer) => {
     const ws = wsRef.current;

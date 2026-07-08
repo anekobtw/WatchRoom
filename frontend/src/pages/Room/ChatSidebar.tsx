@@ -4,9 +4,6 @@ import type { ChatMessage, ClientToServer } from "@/types/ws";
 import { getConnectionId } from "@/scripts/connectionId";
 
 function ChatBubble({ message }: { message: ChatMessage }) {
-  console.log(message.text);
-  console.log(message.isMine);
-
   return (
     <div
       className={`flex w-full ${message.isMine ? "justify-end" : "justify-start"}`}

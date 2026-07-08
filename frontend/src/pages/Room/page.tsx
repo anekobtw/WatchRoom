@@ -1,25 +1,64 @@
+import { useState, type SubmitEvent } from "react";
 import { useParams } from "react-router-dom";
-import { Panel, Group, Separator } from "react-resizable-panels";
+import { Group, Panel, Separator } from "react-resizable-panels";
 
-import { useRoomSync } from "./useRoomSync";
-import { useRoomWS } from "./useRoomWS";
+import Modal from "@/components/Modal";
 
 import MainContent from "./MainContent";
 import ChatSidebar from "./ChatSidebar";
+import { useRoomSync } from "./useRoomSync";
+import { useRoomWS } from "./useRoomWS";
 
 export default function Room() {
   const { id } = useParams();
+  const [name, setName] = useState("");
+  const [submittedName, setSubmittedName] = useState<string | null>(null);
 
-  const { state, messages, users, send } = useRoomWS(id);
+  const { state, messages, users, send } = useRoomWS(submittedName, id);
 
   const { playerRef, onPlayerStateChange } = useRoomSync({
     state,
     send,
   });
 
+  const handleContinue = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+
+    setName(trimmedName);
+    setSubmittedName(trimmedName);
+  };
+
   return (
     <div className="fade-1 h-screen overflow-hidden bg-primary font-mulish text-background">
       <Group orientation="horizontal" className="h-full">
+        {!submittedName && (
+          <Modal>
+            <form className="space-y-4" onSubmit={handleContinue}>
+              <h2 className="text-xl font-semibold">What's your name?</h2>
+
+              <input
+                type="text"
+                placeholder="Enter your name"
+                className="w-full rounded-md border border-border px-3 py-2"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoFocus
+              />
+
+              <button
+                type="submit"
+                className="w-full cursor-pointer rounded-md bg-background py-2 font-medium text-primary transition duration-200 hover:bg-surface-1 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!name.trim()}
+              >
+                Continue
+              </button>
+            </form>
+          </Modal>
+        )}
+
         <Panel minSize={40}>
           <MainContent
             roomId={id}

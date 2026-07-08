@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class JoinRoomView {
-  private String connectionId;
   private String roomId;
+  private String connectionId;
 }
