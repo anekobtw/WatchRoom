@@ -24,7 +24,8 @@
     "react-youtube": "^10.1.0",
     "tailwindcss": "^4.3.2",
     "three": "^0.185.1",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.1",
+    "wrangler": "^4.108.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
