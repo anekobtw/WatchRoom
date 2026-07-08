@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Home from "./pages/Home/page";
 import Room from "./pages/Room/page";
 import JoinRoom from "./pages/JoinRoom/page";
+import NotFound from "./pages/NotFound/page";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
@@ -66,6 +67,9 @@ export default function App() {
               </Page>
             }
           />
+
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
     </div>

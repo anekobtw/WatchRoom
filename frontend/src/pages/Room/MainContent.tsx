@@ -16,6 +16,7 @@ type MainContentProps = {
   playerRef: RefObject<PlayerAPI | null>;
   onPlayerStateChange: (event: PlayerStateChangeEvent) => void;
   onLeave: () => void;
+  currentName: string | null;
 };
 
 export default function MainContent({
@@ -25,6 +26,7 @@ export default function MainContent({
   playerRef,
   onPlayerStateChange,
   onLeave,
+  currentName,
 }: MainContentProps) {
   const [openQueue, setOpenQueue] = useState(false);
   const [input, setInput] = useState("");
@@ -37,14 +39,27 @@ export default function MainContent({
             type="button"
             onClick={onLeave}
             aria-label="Leave room"
-            className="hover:bg-critical/40 rounded-xl cursor-pointer p-2 transition duration-200"
+            className="hover:bg-critical/20 rounded-xl cursor-pointer p-2 transition duration-200"
           >
             <LogOut size={18} className="text-critical" />
           </button>
 
-          <div>
+          <div className="space-y-1">
+            {currentName && (
+              <p className="text-sm text-background/60">
+                Your name: {currentName}
+              </p>
+            )}
+
             <h1 className="font-title text-2xl font-semibold">Room {roomId}</h1>
-            <h3 className="text-background/60">{users?.length ?? 0} watching</h3>
+
+            {state ? (
+              <h3 className="text-background/60">
+                {users?.length ?? 0} watching
+              </h3>
+            ) : (
+              <h3 className="text-background/60">Connecting...</h3>
+            )}
           </div>
         </div>
 

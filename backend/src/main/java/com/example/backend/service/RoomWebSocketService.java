@@ -22,13 +22,21 @@ public class RoomWebSocketService {
   private final ChatMessageRepository messageRepository;
 
   public void connectRoom(ConnectRoomDto data, ConnectionToken connectionToken, WebSocketSession session) {
-    if (!data.getRoomId().equals(connectionToken.getRoomId())) {
+    if (connectionToken == null || !data.getRoomId().equals(connectionToken.getRoomId())) {
+      try {
+        session.close();
+      } catch (Exception ignored) {
+      }
       return;
     }
 
     RoomEntity entity = roomRepository.findById(connectionToken.getRoomId()).orElse(null);
 
     if (entity == null) {
+      try {
+        session.close();
+      } catch (Exception ignored) {
+      }
       return;
     }
 

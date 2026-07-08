@@ -1,9 +1,10 @@
 import { useState, type SubmitEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import Modal from "@/components/Modal";
 import { getConnectionId } from "@/scripts/connectionId";
+import { getUserName, setUserName } from "@/scripts/userName";
 
 import MainContent from "./MainContent";
 import ChatSidebar from "./ChatSidebar";
@@ -13,11 +14,21 @@ import { useRoomWS } from "./useRoomWS";
 export default function Room() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [name, setName] = useState("");
-  const [submittedName, setSubmittedName] = useState<string | null>(null);
+  const storedName = getUserName();
+  const [name, setName] = useState(storedName ?? "");
+  const [submittedName, setSubmittedName] = useState<string | null>(
+    storedName,
+  );
 
-  const { state, messages, users, send } = useRoomWS(submittedName, id);
-  const { playerRef, onPlayerStateChange } = useRoomSync({ state, send });
+  const { state, messages, users, send, roomUnavailable } = useRoomWS(
+    submittedName,
+    id,
+  );
+
+  const { playerRef, onPlayerStateChange } = useRoomSync({
+    state,
+    send,
+  });
 
   const handleContinue = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,6 +36,7 @@ export default function Room() {
     const trimmedName = name.trim();
     if (!trimmedName) return;
 
+    setUserName(trimmedName);
     setName(trimmedName);
     setSubmittedName(trimmedName);
   };
@@ -37,6 +49,10 @@ export default function Room() {
     });
     navigate("/");
   };
+
+  if (roomUnavailable) {
+    return <Navigate replace to="/404" />;
+  }
 
   return (
     <div className="fade-1 h-screen overflow-hidden bg-primary font-mulish text-background">
@@ -74,6 +90,7 @@ export default function Room() {
             playerRef={playerRef}
             onPlayerStateChange={onPlayerStateChange}
             onLeave={handleLeave}
+            currentName={submittedName}
           />
         </Panel>
 

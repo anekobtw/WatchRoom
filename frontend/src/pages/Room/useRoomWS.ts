@@ -10,13 +10,22 @@ import { getConnectionId } from "@/scripts/connectionId";
 
 export function useRoomWS(name: string | null, roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
+  const receivedStateRef = useRef(false);
 
   const [state, setState] = useState<ServerToClient | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [roomUnavailable, setRoomUnavailable] = useState(false);
 
   useEffect(() => {
     if (!roomId || !name) return;
+
+    let disposed = false;
+    receivedStateRef.current = false;
+    setState(null);
+    setMessages([]);
+    setUsers([]);
+    setRoomUnavailable(false);
 
     const ws = new WebSocket(import.meta.env.VITE_WS_URL);
     wsRef.current = ws;
@@ -35,10 +44,14 @@ export function useRoomWS(name: string | null, roomId?: string) {
     };
 
     ws.onmessage = (e) => {
+      if (disposed) return;
+
       const msg = JSON.parse(e.data) as ServerToClient;
 
       switch (msg.type) {
         case "STATE":
+          receivedStateRef.current = true;
+          setRoomUnavailable(false);
           setState(msg);
           if (msg.data.messages) {
             setMessages(msg.data.messages);
@@ -53,7 +66,22 @@ export function useRoomWS(name: string | null, roomId?: string) {
       }
     };
 
+    ws.onerror = () => {
+      if (!disposed && !receivedStateRef.current) {
+        setRoomUnavailable(true);
+      }
+    };
+
+    ws.onclose = () => {
+      wsRef.current = null;
+
+      if (!disposed && !receivedStateRef.current) {
+        setRoomUnavailable(true);
+      }
+    };
+
     return () => {
+      disposed = true;
       ws.close();
       wsRef.current = null;
     };
@@ -65,5 +93,5 @@ export function useRoomWS(name: string | null, roomId?: string) {
     ws.send(JSON.stringify(msg));
   }, []);
 
-  return { state, messages, users, send };
+  return { state, messages, users, send, roomUnavailable };
 }
