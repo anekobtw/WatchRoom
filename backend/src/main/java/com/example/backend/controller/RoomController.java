@@ -22,6 +22,6 @@ public class RoomController {
 
   @PostMapping("/join")
   public ResponseEntity<?> joinRoom(@RequestBody JoinRoomDto data) {
-    return roomHTTPService.joinRoom(data.getRoomId(), data.getRawPassword());
+    return roomHTTPService.joinRoom(data.getRoomId());
   }
 }

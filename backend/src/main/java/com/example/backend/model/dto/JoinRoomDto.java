@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @Builder
 public class JoinRoomDto {
   private String roomId;
-  private String rawPassword;
 }

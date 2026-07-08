@@ -22,7 +22,6 @@ public class RoomEntity {
   private String roomId;
 
   private String adminConnectionId;
-  private String hashedPassword;
   private String videoUrl;
   private long videoTimestamp;
   private boolean playing;

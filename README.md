@@ -27,7 +27,6 @@ Joins the room. If the room with roomId doesn't exist, the room is created.
   "data": {
     "roomId": "room123",
     "clientId": "710c2ff0-aa78-49b4-adde-9a9971f64535",
-    "rawPassword": "1234"
   }
 }
 ```

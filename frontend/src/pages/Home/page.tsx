@@ -163,7 +163,7 @@ export default function Home() {
             <StepCard
               index="1/3"
               title="Create a room"
-              desc="Just one click and you have a code. Might as well set up a password if you want."
+              desc="Just one click and you have a code."
             />
 
             <StepCard

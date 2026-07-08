@@ -5,7 +5,6 @@ import com.example.backend.model.view.JoinRoomView;
 import com.example.backend.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -17,7 +16,6 @@ public class RoomHTTPService {
   private final RoomRepository roomRepository;
   private final ConnectionService connectionService;
 
-  private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
   private final SecureRandom random = new SecureRandom();
 
   private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -41,7 +39,6 @@ public class RoomHTTPService {
     roomRepository.save(RoomEntity.builder()
             .roomId(roomId)
             .adminConnectionId(connectionId)
-            .hashedPassword(null)
             .videoTimestamp(0L)
             .videoUrl(null)
             .playing(false)
@@ -55,7 +52,7 @@ public class RoomHTTPService {
     );
   }
 
-  public ResponseEntity<?> joinRoom(String roomId, String rawPassword) {
+  public ResponseEntity<?> joinRoom(String roomId) {
     if (!roomId.matches("^[A-Z0-9]{6}$")) {
       return ResponseEntity.badRequest().body("Room ID must be exactly 6 characters long and contain only uppercase English letters and digits.");
     }
@@ -66,24 +63,9 @@ public class RoomHTTPService {
       return ResponseEntity.notFound().build();
     }
 
-    if (entity.getHashedPassword() == null) {
-      return ResponseEntity.ok(JoinRoomView.builder()
-              .roomId(roomId)
-              .connectionId(connectionService.issueConnectionId(null, null, roomId))
-              .build());
-    }
-
-    if (rawPassword == null) {
-      return ResponseEntity.badRequest().body("No password was provided, but the room is password protected.");
-    }
-
-    if (passwordEncoder.matches(rawPassword, entity.getHashedPassword())) {
-      return ResponseEntity.ok(JoinRoomView.builder()
-              .roomId(roomId)
-              .connectionId(connectionService.issueConnectionId(null, null, roomId))
-              .build());
-    } else {
-      return ResponseEntity.badRequest().body("The password is incorrect.");
-    }
+    return ResponseEntity.ok(JoinRoomView.builder()
+            .roomId(roomId)
+            .connectionId(connectionService.issueConnectionId(null, null, roomId))
+            .build());
   }
 }
