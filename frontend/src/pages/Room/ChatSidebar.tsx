@@ -6,10 +6,16 @@ import { getConnectionId } from "@/scripts/connectionId";
 function ChatBubble({ message }: { message: ChatMessage }) {
   return (
     <div
-      className={`flex w-full ${message.isMine ? "justify-end" : "justify-start"}`}
+      className={`flex w-full flex-col ${
+        message.isMine ? "items-end" : "items-start"
+      }`}
     >
+      <span className="mb-1 text-xs font-medium text-background/70">
+        {message.senderName}
+      </span>
+
       <div
-        className={`max-w-[70%] px-3 py-2 rounded-lg text-sm border border-line ${
+        className={`max-w-[70%] rounded-lg border border-line px-3 py-2 text-sm ${
           message.isMine
             ? "bg-background text-primary"
             : "bg-primary-surface-0 text-background"

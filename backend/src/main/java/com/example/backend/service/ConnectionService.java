@@ -102,7 +102,7 @@ public class ConnectionService {
             )
             .collect(Collectors.toSet());
 
-    List<ChatMessageEntity> rawMessages = messageRepository.findTop100ByRoomIdOrderByTsDesc(roomId);
+    List<ChatMessageEntity> rawMessages = messageRepository.findTop100ByRoomIdOrderByTsAsc(roomId);
 
     tokens.values().stream()
             .filter(t -> roomId.equals(t.getRoomId()) && t.isConnected())
