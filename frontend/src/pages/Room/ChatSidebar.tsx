@@ -1,5 +1,11 @@
 import { useRef, useState, useEffect } from "react";
-import { Send, Users, ArrowRightFromLine } from "lucide-react";
+import {
+  Send,
+  Users,
+  ArrowRightFromLine,
+  ArrowDown,
+  ArrowUp,
+} from "lucide-react";
 import type { ChatMessage, ClientToServer } from "@/types/ws";
 import { getConnectionId } from "@/scripts/connectionId";
 
@@ -59,13 +65,13 @@ function Chat({
   }, [messages]);
 
   return (
-    <div className="flex flex-col text-background bg-primary-surface-0 h-full font-mulish">
+    <div className="flex h-full flex-col bg-primary-surface-0 font-mulish text-background">
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2.5"
+        className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-4 py-4"
       >
         {messages.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-1.5 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 text-center">
             <p className="text-sm text-background/40">No messages yet</p>
           </div>
         )}
@@ -76,19 +82,19 @@ function Chat({
       </div>
 
       <div className="border-t border-line p-3">
-        <div className="flex items-center gap-2 rounded-full bg-primary-surface-0 border border-line text-background/70 pl-4 pr-1.5 py-1.5">
+        <div className="flex items-center gap-2 rounded-full border border-line bg-primary-surface-0 pl-4 pr-1.5 py-1.5 text-background/70">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMsg()}
             placeholder="Send a message"
-            className="flex-1 bg-transparent text-sm outline-none text-background placeholder:text-background/40"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none text-background placeholder:text-background/40"
           />
 
           <button
             onClick={sendMsg}
             disabled={!text.trim()}
-            className="p-1 text-background hover:text-background/80 transition"
+            className="shrink-0 p-1 text-background transition hover:text-background/80"
           >
             <Send size={13} />
           </button>
@@ -101,25 +107,50 @@ function Chat({
 export default function ChatSidebar({
   send,
   messages,
+  isCollapsed,
+  isMobile,
+  onToggleCollapse,
 }: {
   send: (msg: ClientToServer) => void;
   messages: ChatMessage[];
+  isCollapsed: boolean;
+  isMobile: boolean;
+  onToggleCollapse: () => void;
 }) {
+  const collapseIcon = isMobile ? (
+    isCollapsed ? (
+      <ArrowUp className="text-background" />
+    ) : (
+      <ArrowDown className="text-background" />
+    )
+  ) : (
+    <ArrowRightFromLine className="text-background" size={24} />
+  );
+
   return (
     <aside className="flex h-full flex-col border-l border-line bg-primary-surface-0 font-mulish">
       <div className="w-full flex flex-row items-center justify-between border-b border-line px-4 py-4 text-md font-semibold text-background">
-        <button className="hover:bg-primary-surface-1 rounded-xl cursor-pointer transition duration-200 p-2">
-          <ArrowRightFromLine className="text-background" size={24} />
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          aria-label={isCollapsed ? "Expand chat" : "Collapse chat"}
+          className="hover:bg-primary-surface-1 cursor-pointer rounded-xl p-2 transition duration-200"
+        >
+          {collapseIcon}
         </button>
-        Chat
-        <button className="hover:bg-primary-surface-1 rounded-xl cursor-pointer transition duration-200 p-2">
+
+        <span>Chat</span>
+
+        <button className="hover:bg-primary-surface-1 cursor-pointer rounded-xl p-2 transition duration-200">
           <Users className="text-background" />
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <Chat send={send} messages={messages} />
-      </div>
+      {!isCollapsed && (
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <Chat send={send} messages={messages} />
+        </div>
+      )}
     </aside>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, type RefObject } from "react";
-import { LogOut, Settings, Link2 } from "lucide-react";
+import { Link2, ArrowLeftFromLine, LogOut } from "lucide-react";
 
 import YouTubePlayer from "@/components/players/YouTubePlayer";
 import type { PlayerAPI } from "@/types/player";
@@ -17,6 +17,9 @@ type MainContentProps = {
   onPlayerStateChange: (event: PlayerStateChangeEvent) => void;
   onLeave: () => void;
   currentName: string | null;
+  isChatCollapsed: boolean;
+  isMobile: boolean;
+  onExpandChat: () => void;
 };
 
 export default function MainContent({
@@ -27,52 +30,53 @@ export default function MainContent({
   onPlayerStateChange,
   onLeave,
   currentName,
+  isChatCollapsed,
+  isMobile,
+  onExpandChat,
 }: MainContentProps) {
   const [openQueue, setOpenQueue] = useState(false);
   const [input, setInput] = useState("");
 
   return (
     <main className="flex h-full min-w-0 flex-1 flex-col bg-primary font-mulish text-background">
-      <div className="flex items-center justify-between px-6 py-5">
-        <div className="flex items-start gap-3">
-          <button
-            type="button"
-            onClick={onLeave}
-            aria-label="Leave room"
-            className="hover:bg-critical/20 rounded-xl cursor-pointer p-2 transition duration-200"
-          >
-            <LogOut size={18} className="text-critical" />
-          </button>
+      <div className="grid grid-cols-1 gap-4 px-6 py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onLeave}
+              className="text-critical hover:bg-critical/20 duration-200 transition cursor-pointer p-2 rounded-xl"
+            >
+              <LogOut />
+            </button>
 
-          <div className="space-y-1">
-            {currentName && (
-              <p className="text-sm text-background/60">
-                Your name: {currentName}
-              </p>
-            )}
+            <div>
+              <h1 className="font-title text-xl font-semibold sm:text-2xl">
+                Room {roomId}
+              </h1>
 
-            <h1 className="font-title text-2xl font-semibold">Room {roomId}</h1>
+              <div className="text-sm text-background/60">
+                {currentName && <p>Your name: {currentName}</p>}
 
-            {state ? (
-              <h3 className="text-background/60">
-                {users?.length ?? 0} watching
-              </h3>
-            ) : (
-              <h3 className="text-background/60">Connecting...</h3>
-            )}
+                {state ? (
+                  <p>{users?.length ?? 0} watching</p>
+                ) : (
+                  <p>Connecting...</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="relative ml-6 max-w-xl flex-1">
-          <div className="flex w-full items-center gap-2 rounded-xl border border-line bg-primary-surface-0 px-3 py-2">
-            <Link2 size={16} className="text-background/60" />
+        <div className="relative min-w-0 w-full max-w-xl justify-self-center">
+          <div className="flex min-w-0 w-full items-center gap-2 rounded-xl border border-line bg-primary-surface-0 px-3 py-2">
+            <Link2 size={16} className="shrink-0 text-background/60" />
 
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onFocus={() => setOpenQueue(true)}
               placeholder="Paste video link..."
-              className="flex-1 bg-transparent text-sm outline-none text-background/90 placeholder:text-background/40"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none text-background/90 placeholder:text-background/40"
             />
 
             <button
@@ -80,17 +84,23 @@ export default function MainContent({
                 if (!input) return;
                 setInput("");
               }}
-              className="cursor-pointer rounded-lg bg-background px-3 py-1 text-xs text-primary transition duration-200 hover:bg-background/90"
+              className="shrink-0 cursor-pointer rounded-lg bg-background px-3 py-1 text-xs text-primary transition duration-200 hover:bg-background/90"
             >
               Add
             </button>
           </div>
         </div>
 
-        <button className="ml-3 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-background px-4 py-2 text-sm font-semibold text-primary transition duration-200 hover:bg-background/90">
-          <Settings size={16} />
-          Room Settings
-        </button>
+        <div className="flex items-center justify-end">
+          {!isMobile && isChatCollapsed && (
+            <button
+              onClick={onExpandChat}
+              className="flex cursor-pointer items-center justify-center rounded-xl p-2 text-sm font-semibold text-background transition hover:bg-primary-surface-1 duration-200"
+            >
+              <ArrowLeftFromLine />
+            </button>
+          )}
+        </div>
       </div>
 
       {openQueue && (
