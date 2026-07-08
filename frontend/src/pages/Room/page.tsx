@@ -120,6 +120,7 @@ export default function Room() {
           panelRef={chatPanelRef}
           defaultSize={350}
           minSize={isMobile ? 60 : 0}
+          collapsedSize={isMobile ? 60 : 0}
           collapsible
           onResize={() =>
             setIsChatCollapsed(chatPanelRef.current?.isCollapsed() ?? false)

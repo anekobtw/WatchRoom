@@ -119,9 +119,9 @@ export default function ChatSidebar({
 }) {
   const collapseIcon = isMobile ? (
     isCollapsed ? (
-      <ArrowUp className="text-background" />
-    ) : (
       <ArrowDown className="text-background" />
+    ) : (
+      <ArrowUp className="text-background" />
     )
   ) : (
     <ArrowRightFromLine className="text-background" size={24} />

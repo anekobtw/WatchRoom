@@ -124,7 +124,7 @@ export default function MainContent({
               onStateChange={onPlayerStateChange}
             />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
               <p className="text-lg font-medium text-background/70">
                 Nothing is in the queue
               </p>
