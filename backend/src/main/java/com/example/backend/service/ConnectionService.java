@@ -52,27 +52,28 @@ public class ConnectionService {
   }
 
   public void closeConnection(WebSocketSession session) {
-    String connectionId = tokens.entrySet().stream()
-            .filter(e -> e.getValue().getSession().equals(session))
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .orElse(null);
+    ConnectionToken token = getTokenInfo(session);
 
-    if (connectionId == null) return;
+    if (token == null) return;
 
-    ConnectionToken connectionToken = getTokenInfo(connectionId);
-
-    if (connectionToken.getExpiresAt().isBefore(Instant.now())) {
-      removeConnectionId(connectionId);
+    if (token.getExpiresAt().isBefore(Instant.now())) {
+      removeConnectionId(token.getConnectionId());
     } else {
-      connectionToken.setConnected(false);
+      token.setConnected(false);
     }
 
-    broadcastState(connectionToken.getRoomId());
+    broadcastState(token.getRoomId());
   }
 
   public ConnectionToken getTokenInfo(String connectionId) {
     return tokens.get(connectionId);
+  }
+
+  public ConnectionToken getTokenInfo(WebSocketSession session) {
+    return tokens.values().stream()
+            .filter(t -> t.getSession().equals(session))
+            .findFirst()
+            .orElse(null);
   }
 
   public boolean validateSession(String connectionId, WebSocketSession session) {

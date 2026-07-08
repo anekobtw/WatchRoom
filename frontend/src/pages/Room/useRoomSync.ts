@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useRef } from "react";
+
 import type { PlayerAPI } from "@/types/player";
 import type { ClientToServer, ServerToClient } from "@/types/ws";
 import { getConnectionId } from "@/scripts/connectionId";
 
 const SYNC_THRESHOLD_SECONDS = 1;
 const ECHO_TIMEOUT_MS = 250;
+
+type PlayerStateChangeEvent = {
+  data: number;
+};
 
 export function useRoomSync({
   state,
@@ -18,7 +23,7 @@ export function useRoomSync({
   const lastVideoRef = useRef<string | null>(null);
 
   const onPlayerStateChange = useCallback(
-    (e: any) => {
+    (e: PlayerStateChangeEvent) => {
       if (ignoreEcho.current) return;
 
       const player = playerRef.current;

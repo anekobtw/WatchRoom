@@ -1,15 +1,21 @@
+import { useState, type RefObject } from "react";
+import { LogOut, Settings, Link2 } from "lucide-react";
+
 import YouTubePlayer from "@/components/players/YouTubePlayer";
-import type { ServerToClient, User } from "@/types/ws";
 import type { PlayerAPI } from "@/types/player";
-import { useState } from "react";
-import { Settings, Link2 } from "lucide-react";
+import type { ServerToClient, User } from "@/types/ws";
+
+type PlayerStateChangeEvent = {
+  data: number;
+};
 
 type MainContentProps = {
   roomId?: string;
   users?: User[];
   state: ServerToClient | null;
-  playerRef: React.RefObject<PlayerAPI | null>;
-  onPlayerStateChange: (event: any) => void;
+  playerRef: RefObject<PlayerAPI | null>;
+  onPlayerStateChange: (event: PlayerStateChangeEvent) => void;
+  onLeave: () => void;
 };
 
 export default function MainContent({
@@ -18,20 +24,32 @@ export default function MainContent({
   state,
   playerRef,
   onPlayerStateChange,
+  onLeave,
 }: MainContentProps) {
   const [openQueue, setOpenQueue] = useState(false);
   const [input, setInput] = useState("");
 
   return (
-    <main className="flex h-full min-w-0 flex-1 flex-col font-mulish text-background bg-primary">
+    <main className="flex h-full min-w-0 flex-1 flex-col bg-primary font-mulish text-background">
       <div className="flex items-center justify-between px-6 py-5">
-        <div>
-          <h1 className="font-title font-semibold text-2xl">Room {roomId}</h1>
-          <h3 className="text-background/60">{users?.length ?? 0} watching</h3>
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={onLeave}
+            aria-label="Leave room"
+            className="hover:bg-critical/40 rounded-xl cursor-pointer p-2 transition duration-200"
+          >
+            <LogOut size={18} className="text-critical" />
+          </button>
+
+          <div>
+            <h1 className="font-title text-2xl font-semibold">Room {roomId}</h1>
+            <h3 className="text-background/60">{users?.length ?? 0} watching</h3>
+          </div>
         </div>
 
-        <div className="relative flex-1 max-w-xl ml-6">
-          <div className="flex items-center gap-2 rounded-xl bg-primary-surface-0 px-3 py-2 w-full border border-line">
+        <div className="relative ml-6 max-w-xl flex-1">
+          <div className="flex w-full items-center gap-2 rounded-xl border border-line bg-primary-surface-0 px-3 py-2">
             <Link2 size={16} className="text-background/60" />
 
             <input
@@ -47,21 +65,21 @@ export default function MainContent({
                 if (!input) return;
                 setInput("");
               }}
-              className="rounded-lg bg-background text-primary hover:bg-background/90 transition duration-200 px-3 py-1 text-xs cursor-pointer"
+              className="cursor-pointer rounded-lg bg-background px-3 py-1 text-xs text-primary transition duration-200 hover:bg-background/90"
             >
               Add
             </button>
           </div>
         </div>
 
-        <button className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-background text-primary hover:bg-background/90 px-4 py-2 text-sm transition duration-200 ml-3 font-semibold">
+        <button className="ml-3 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-background px-4 py-2 text-sm font-semibold text-primary transition duration-200 hover:bg-background/90">
           <Settings size={16} />
           Room Settings
         </button>
       </div>
 
       {openQueue && (
-        <div className="absolute left-0 top-full mt-2 w-full rounded-xl border border-line bg-primary-surface-0 shadow-xl z-50">
+        <div className="absolute left-0 top-full z-50 mt-2 w-full rounded-xl border border-line bg-primary-surface-0 shadow-xl">
           <div className="p-3 text-sm font-medium text-background/70">
             Queue
           </div>

@@ -22,6 +22,11 @@ export type ClientToServer =
       data: {
         text: string;
       };
+    }
+  | {
+      type: "LEAVE";
+      connectionId: string;
+      data: null;
     };
 
 export type ServerToClient = {

@@ -7,5 +7,6 @@ public enum WsType {
   CONNECT,
   UPDATE,
   CHAT,
-  STATE
+  STATE,
+  LEAVE
 }

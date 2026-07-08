@@ -44,6 +44,10 @@ public class WebSocketMessageDispatcher {
         case CHAT -> {
           roomService.sendChatMessage(mapper.treeToValue(msg.getData(), ChatDto.class), connectionToken, session);
         }
+
+        case LEAVE -> {
+          connectionService.removeConnectionId(connectionService.getTokenInfo(session).getConnectionId());
+        }
       }
 
     } catch (Exception e) {

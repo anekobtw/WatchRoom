@@ -1,8 +1,9 @@
 import { useState, type SubmitEvent } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import Modal from "@/components/Modal";
+import { getConnectionId } from "@/scripts/connectionId";
 
 import MainContent from "./MainContent";
 import ChatSidebar from "./ChatSidebar";
@@ -10,16 +11,13 @@ import { useRoomSync } from "./useRoomSync";
 import { useRoomWS } from "./useRoomWS";
 
 export default function Room() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [name, setName] = useState("");
   const [submittedName, setSubmittedName] = useState<string | null>(null);
 
   const { state, messages, users, send } = useRoomWS(submittedName, id);
-
-  const { playerRef, onPlayerStateChange } = useRoomSync({
-    state,
-    send,
-  });
+  const { playerRef, onPlayerStateChange } = useRoomSync({ state, send });
 
   const handleContinue = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,6 +27,15 @@ export default function Room() {
 
     setName(trimmedName);
     setSubmittedName(trimmedName);
+  };
+
+  const handleLeave = () => {
+    send({
+      type: "LEAVE",
+      connectionId: getConnectionId() ?? "",
+      data: null,
+    });
+    navigate("/");
   };
 
   return (
@@ -66,6 +73,7 @@ export default function Room() {
             state={state}
             playerRef={playerRef}
             onPlayerStateChange={onPlayerStateChange}
+            onLeave={handleLeave}
           />
         </Panel>
 
