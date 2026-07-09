@@ -91,18 +91,39 @@ function Chat({
 
 export default function ChatSidebar({
   send,
+  users,
   messages,
   isCollapsed,
   isMobile,
   onToggleCollapse,
 }: {
   send: (msg: ClientToServer) => void;
+  users: string[];
   messages: ChatMessage[];
   isCollapsed: boolean;
   isMobile: boolean;
   onToggleCollapse: () => void;
   name: string;
 }) {
+  const [showUsers, setShowUsers] = useState(false);
+  const usersRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showUsers) return;
+
+    const handleClick = (e: MouseEvent) => {
+      if (!usersRef.current?.contains(e.target as Node)) {
+        setShowUsers(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [showUsers]);
+
   const collapseIcon = isMobile ? (
     isCollapsed ? (
       <ArrowDown className="text-background" />
@@ -127,9 +148,34 @@ export default function ChatSidebar({
 
         <span>Chat</span>
 
-        <button className="hover:bg-primary-surface-1 cursor-pointer rounded-xl p-2 transition duration-200">
-          <Users className="text-background" />
-        </button>
+        <div ref={usersRef} className="relative">
+          <button
+            onClick={() => setShowUsers((v) => !v)}
+            className="hover:bg-primary-surface-1 cursor-pointer rounded-xl p-2 transition duration-200"
+          >
+            <Users className="text-background" />
+          </button>
+
+          {showUsers && (
+            <div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-2xl border border-line bg-primary-surface-0 shadow-xl">
+              <div className="border-b border-line px-4 py-3 text-sm font-semibold text-background">
+                Users ({users.length})
+              </div>
+
+              <div className="max-h-72 overflow-y-auto py-2">
+                {users.map((user) => (
+                  <div
+                    key={user}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-background transition hover:bg-primary-surface-1"
+                  >
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <span>{user}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {!isCollapsed && (

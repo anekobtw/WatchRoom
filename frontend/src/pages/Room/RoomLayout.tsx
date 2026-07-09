@@ -6,17 +6,18 @@ import MainContent from "./MainContent";
 import ChatSidebar from "./ChatSidebar";
 import { useRoom } from "./useRoom";
 import { getConnectionId } from "@/scripts/connectionId";
+import { useNavigate } from "react-router-dom";
 
 export default function RoomLayout({ id }: { id: string | undefined }) {
-  const { state, send, roomUnavailable, playerRef, onPlayerStateChange } =
-    useRoom(id);
+  const navigate = useNavigate();
+  const { state, send, roomUnavailable, playerRef, onPlayerStateChange } = useRoom(id);
   const [name, setName] = useState(getUserName() ?? "");
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const orientation = useOrientation();
   const isMobile = orientation === "vertical";
   const chatPanelRef = usePanelRef();
 
-  if (roomUnavailable) return null; // Page handles 404 redirect
+  if (roomUnavailable) navigate("/404"); // Page handles 404 redirect
 
   const toggleChat = () => {
     const panel = chatPanelRef.current;
@@ -35,7 +36,7 @@ export default function RoomLayout({ id }: { id: string | undefined }) {
   };
 
   return (
-    <div className="fade-1 h-screen overflow-hidden bg-primary font-mulish text-background">
+    <div className="h-screen overflow-hidden bg-primary font-mulish text-background">
       <Group
         orientation={orientation}
         resizeTargetMinimumSize={{ fine: 24, coarse: 36 }}
@@ -48,7 +49,8 @@ export default function RoomLayout({ id }: { id: string | undefined }) {
             playerRef={playerRef}
             onPlayerStateChange={onPlayerStateChange}
             onLeave={() => {
-              send({ type: "LEAVE", connectionId: "", data: null });
+              send({ type: "LEAVE", connectionId: getConnectionId(), data: null });
+              navigate("/");
             }}
             isChatCollapsed={isChatCollapsed}
             isMobile={isMobile}
@@ -70,6 +72,7 @@ export default function RoomLayout({ id }: { id: string | undefined }) {
         >
           <ChatSidebar
             send={send}
+            users={state?.data.users ?? []}
             messages={state?.data.messages ?? []}
             isCollapsed={isChatCollapsed}
             isMobile={isMobile}

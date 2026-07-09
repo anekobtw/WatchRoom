@@ -1,10 +1,8 @@
 package com.example.backend.service;
 
-import com.example.backend.model.entity.ChatMessageEntity;
 import com.example.backend.model.enums.WsType;
 import com.example.backend.model.view.ChatMessageView;
 import com.example.backend.model.websocket.ConnectionToken;
-import com.example.backend.model.view.UserView;
 import com.example.backend.model.websocket.RoomState;
 import com.example.backend.model.entity.RoomEntity;
 import com.example.backend.model.websocket.WsMessage;
@@ -123,20 +121,12 @@ public class ConnectionService {
     RoomEntity room = roomRepository.findById(roomId).orElse(null);
     if (room == null) return;
 
-    String roomAdminConnectionId = room.getAdminConnectionId();
-
-    Set<UserView> roomUsers = tokens.values().stream()
+    Set<String> roomUsers = tokens.values().stream()
             .filter(t -> roomId.equals(t.getRoomId()) && t.isConnected())
-            .map(t -> UserView.builder()
-                    .name(t.getName())
-                    .admin(Objects.equals(t.getConnectionId(), roomAdminConnectionId))
-                    .build()
-            )
+            .map(ConnectionToken::getName)
             .collect(Collectors.toSet());
 
-    List<ChatMessageEntity> rawMessages = messageRepository.findTop100ByRoomIdOrderByTsAsc(roomId);
-
-    List<ChatMessageView> messages = rawMessages.stream()
+    List<ChatMessageView> messages = messageRepository.findTop100ByRoomIdOrderByTsAsc(roomId).stream()
             .map(message -> ChatMessageView.builder()
                     .senderName(message.getSenderName())
                     .text(message.getText())

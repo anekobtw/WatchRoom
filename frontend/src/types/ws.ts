@@ -36,7 +36,7 @@ export type ServerToClient = {
     videoUrl: string;
     videoTimestamp: number;
     playing: boolean;
-    users?: Array<User>;
+    users?: string[];
     messages?: Array<ChatMessage>;
   };
 };
@@ -47,7 +47,3 @@ export type ChatMessage = {
   ts: number;
 };
 
-export type User = {
-  name: string;
-  isAdmin: boolean;
-};
