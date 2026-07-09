@@ -1,6 +1,6 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { Link2, ArrowLeftFromLine, LogOut, Pencil } from "lucide-react";
-import YouTubePlayer from "@/components/players/YouTubePlayer";
+import Player from "@/components/players/Player";
 import type { PlayerAPI } from "@/types/player";
 import type { ServerToClient, User, ClientToServer } from "@/types/ws";
 import { getConnectionId } from "@/scripts/connectionId";
@@ -42,18 +42,19 @@ export default function MainContent({
   const [input, setInput] = useState("");
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(currentName ?? "");
+  const loadedUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     setNameInput(currentName ?? "");
   }, [currentName]);
 
-  // Sync video URL and timestamp when state changes
   useEffect(() => {
     if (!playerRef.current || !state?.data.videoUrl) return;
+    if (loadedUrlRef.current === state.data.videoUrl) return;
+    loadedUrlRef.current = state.data.videoUrl;
     playerRef.current.load(state.data.videoUrl, state.data.videoTimestamp);
-  }, [state?.data.videoUrl, state?.data.videoTimestamp, playerRef]);
+  }, [state?.data.videoUrl, playerRef]);
 
-  // Sync play/pause state
   useEffect(() => {
     if (!playerRef.current || !state?.data) return;
 
@@ -63,6 +64,26 @@ export default function MainContent({
       playerRef.current.pause();
     }
   }, [state?.data.playing, playerRef]);
+
+  useEffect(() => {
+    if (!playerRef.current || state?.data.videoTimestamp == null) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const currentTime = await playerRef.current!.getTime();
+      if (cancelled) return;
+
+      const drift = Math.abs(currentTime - state.data.videoTimestamp);
+      if (drift > 2) {
+        playerRef.current!.seek(state.data.videoTimestamp);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state?.data.videoTimestamp, playerRef]);
 
   const submitName = () => {
     const trimmed = nameInput.trim();
@@ -187,9 +208,9 @@ export default function MainContent({
       <div className="flex-1 p-6">
         <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-primary-surface-0 shadow-2xl">
           {state?.type === "STATE" && state.data.videoUrl ? (
-            <YouTubePlayer
+            <Player
               ref={playerRef}
-              videoId={state.data.videoUrl}
+              url={state.data.videoUrl}
               onStateChange={onPlayerStateChange}
             />
           ) : (

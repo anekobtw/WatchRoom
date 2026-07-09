@@ -3,5 +3,6 @@ export type PlayerAPI = {
   play: () => void;
   pause: () => void;
   seek: (time: number) => void;
-  getTime: () => number;
+  getTime: () => number | Promise<number>;
 };
+

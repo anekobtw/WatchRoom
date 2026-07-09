@@ -9,6 +9,7 @@ const ECHO_TIMEOUT_MS = 250;
 
 type PlayerStateChangeEvent = {
   data: number;
+  time?: number;
 };
 
 export function useRoomSync({
@@ -23,11 +24,27 @@ export function useRoomSync({
   const lastVideoRef = useRef<string | null>(null);
 
   const onPlayerStateChange = useCallback(
-    (e: PlayerStateChangeEvent) => {
-      if (ignoreEcho.current) return;
+    async (e: PlayerStateChangeEvent) => {
+      if (ignoreEcho.current && e.data !== 3) return;
 
       const player = playerRef.current;
       if (!player) return;
+
+      if (e.data === 3) {
+        ignoreEcho.current = true;
+        send({
+          type: "UPDATE",
+          connectionId: getConnectionId() ?? "",
+          data: {
+            videoTimestamp: e.time ?? 0,
+            playing: state?.data.playing,
+          },
+        });
+        setTimeout(() => {
+          ignoreEcho.current = false;
+        }, ECHO_TIMEOUT_MS);
+        return;
+      }
 
       const playing = e.data === 1 ? true : e.data === 2 ? false : null;
       if (playing === null) return;
@@ -36,7 +53,7 @@ export function useRoomSync({
         type: "UPDATE",
         connectionId: getConnectionId() ?? "",
         data: {
-          videoTimestamp: player.getTime(),
+          videoTimestamp: await player.getTime(),
           playing,
         },
       });
@@ -45,42 +62,53 @@ export function useRoomSync({
   );
 
   useEffect(() => {
-    const player = playerRef.current;
+    const sync = async () => {
+      const player = playerRef.current;
 
-    if (!player) return;
-    if (!state || state.type !== "STATE") return;
-    if (!state.data.videoUrl) return;
+      if (!player) return;
+      if (!state || state.type !== "STATE") return;
+      if (!state.data.videoUrl) return;
 
-    const isNewVideo = lastVideoRef.current !== state.data.videoUrl;
+      const isNewVideo = lastVideoRef.current !== state.data.videoUrl;
 
-    ignoreEcho.current = true;
+      ignoreEcho.current = true;
 
-    if (isNewVideo) {
-      lastVideoRef.current = state.data.videoUrl;
-      player.load(state.data.videoUrl, state.data.videoTimestamp ?? 0);
-    } else {
-      const currentTime = player.getTime();
+      if (isNewVideo) {
+        lastVideoRef.current = state.data.videoUrl;
+        player.load(state.data.videoUrl, state.data.videoTimestamp ?? 0);
+      } else {
+        const currentTime = await player.getTime();
 
-      if (
-        typeof state.data.videoTimestamp === "number" &&
-        Math.abs(currentTime - state.data.videoTimestamp) >
-          SYNC_THRESHOLD_SECONDS
-      ) {
-        player.seek(state.data.videoTimestamp);
+        if (
+          typeof state.data.videoTimestamp === "number" &&
+          Math.abs(currentTime - state.data.videoTimestamp) >
+            SYNC_THRESHOLD_SECONDS
+        ) {
+          player.seek(state.data.videoTimestamp);
+        }
       }
-    }
 
-    if (state.data.playing) {
-      player.play();
-    } else {
-      player.pause();
-    }
+      if (state.data.playing) {
+        player.play();
+      } else {
+        player.pause();
+      }
 
-    const timeout = setTimeout(() => {
-      ignoreEcho.current = false;
-    }, ECHO_TIMEOUT_MS);
+      const timeout = setTimeout(() => {
+        ignoreEcho.current = false;
+      }, ECHO_TIMEOUT_MS);
 
-    return () => clearTimeout(timeout);
+      return timeout;
+    };
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    sync().then((id) => {
+      timeoutId = id as ReturnType<typeof setTimeout>;
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [state]);
 
   return {

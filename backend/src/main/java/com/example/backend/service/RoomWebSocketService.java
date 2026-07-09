@@ -81,5 +81,4 @@ public class RoomWebSocketService {
 
     sessionManager.broadcastState(connectionToken.getRoomId());
   }
-
 }

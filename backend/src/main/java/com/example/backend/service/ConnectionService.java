@@ -138,11 +138,16 @@ public class ConnectionService {
 
   private void broadcastToUser(String connectionId, String json) {
     if (connectionId == null) return;
+
     ConnectionToken client = getTokenInfo(connectionId);
     if (client == null) return;
 
     try {
-      client.getSession().sendMessage(new TextMessage(json));
+      synchronized (client.getSession()) {
+        if (client.getSession().isOpen()) {
+          client.getSession().sendMessage(new TextMessage(json));
+        }
+      }
     } catch (Exception e) {
       log.warn("Failed to send message", e);
 
