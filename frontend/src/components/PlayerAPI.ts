@@ -5,4 +5,3 @@ export type PlayerAPI = {
   seek: (time: number) => void;
   getTime: () => number | Promise<number>;
 };
-

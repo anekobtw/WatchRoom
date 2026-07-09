@@ -1,6 +1,6 @@
 import { useRef, forwardRef, useImperativeHandle } from "react";
 import YouTube from "react-youtube";
-import type { PlayerAPI } from "@/types/player";
+import type { PlayerAPI } from "../PlayerAPI";
 
 const YOUTUBE_ID_REGEX =
   /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/;

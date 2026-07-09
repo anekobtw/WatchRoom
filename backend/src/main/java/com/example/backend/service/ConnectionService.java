@@ -35,6 +35,17 @@ public class ConnectionService {
 
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+  public boolean nameExists(String roomId, String name) {
+    if (name == null || roomId == null) return false;
+
+    return tokens.values().stream()
+            .anyMatch(t ->
+                    roomId.equals(t.getRoomId()) &&
+                            t.isConnected() &&
+                            name.equalsIgnoreCase(t.getName())
+            );
+  }
+
   public String issueConnectionId(WebSocketSession session, String name, String roomId) {
     String connectionId = UUID.randomUUID().toString();
 
@@ -125,21 +136,18 @@ public class ConnectionService {
 
     List<ChatMessageEntity> rawMessages = messageRepository.findTop100ByRoomIdOrderByTsAsc(roomId);
 
+    List<ChatMessageView> messages = rawMessages.stream()
+            .map(message -> ChatMessageView.builder()
+                    .senderName(message.getSenderName())
+                    .text(message.getText())
+                    .ts(message.getTs())
+                    .build()
+            )
+            .toList();
+
     tokens.values().stream()
             .filter(t -> roomId.equals(t.getRoomId()) && t.isConnected())
             .forEach(t -> {
-              String connectionId = t.getConnectionId();
-
-              List<ChatMessageView> messages = rawMessages.stream()
-                      .map(message -> ChatMessageView.builder()
-                              .senderName(message.getSenderName())
-                              .text(message.getText())
-                              .ts(message.getTs())
-                              .mine(Objects.equals(message.getSenderConnectionId(), connectionId))
-                              .build()
-                      )
-                      .toList();
-
               WsMessage<Object> payload = WsMessage.builder()
                       .type(WsType.STATE)
                       .data(RoomState.builder()
@@ -152,7 +160,7 @@ public class ConnectionService {
                               .build())
                       .build();
 
-              broadcastToUser(connectionId, mapper.writeValueAsString(payload));
+              broadcastToUser(t.getConnectionId(), mapper.writeValueAsString(payload));
             });
   }
 

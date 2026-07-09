@@ -10,6 +10,8 @@ import java.util.Set;
 @Builder
 public record RoomState(
         String roomId,
+        Integer version,
+        String updatedBy,
         String videoUrl,
         Long videoTimestamp,
         boolean playing,

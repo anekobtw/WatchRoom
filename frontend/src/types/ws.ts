@@ -45,7 +45,6 @@ export type ChatMessage = {
   senderName: string;
   text: string;
   ts: number;
-  isMine: boolean;
 };
 
 export type User = {

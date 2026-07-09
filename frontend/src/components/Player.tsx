@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import type { PlayerAPI } from "@/types/player";
+import type { PlayerAPI } from "./PlayerAPI";
 import YouTubePlayer from "./players/YouTubePlayer";
 import SoundCloudPlayer from "./players/SoundCloudPlayer";
 

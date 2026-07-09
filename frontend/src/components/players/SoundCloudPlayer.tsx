@@ -1,5 +1,5 @@
 import { useRef, forwardRef, useImperativeHandle } from "react";
-import type { PlayerAPI } from "@/types/player";
+import type { PlayerAPI } from "../PlayerAPI";
 
 declare global {
   interface Window {

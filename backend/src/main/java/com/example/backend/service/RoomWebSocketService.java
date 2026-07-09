@@ -40,6 +40,10 @@ public class RoomWebSocketService {
       return;
     }
 
+    if (connectionService.nameExists(data.getRoomId(), data.getName())) {
+      return;
+    }
+
     connectionToken.setSession(session);
     connectionToken.setName(data.getName());
     connectionToken.setConnected(true);
