@@ -107,7 +107,5 @@ export function useRoomWS(name: string | null, roomId?: string) {
     });
   }, [name, roomId, send]);
 
-
-
   return { state, messages, users, send, roomUnavailable };
 }

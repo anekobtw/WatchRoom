@@ -28,7 +28,7 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
   useImperativeHandle(ref, () => ({
     load: (url: string, timestamp = 0) => {
       const id = extractYouTubeId(url);
-      if (!id) return;
+      if (!id) throw new Error(`Invalid YouTube URL: ${url}`);
       playerRef.current?.loadVideoById(id, timestamp);
     },
     play: () => {
@@ -41,8 +41,9 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
       playerRef.current?.seekTo(time, true);
     },
     getTime: () => {
-      return playerRef.current?.getCurrentTime?.() ?? 0;
-    }
+      if (!playerRef.current) throw new Error("Player not ready");
+      return playerRef.current.getCurrentTime();
+    },
   }));
 
   return (

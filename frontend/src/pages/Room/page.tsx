@@ -121,6 +121,7 @@ export default function Room() {
             isMobile={isMobile}
             onExpandChat={toggleChat}
             onRename={handleRename}
+            send={send}
           />
         </Panel>
 

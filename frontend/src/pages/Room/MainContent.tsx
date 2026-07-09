@@ -1,9 +1,9 @@
 import { useEffect, useState, type RefObject } from "react";
 import { Link2, ArrowLeftFromLine, LogOut, Pencil } from "lucide-react";
-
 import YouTubePlayer from "@/components/players/YouTubePlayer";
 import type { PlayerAPI } from "@/types/player";
-import type { ServerToClient, User } from "@/types/ws";
+import type { ServerToClient, User, ClientToServer } from "@/types/ws";
+import { getConnectionId } from "@/scripts/connectionId";
 
 type PlayerStateChangeEvent = {
   data: number;
@@ -21,6 +21,7 @@ type MainContentProps = {
   isMobile: boolean;
   onExpandChat: () => void;
   onRename: (name: string) => void;
+  send: (msg: ClientToServer) => void;
 };
 
 export default function MainContent({
@@ -35,10 +36,10 @@ export default function MainContent({
   isMobile,
   onExpandChat,
   onRename,
+  send,
 }: MainContentProps) {
   const [openQueue, setOpenQueue] = useState(false);
   const [input, setInput] = useState("");
-
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(currentName ?? "");
 
@@ -46,10 +47,26 @@ export default function MainContent({
     setNameInput(currentName ?? "");
   }, [currentName]);
 
+  // Sync video URL and timestamp when state changes
+  useEffect(() => {
+    if (!playerRef.current || !state?.data.videoUrl) return;
+    playerRef.current.load(state.data.videoUrl, state.data.videoTimestamp);
+  }, [state?.data.videoUrl, state?.data.videoTimestamp, playerRef]);
+
+  // Sync play/pause state
+  useEffect(() => {
+    if (!playerRef.current || !state?.data) return;
+
+    if (state.data.playing) {
+      playerRef.current.play();
+    } else {
+      playerRef.current.pause();
+    }
+  }, [state?.data.playing, playerRef]);
+
   const submitName = () => {
     const trimmed = nameInput.trim();
     setEditingName(false);
-
     if (trimmed && trimmed !== currentName) {
       onRename(trimmed);
     } else {
@@ -68,17 +85,14 @@ export default function MainContent({
             >
               <LogOut />
             </button>
-
             <div>
               <h1 className="font-title text-xl font-semibold sm:text-2xl">
                 Room {roomId}
               </h1>
-
               <div className="text-sm text-background/60">
                 {currentName && (
                   <div className="flex items-center gap-1">
                     <span>Your name:</span>
-
                     {editingName ? (
                       <input
                         autoFocus
@@ -89,7 +103,6 @@ export default function MainContent({
                           if (e.key === "Enter") {
                             submitName();
                           }
-
                           if (e.key === "Escape") {
                             setEditingName(false);
                             setNameInput(currentName ?? "");
@@ -105,7 +118,6 @@ export default function MainContent({
                         >
                           {currentName}
                         </button>
-
                         <button
                           onClick={() => setEditingName(true)}
                           className="cursor-pointer rounded p-1 transition hover:bg-primary-surface-1"
@@ -116,7 +128,6 @@ export default function MainContent({
                     )}
                   </div>
                 )}
-
                 {state ? (
                   <p>{users?.length ?? 0} watching</p>
                 ) : (
@@ -126,11 +137,9 @@ export default function MainContent({
             </div>
           </div>
         </div>
-
         <div className="relative min-w-0 w-full max-w-xl justify-self-center">
           <div className="flex min-w-0 w-full items-center gap-2 rounded-xl border border-line bg-primary-surface-0 px-3 py-2">
             <Link2 size={16} className="shrink-0 text-background/60" />
-
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -138,10 +147,14 @@ export default function MainContent({
               placeholder="Paste video link..."
               className="min-w-0 flex-1 bg-transparent text-sm outline-none text-background/90 placeholder:text-background/40"
             />
-
             <button
               onClick={() => {
                 if (!input) return;
+                send({
+                  type: "UPDATE",
+                  connectionId: getConnectionId(),
+                  data: { videoUrl: input, videoTimestamp: 0, playing: false },
+                });
                 setInput("");
               }}
               className="shrink-0 cursor-pointer rounded-lg bg-background px-3 py-1 text-xs text-primary transition duration-200 hover:bg-background/90"
@@ -150,7 +163,6 @@ export default function MainContent({
             </button>
           </div>
         </div>
-
         <div className="flex items-center justify-end">
           {!isMobile && isChatCollapsed && (
             <button
@@ -162,19 +174,16 @@ export default function MainContent({
           )}
         </div>
       </div>
-
       {openQueue && (
         <div className="absolute left-0 top-full z-50 mt-2 w-full rounded-xl border border-line bg-primary-surface-0 shadow-xl">
           <div className="p-3 text-sm font-medium text-background/70">
             Queue
           </div>
-
           <div className="max-h-64 overflow-auto px-3 pb-3 text-sm text-background/60">
             No items yet
           </div>
         </div>
       )}
-
       <div className="flex-1 p-6">
         <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-primary-surface-0 shadow-2xl">
           {state?.type === "STATE" && state.data.videoUrl ? (
@@ -188,7 +197,6 @@ export default function MainContent({
               <p className="text-lg font-medium text-background/70">
                 Nothing is in the queue
               </p>
-
               <p className="mt-1 text-sm text-background/40">
                 Add a video to the queue to start watching together.
               </p>
