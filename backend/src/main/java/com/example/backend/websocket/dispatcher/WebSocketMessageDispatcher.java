@@ -44,7 +44,7 @@ public class WebSocketMessageDispatcher {
 
         case LEAVE -> {
           connectionService.removeConnectionId(connectionService.getTokenInfo(session).getConnectionId());
-          connectionService.broadcastState(connectionToken.getRoomId());
+          connectionService.queueBroadcast(connectionToken.getRoomId());
         }
       }
 

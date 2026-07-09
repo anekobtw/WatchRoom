@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Link2, ArrowLeftFromLine, LogOut, Pencil } from "lucide-react";
-import Player from "@/components/players/Player";
+import Player from "@/components/Player";
 import type { PlayerAPI } from "@/types/player";
 import type { ServerToClient, User, ClientToServer } from "@/types/ws";
 import { getConnectionId } from "@/scripts/connectionId";

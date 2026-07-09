@@ -44,7 +44,7 @@ public class RoomWebSocketService {
     connectionToken.setName(data.getName());
     connectionToken.setConnected(true);
 
-    connectionService.broadcastState(connectionToken.getRoomId());
+    connectionService.queueBroadcast(connectionToken.getRoomId());
   }
 
   public void updateRoom(RoomUpdateDto data, ConnectionToken connectionToken, WebSocketSession session) {
@@ -61,7 +61,7 @@ public class RoomWebSocketService {
 
     roomRepository.save(room);
 
-    connectionService.broadcastState(room.getRoomId());
+    connectionService.queueBroadcast(room.getRoomId());
   }
 
   public void sendChatMessage(ChatDto data, ConnectionToken connectionToken, WebSocketSession session) {
@@ -79,6 +79,6 @@ public class RoomWebSocketService {
 
     messageRepository.save(message);
 
-    sessionManager.broadcastState(connectionToken.getRoomId());
+    sessionManager.queueBroadcast(connectionToken.getRoomId());
   }
 }

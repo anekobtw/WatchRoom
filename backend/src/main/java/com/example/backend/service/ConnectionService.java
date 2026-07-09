@@ -19,7 +19,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,6 +31,9 @@ public class ConnectionService {
   private final ObjectMapper mapper;
 
   private final Map<String, ConnectionToken> tokens = new ConcurrentHashMap<>();
+  private final Map<String, ScheduledFuture<?>> pendingBroadcasts = new ConcurrentHashMap<>();
+
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
   public String issueConnectionId(WebSocketSession session, String name, String roomId) {
     String connectionId = UUID.randomUUID().toString();
@@ -62,7 +65,7 @@ public class ConnectionService {
       token.setConnected(false);
     }
 
-    broadcastState(token.getRoomId());
+    queueBroadcast(token.getRoomId());
   }
 
   public ConnectionToken getTokenInfo(String connectionId) {
@@ -86,6 +89,23 @@ public class ConnectionService {
     }
 
     return (client.getSession().equals(session));
+  }
+
+  public void queueBroadcast(String roomId) {
+    pendingBroadcasts.compute(roomId, (id, oldTask) -> {
+
+      if (oldTask != null) {
+        oldTask.cancel(false);
+      }
+
+      return scheduler.schedule(() -> {
+                pendingBroadcasts.remove(roomId);
+                broadcastState(roomId);
+              },
+              100,
+              TimeUnit.MILLISECONDS
+      );
+    });
   }
 
   public void broadcastState(String roomId) {

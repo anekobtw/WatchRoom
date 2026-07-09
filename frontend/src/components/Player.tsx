@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import type { PlayerAPI } from "@/types/player";
-import YouTubePlayer from "./YouTubePlayer";
-import SoundCloudPlayer from "./SoundCloudPlayer";
+import YouTubePlayer from "./players/YouTubePlayer";
+import SoundCloudPlayer from "./players/SoundCloudPlayer";
 
 type Props = {
   url: string;
