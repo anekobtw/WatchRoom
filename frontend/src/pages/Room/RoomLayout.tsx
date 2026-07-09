@@ -36,7 +36,7 @@ export default function RoomLayout({ id }: { id: string | undefined }) {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-primary font-mulish text-background">
+    <div className="h-screen overflow-auto bg-primary font-mulish text-background">
       <Group
         orientation={orientation}
         resizeTargetMinimumSize={{ fine: 24, coarse: 36 }}
@@ -64,7 +64,7 @@ export default function RoomLayout({ id }: { id: string | undefined }) {
           panelRef={chatPanelRef}
           defaultSize={350}
           minSize={isMobile ? 60 : 0}
-          collapsedSize={isMobile ? 60 : 0}
+          collapsedSize={isMobile ? 70 : 0}
           collapsible
           onResize={() =>
             setIsChatCollapsed(chatPanelRef.current?.isCollapsed() ?? false)

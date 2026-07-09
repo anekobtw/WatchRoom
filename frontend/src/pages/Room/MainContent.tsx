@@ -31,7 +31,7 @@ export default function MainContent({
   send,
 }: MainContentProps) {
   return (
-    <main className="flex h-full min-w-0 flex-1 flex-col bg-primary font-mulish text-background">
+    <main className="flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-primary font-mulish text-background">
       <div className="grid grid-cols-1 gap-4 px-6 py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
         <UserControls
           roomId={roomId}
