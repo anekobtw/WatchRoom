@@ -1,5 +1,5 @@
-import { useState, type RefObject } from "react";
-import { Link2, ArrowLeftFromLine, LogOut } from "lucide-react";
+import { useEffect, useState, type RefObject } from "react";
+import { Link2, ArrowLeftFromLine, LogOut, Pencil } from "lucide-react";
 
 import YouTubePlayer from "@/components/players/YouTubePlayer";
 import type { PlayerAPI } from "@/types/player";
@@ -20,6 +20,7 @@ type MainContentProps = {
   isChatCollapsed: boolean;
   isMobile: boolean;
   onExpandChat: () => void;
+  onRename: (name: string) => void;
 };
 
 export default function MainContent({
@@ -33,9 +34,28 @@ export default function MainContent({
   isChatCollapsed,
   isMobile,
   onExpandChat,
+  onRename,
 }: MainContentProps) {
   const [openQueue, setOpenQueue] = useState(false);
   const [input, setInput] = useState("");
+
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(currentName ?? "");
+
+  useEffect(() => {
+    setNameInput(currentName ?? "");
+  }, [currentName]);
+
+  const submitName = () => {
+    const trimmed = nameInput.trim();
+    setEditingName(false);
+
+    if (trimmed && trimmed !== currentName) {
+      onRename(trimmed);
+    } else {
+      setNameInput(currentName ?? "");
+    }
+  };
 
   return (
     <main className="flex h-full min-w-0 flex-1 flex-col bg-primary font-mulish text-background">
@@ -55,7 +75,47 @@ export default function MainContent({
               </h1>
 
               <div className="text-sm text-background/60">
-                {currentName && <p>Your name: {currentName}</p>}
+                {currentName && (
+                  <div className="flex items-center gap-1">
+                    <span>Your name:</span>
+
+                    {editingName ? (
+                      <input
+                        autoFocus
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        onBlur={submitName}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            submitName();
+                          }
+
+                          if (e.key === "Escape") {
+                            setEditingName(false);
+                            setNameInput(currentName ?? "");
+                          }
+                        }}
+                        className="rounded bg-primary-surface-1 px-1 outline-none"
+                      />
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setEditingName(true)}
+                          className="cursor-pointer text-background transition hover:text-background/90"
+                        >
+                          {currentName}
+                        </button>
+
+                        <button
+                          onClick={() => setEditingName(true)}
+                          className="cursor-pointer rounded p-1 transition hover:bg-primary-surface-1"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {state ? (
                   <p>{users?.length ?? 0} watching</p>

@@ -3,7 +3,6 @@ package com.example.backend.websocket.dispatcher;
 import com.example.backend.model.dto.ChatDto;
 import com.example.backend.model.dto.ConnectRoomDto;
 import com.example.backend.model.dto.RoomUpdateDto;
-import com.example.backend.model.enums.WsType;
 import com.example.backend.model.websocket.ConnectionToken;
 import com.example.backend.model.websocket.WsMessage;
 import com.example.backend.service.ConnectionService;
@@ -15,8 +14,6 @@ import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-
-import static com.example.backend.model.enums.WsType.*;
 
 @Slf4j
 @Service

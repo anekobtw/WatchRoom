@@ -85,13 +85,29 @@ export function useRoomWS(name: string | null, roomId?: string) {
       ws.close();
       wsRef.current = null;
     };
-  }, [roomId, name]);
+  }, [roomId, !!name]);
+
 
   const send = useCallback((msg: ClientToServer) => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     ws.send(JSON.stringify(msg));
   }, []);
+
+  useEffect(() => {
+    if (!roomId || !name) return;
+
+    send({
+      type: "CONNECT",
+      connectionId: getConnectionId() ?? "",
+      data: {
+        roomId,
+        name,
+      },
+    });
+  }, [name, roomId, send]);
+
+
 
   return { state, messages, users, send, roomUnavailable };
 }

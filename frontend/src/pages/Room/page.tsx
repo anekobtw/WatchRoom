@@ -67,6 +67,15 @@ export default function Room() {
     return <Navigate replace to="/404" />;
   }
 
+  const handleRename = (newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed === submittedName) return;
+
+    setUserName(trimmed);
+    setName(trimmed);
+    setSubmittedName(trimmed);
+  };
+
   return (
     <div className="fade-1 h-screen overflow-hidden bg-primary font-mulish text-background">
       {!submittedName && (
@@ -111,6 +120,7 @@ export default function Room() {
             isChatCollapsed={isChatCollapsed}
             isMobile={isMobile}
             onExpandChat={toggleChat}
+            onRename={handleRename}
           />
         </Panel>
 
