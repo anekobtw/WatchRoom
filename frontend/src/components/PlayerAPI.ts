@@ -4,4 +4,5 @@ export type PlayerAPI = {
   pause: () => void;
   seek: (time: number) => void;
   getTime: () => number | Promise<number>;
+  getUrl: () => string | null;
 };

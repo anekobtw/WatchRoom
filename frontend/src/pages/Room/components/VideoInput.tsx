@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link2 } from "lucide-react";
-import { getConnectionId } from "@/scripts/connectionId";
-import type { ClientToServer } from "@/types/ws";
+import type { ClientToServer } from "@/websocket/types";
 
 type VideoInputProps = {
   send: (msg: ClientToServer) => void;
@@ -26,7 +25,6 @@ export default function VideoInput({ send }: VideoInputProps) {
 
             send({
               type: "UPDATE",
-              connectionId: getConnectionId(),
               data: { videoUrl: input, videoTimestamp: 0, playing: false },
             });
 

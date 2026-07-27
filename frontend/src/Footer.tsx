@@ -12,21 +12,6 @@ export default function Footer() {
             reserved.
           </div>
         </div>
-
-        <div className="flex gap-6 text-sm">
-          <a
-            href="#"
-            className="hover:text-primary-hover transition duration-200"
-          >
-            Home
-          </a>
-          <a
-            href="#"
-            className="hover:text-primary-hover transition duration-200"
-          >
-            Getting started
-          </a>
-        </div>
       </div>
     </footer>
   );

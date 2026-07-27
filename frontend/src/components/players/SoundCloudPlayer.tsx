@@ -26,6 +26,7 @@ function loadSoundCloudScript() {
       resolve();
       return;
     }
+
     const script = document.createElement("script");
     script.src = SC_SCRIPT_URL;
     script.async = true;
@@ -54,8 +55,8 @@ const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
 ) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const widgetRef = useRef<any>(null);
+  const currentUrlRef = useRef<string | null>(trackUrl);
 
-  // Initialize widget and bind events
   const initWidget = async () => {
     if (widgetRef.current || !iframeRef.current) return;
 
@@ -65,17 +66,29 @@ const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
     widgetRef.current = widget;
 
     const events = window.SC.Widget.Events;
-    widget.bind(events.PLAY, () => onStateChange?.({ data: 1 }));
-    widget.bind(events.PAUSE, () => onStateChange?.({ data: 2 }));
+
+    widget.bind(events.PLAY, () => {
+      onStateChange?.({ data: 1 });
+    });
+
+    widget.bind(events.PAUSE, () => {
+      onStateChange?.({ data: 2 });
+    });
+
     widget.bind(events.SEEK, (e: any) => {
       if (e?.currentPosition !== undefined) {
-        onStateChange?.({ data: 3, time: e.currentPosition / 1000 });
+        onStateChange?.({
+          data: 3,
+          time: e.currentPosition / 1000,
+        });
       }
     });
-    widget.bind(events.FINISH, () => onStateChange?.({ data: 0 }));
+
+    widget.bind(events.FINISH, () => {
+      onStateChange?.({ data: 0 });
+    });
   };
 
-  // Trigger init on first interaction or mount
   const ensureWidget = async () => {
     if (!widgetRef.current) {
       await initWidget();
@@ -87,8 +100,13 @@ const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
       if (!url.includes("soundcloud.com")) {
         throw new Error(`Invalid SoundCloud URL: ${url}`);
       }
+
+      currentUrlRef.current = url;
+
       await ensureWidget();
+
       const cleanUrl = sanitizeSoundCloudUrl(url);
+
       widgetRef.current?.load(cleanUrl, {
         auto_play: false,
         callback: () => {
@@ -98,26 +116,34 @@ const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
         },
       });
     },
+
     play: async () => {
       await ensureWidget();
       widgetRef.current?.play();
     },
+
     pause: async () => {
       await ensureWidget();
       widgetRef.current?.pause();
     },
+
     seek: async (time: number) => {
       await ensureWidget();
       widgetRef.current?.seekTo(time * 1000);
-      onStateChange?.({ data: 3, time });
     },
+
     getTime: async () => {
       await ensureWidget();
+
       return new Promise<number>((resolve) => {
         widgetRef.current?.getPosition((pos: number) => {
           resolve(pos / 1000);
         });
       });
+    },
+
+    getUrl: () => {
+      return currentUrlRef.current;
     },
   }));
 

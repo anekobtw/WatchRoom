@@ -1,38 +1,61 @@
 import { useState } from "react";
-import { Group, Panel, Separator, usePanelRef } from "react-resizable-panels";
+import { Panel, Separator, Group, usePanelRef } from "react-resizable-panels";
+import { useNavigate } from "react-router-dom";
+
 import useOrientation from "@/scripts/useOrientation";
 import { getUserName, setUserName } from "@/scripts/userName";
+import { getUserId } from "@/scripts/userId";
+
 import MainContent from "./MainContent";
 import ChatSidebar from "./ChatSidebar";
-import { useRoom } from "./useRoom";
-import { getConnectionId } from "@/scripts/connectionId";
-import { useNavigate } from "react-router-dom";
+import { useRoom } from "@/websocket/useRoom";
 
 export default function RoomLayout({ id }: { id: string | undefined }) {
   const navigate = useNavigate();
-  const { state, send, roomUnavailable, playerRef, onPlayerStateChange } = useRoom(id);
+
+  const room = useRoom(id);
+
   const [name, setName] = useState(getUserName() ?? "");
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
+
   const orientation = useOrientation();
   const isMobile = orientation === "vertical";
+
   const chatPanelRef = usePanelRef();
 
-  if (roomUnavailable) navigate("/404"); // Page handles 404 redirect
+  if (room.roomUnavailable) {
+    navigate("/404");
+  }
 
   const toggleChat = () => {
     const panel = chatPanelRef.current;
+
     if (!panel) return;
+
     panel.isCollapsed() ? panel.expand() : panel.collapse();
   };
 
   const handleRename = (newName: string) => {
     setUserName(newName);
     setName(newName);
-    send({
+
+    room.send({
       type: "CONNECT",
-      connectionId: getConnectionId(),
-      data: { roomId: id ?? "", name: newName },
+      data: {
+        roomId: id ?? "",
+        userId: getUserId(),
+        name: newName,
+      },
     });
+  };
+
+  const leaveRoom = () => {
+    room.send({
+      type: "LEAVE",
+      data: null,
+    });
+
+    navigate("/");
   };
 
   return (
@@ -44,22 +67,18 @@ export default function RoomLayout({ id }: { id: string | undefined }) {
       >
         <Panel minSize={40}>
           <MainContent
+            room={room}
             roomId={id}
-            state={state}
-            playerRef={playerRef}
-            onPlayerStateChange={onPlayerStateChange}
-            onLeave={() => {
-              send({ type: "LEAVE", connectionId: getConnectionId(), data: null });
-              navigate("/");
-            }}
+            onLeave={leaveRoom}
+            onRename={handleRename}
             isChatCollapsed={isChatCollapsed}
             isMobile={isMobile}
             onExpandChat={toggleChat}
-            onRename={handleRename}
-            send={send}
           />
         </Panel>
+
         <Separator />
+
         <Panel
           panelRef={chatPanelRef}
           defaultSize={350}
@@ -71,13 +90,13 @@ export default function RoomLayout({ id }: { id: string | undefined }) {
           }
         >
           <ChatSidebar
-            send={send}
-            users={state?.data.users ?? []}
-            messages={state?.data.messages ?? []}
+            room={room}
+            userId={getUserId()}
+            users={room.state?.data.users ?? []}
+            messages={room.state?.data.messages ?? []}
             isCollapsed={isChatCollapsed}
             isMobile={isMobile}
             onToggleCollapse={toggleChat}
-            name={name}
           />
         </Panel>
       </Group>

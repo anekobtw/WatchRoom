@@ -36,7 +36,7 @@ export default function App() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-background text-primary">
+    <div className="min-h-screen bg-background text-primary overflow-hidden">
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route

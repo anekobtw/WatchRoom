@@ -6,21 +6,31 @@ import {
   ArrowDown,
   ArrowUp,
 } from "lucide-react";
-import type { ChatMessage, ClientToServer } from "@/types/ws";
-import { getConnectionId } from "@/scripts/connectionId";
-import { getUserName } from "@/scripts/userName";
+import type { ChatMessage, ClientToServer } from "@/websocket/types";
 
-function ChatBubble({ message }: { message: ChatMessage }) {
-  const isMe = message.senderName === getUserName();
+function ChatBubble({
+  message,
+  userId,
+}: {
+  message: ChatMessage;
+  userId: string;
+}) {
+  const isMe = message.userId === userId;
+
   return (
     <div
       className={`flex w-full flex-col ${isMe ? "items-end" : "items-start"}`}
     >
       <span className="mb-1 text-xs font-medium text-background/70">
-        {message.senderName}
+        {message.userName}
       </span>
+
       <div
-        className={`max-w-[70%] rounded-lg border border-line px-3 py-2 text-sm ${isMe ? "bg-background text-primary" : "bg-primary-surface-0 text-background"}`}
+        className={`max-w-[70%] rounded-lg border border-line px-3 py-2 text-sm ${
+          isMe
+            ? "bg-background text-primary"
+            : "bg-primary-surface-0 text-background"
+        }`}
       >
         {message.text}
       </div>
@@ -31,27 +41,35 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 function Chat({
   send,
   messages,
+  userId,
 }: {
   send: (msg: ClientToServer) => void;
   messages: ChatMessage[];
+  userId: string;
 }) {
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
   const sendMsg = () => {
     if (!text.trim()) return;
+
     send({
       type: "CHAT",
-      connectionId: getConnectionId() ?? "",
-      data: { text: text.trim() },
+      data: {
+        text: text.trim(),
+      },
     });
+
     setText("");
   };
+
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
   }, [messages]);
+
   return (
     <div className="flex h-full flex-col bg-primary-surface-0 font-mulish text-background">
       <div
@@ -63,10 +81,12 @@ function Chat({
             <p className="text-sm text-background/40">No messages yet</p>
           </div>
         )}
-        {messages.map((m, idx) => (
-          <ChatBubble key={idx} message={m} />
+
+        {messages.map((message, idx) => (
+          <ChatBubble key={idx} message={message} userId={userId} />
         ))}
       </div>
+
       <div className="border-t border-line p-3">
         <div className="flex items-center gap-2 rounded-full border border-line bg-primary-surface-0 pl-4 pr-1.5 py-1.5 text-background/70">
           <input
@@ -76,6 +96,7 @@ function Chat({
             placeholder="Send a message"
             className="min-w-0 flex-1 bg-transparent text-sm outline-none text-background placeholder:text-background/40"
           />
+
           <button
             onClick={sendMsg}
             disabled={!text.trim()}
@@ -93,6 +114,7 @@ export default function ChatSidebar({
   send,
   users,
   messages,
+  userId,
   isCollapsed,
   isMobile,
   onToggleCollapse,
@@ -100,10 +122,10 @@ export default function ChatSidebar({
   send: (msg: ClientToServer) => void;
   users: string[];
   messages: ChatMessage[];
+  userId: string;
   isCollapsed: boolean;
   isMobile: boolean;
   onToggleCollapse: () => void;
-  name: string;
 }) {
   const [showUsers, setShowUsers] = useState(false);
   const usersRef = useRef<HTMLDivElement>(null);
@@ -180,7 +202,7 @@ export default function ChatSidebar({
 
       {!isCollapsed && (
         <div className="min-h-0 flex-1 overflow-hidden">
-          <Chat send={send} messages={messages} />
+          <Chat send={send} messages={messages} userId={userId} />
         </div>
       )}
     </aside>

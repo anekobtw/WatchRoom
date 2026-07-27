@@ -1,29 +1,7 @@
 import { ChevronRight, Loader2 } from "lucide-react";
-import { setConnectionId } from "@/scripts/connectionId";
+import { setUserId, getUserId } from "@/scripts/userId";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-
-function StepCard({
-  index,
-  title,
-  desc,
-}: {
-  index: string;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <div className="relative border-2 border-primary rounded-xl p-6">
-      <div className="flex justify-between">
-        <h3 className="text-2xl font-semibold mb-3 font-serif">{title}</h3>
-
-        <span className="text-primary/60 tracking-widest">{index}</span>
-      </div>
-
-      <p className="text-sm text-primary/60 leading-relaxed">{desc}</p>
-    </div>
-  );
-}
 
 export default function Home() {
   const navigate = useNavigate();
@@ -34,25 +12,42 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await fetch(import.meta.env.VITE_HTTP_URL + "/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      let userId = getUserId();
 
-      const data = await response.json();
-      setConnectionId(data.connectionId);
+      if (!userId) {
+        const userResponse = await fetch(
+          import.meta.env.VITE_HTTP_URL + "/api/users/create",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+        );
 
-      const roomId = data.roomId;
-      navigate(`/room/${roomId}`);
+        userId = await userResponse.text();
+        setUserId(userId);
+      }
+
+      const roomResponse = await fetch(
+        import.meta.env.VITE_HTTP_URL + "/api/rooms/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        },
+      );
+
+      const data = await roomResponse.json();
+
+      navigate(`/room/${data.roomId}`);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-background text-primary font-mulish">
+    <div className="bg-background text-primary font-mulish">
       {/* Hero Section */}
-      <section className="min-h-[90vh] flex items-center px-6 py-20 lg:py-45">
+      <section className="w-full flex items-center px-6 py-20 lg:py-45">
         <div className="max-w-8xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 py-12 mx-4 md:mx-12 items-center">
           <div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-title font-bold leading-tight mb-6">
@@ -145,58 +140,6 @@ export default function Home() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/*How it works section*/}
-      <section className="bg-background text-primary py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10 mb-14">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight font-title">
-              Lights down.
-              <br />
-              Three steps to a movie night.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <StepCard
-              index="1/3"
-              title="Create a room"
-              desc="Just one click and you have a code."
-            />
-
-            <StepCard
-              index="2/3"
-              title="Send the link"
-              desc="Share either the link or the code with your friends."
-            />
-
-            <StepCard
-              index="3/3"
-              title="Press play"
-              desc="Everyone puts the videos on the queue and manages the room."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Footer */}
-      <section className="bg-primary text-background py-16 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-title font-bold mb-6">
-            Ready to gather?
-          </h2>
-          <p className="text-lg text-background/60 mb-8">
-            Create a room and send the link. That's all there is to it.
-          </p>
-          <button
-            className="bg-background hover:bg-background/90 text-primary cursor-pointer px-8 py-4 rounded-lg font-semibold text-lg inline-flex items-center gap-2 transition hover:shadow-lg hover:-translate-y-0.5 duration-200"
-            onClick={handleCreateRoom}
-          >
-            Create a room now
-            <ChevronRight size={20} />
-          </button>
         </div>
       </section>
     </div>

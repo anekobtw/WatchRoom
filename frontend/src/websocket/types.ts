@@ -1,15 +1,17 @@
+import type { RefObject } from "react";
+import type { PlayerAPI } from "@/components/PlayerAPI";
+
 export type ClientToServer =
   | {
       type: "CONNECT";
-      connectionId: string;
       data: {
         roomId: string;
-        name: string;
+        userId: string;
+        // name: string;
       };
     }
   | {
       type: "UPDATE";
-      connectionId: string;
       data: {
         videoUrl?: string;
         videoTimestamp?: number;
@@ -18,21 +20,19 @@ export type ClientToServer =
     }
   | {
       type: "CHAT";
-      connectionId: string;
       data: {
         text: string;
       };
     }
   | {
       type: "LEAVE";
-      connectionId: string;
-      data: null;
     };
 
 export type ServerToClient = {
   type: "STATE";
   data: {
-    roomId: string;
+    version: number;
+    updatedBy: string;
     videoUrl: string;
     videoTimestamp: number;
     playing: boolean;
@@ -42,8 +42,16 @@ export type ServerToClient = {
 };
 
 export type ChatMessage = {
-  senderName: string;
+  userId: string; // TODO: remove it and instead return ChatMessageView without exposing userId
+  userName: string;
   text: string;
   ts: number;
 };
 
+export type RoomController = {
+  state: ServerToClient | null;
+  send: (msg: ClientToServer) => void;
+  roomUnavailable: boolean;
+  playerRef: RefObject<PlayerAPI | null>;
+  onPlayerStateChange: (event: { data: number }) => void;
+};

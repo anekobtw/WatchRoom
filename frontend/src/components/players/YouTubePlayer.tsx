@@ -8,13 +8,16 @@ const BARE_ID_REGEX = /^[\w-]{11}$/;
 
 function extractYouTubeId(url?: string | null): string | null {
   if (!url) return null;
+
   const match = url.match(YOUTUBE_ID_REGEX);
+
   if (match) return match[1];
+
   return BARE_ID_REGEX.test(url) ? url : null;
 }
 
 type Props = {
-  videoId: string | null; // accepts either a raw video ID or a full YouTube URL
+  videoId: string | null;
   onStateChange?: (e: any) => void;
 };
 
@@ -23,26 +26,46 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
   ref,
 ) {
   const playerRef = useRef<any>(null);
+
   const resolvedId = extractYouTubeId(videoId);
 
   useImperativeHandle(ref, () => ({
     load: (url: string, timestamp = 0) => {
       const id = extractYouTubeId(url);
-      if (!id) throw new Error(`Invalid YouTube URL: ${url}`);
+
+      if (!id) {
+        throw new Error(`Invalid YouTube URL: ${url}`);
+      }
+
       playerRef.current?.loadVideoById(id, timestamp);
     },
+
     play: () => {
       playerRef.current?.playVideo();
     },
+
     pause: () => {
       playerRef.current?.pauseVideo();
     },
+
     seek: (time: number) => {
       playerRef.current?.seekTo(time, true);
     },
+
     getTime: () => {
-      if (!playerRef.current) throw new Error("Player not ready");
+      if (!playerRef.current) {
+        throw new Error("Player not ready");
+      }
+
       return playerRef.current.getCurrentTime();
+    },
+
+    getUrl: () => {
+      if (!playerRef.current) {
+        return null;
+      }
+
+      return playerRef.current.getVideoData().video_id ?? null;
     },
   }));
 
@@ -59,9 +82,12 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
       }}
       className="absolute inset-0 h-full w-full"
       iframeClassName="h-full w-full"
-      onReady={(e) => (playerRef.current = e.target)}
+      onReady={(e) => {
+        playerRef.current = e.target;
+      }}
       onStateChange={onStateChange}
     />
   );
 });
+
 export default YouTubePlayer;
