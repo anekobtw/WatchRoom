@@ -7,7 +7,7 @@ export type ClientToServer =
       data: {
         roomId: string;
         userId: string;
-        // name: string;
+        name?: string;
       };
     }
   | {
@@ -51,7 +51,7 @@ export type ChatMessage = {
 export type RoomController = {
   state: ServerToClient | null;
   send: (msg: ClientToServer) => void;
-  roomUnavailable: boolean;
+  roomUnavailable?: boolean;
   playerRef: RefObject<PlayerAPI | null>;
   onPlayerStateChange: (event: { data: number }) => void;
 };

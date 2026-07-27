@@ -1,4 +1,4 @@
-import { setConnectionId } from "@/scripts/connectionId";
+import { setUserId } from "@/scripts/userId";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -56,7 +56,7 @@ export default function JoinRoom() {
       if (response.status != 200) return;
 
       const data = await response.json();
-      setConnectionId(data.connectionId);
+      setUserId(data.connectionId);
 
       navigate(`/room/${data.roomId}`);
     } finally {

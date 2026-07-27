@@ -2,7 +2,9 @@ package com.example.backend.service;
 
 import com.example.backend.model.entity.ChatMessage;
 import com.example.backend.model.entity.RoomEntity;
+import com.example.backend.model.enums.WsType;
 import com.example.backend.model.websocket.RoomState;
+import com.example.backend.model.websocket.WsMessage;
 import com.example.backend.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +41,7 @@ public class WebSocketBroadcastService {
         RoomEntity room = roomRepository.findById(roomId).orElse(null);
         if (room == null) return;
 
-        RoomState payload = RoomState.builder()
+        RoomState data = RoomState.builder()
                 .version(version.incrementAndGet())
                 .updatedBy(updatedBy)
                 .videoUrl(room.getVideoUrl())
@@ -47,6 +49,11 @@ public class WebSocketBroadcastService {
                 .playing(room.isPlaying())
                 .users(sessions.stream().map(s -> (String) s.getAttributes().get("userName")).collect(Collectors.toSet()))
                 .messages(messages)
+                .build();
+
+        WsMessage payload = WsMessage.builder()
+                .type(WsType.STATE)
+                .data(data)
                 .build();
 
         pendingSyncs.remove(roomId);

@@ -54,6 +54,9 @@ public class RoomWebSocketService {
     RoomEntity room = roomRepository.findById(roomId).orElse(null);
     if (room == null) return;
 
+    System.out.println("UPDATE REQUEST user=" + session.getAttributes().get("userId") + " room=" + roomId);
+    System.out.println("Admin=" + room.getAdminId());
+
     if (!room.getAdminId().equals(session.getAttributes().get("userId"))) {
       return;
     }

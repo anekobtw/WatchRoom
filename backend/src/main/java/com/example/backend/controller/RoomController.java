@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.dto.RoomCreateDto;
 import com.example.backend.service.RoomHTTPService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class RoomController {
   public final RoomHTTPService roomHTTPService;
 
   @PostMapping("/create")
-  public ResponseEntity<String> createRoom(@RequestBody String userId) {
-    return roomHTTPService.createRoom(userId);
+  public ResponseEntity<String> createRoom(@RequestBody RoomCreateDto data) {
+    return roomHTTPService.createRoom(data.getUserId());
   }
 }

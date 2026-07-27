@@ -18,26 +18,39 @@ export function useRoom(roomId?: string) {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      const message: ClientToServer = {
-        type: "CONNECT",
-        data: {
-          roomId,
-          userId: getUserId()!,
-        },
-      };
+      console.log("WebSocket connected");
 
-      ws.send(JSON.stringify(message));
+      ws.send(
+        JSON.stringify({
+          type: "CONNECT",
+          data: {
+            roomId,
+            userId: getUserId(),
+          },
+        } satisfies ClientToServer),
+      );
     };
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data) as ServerToClient;
+      console.log("RAW:", event.data);
 
-      if (message.type === "STATE") {
-        setState(message);
+      try {
+        const message = JSON.parse(event.data) as ServerToClient;
+
+        if (message.type === "STATE") {
+          setState(message);
+        }
+      } catch {
+        console.error("FAILED TO PARSE:", event.data);
       }
     };
 
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
     ws.onclose = () => {
+      console.log("WebSocket closed");
       wsRef.current = null;
     };
 
@@ -50,14 +63,25 @@ export function useRoom(roomId?: string) {
   const send = useCallback((message: ClientToServer) => {
     const ws = wsRef.current;
 
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    console.log("Trying to send:", message);
+    console.log("Socket state:", ws?.readyState);
+
+    if (!ws) {
+      console.error("No websocket instance");
+      return;
+    }
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      console.error("Websocket not open");
+      return;
+    }
 
     ws.send(JSON.stringify(message));
   }, []);
 
   const onPlayerStateChange = useCallback(
     async ({ data }: { data: number }) => {
-      if (isSyncingRef.current) return;
+      if (isSyncingRef.isSyncingRef.current) return;
 
       const player = playerRef.current;
       if (!player) return;
@@ -69,7 +93,7 @@ export function useRoom(roomId?: string) {
       send({
         type: "UPDATE",
         data: {
-          videoUrl: player.getUrl(),
+          videoUrl: player.getUrl() ?? undefined,
           videoTimestamp: timestamp,
           playing: data === 1,
         },
@@ -84,5 +108,6 @@ export function useRoom(roomId?: string) {
     playerRef,
     isSyncingRef,
     onPlayerStateChange,
+    roomUnavailable: false,
   };
 }

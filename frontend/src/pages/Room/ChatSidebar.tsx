@@ -1,135 +1,23 @@
-import { useRef, useState, useEffect } from "react";
-import {
-  Send,
-  Users,
-  ArrowRightFromLine,
-  ArrowDown,
-  ArrowUp,
-} from "lucide-react";
-import type { ChatMessage, ClientToServer } from "@/websocket/types";
-
-function ChatBubble({
-  message,
-  userId,
-}: {
-  message: ChatMessage;
-  userId: string;
-}) {
-  const isMe = message.userId === userId;
-
-  return (
-    <div
-      className={`flex w-full flex-col ${isMe ? "items-end" : "items-start"}`}
-    >
-      <span className="mb-1 text-xs font-medium text-background/70">
-        {message.userName}
-      </span>
-
-      <div
-        className={`max-w-[70%] rounded-lg border border-line px-3 py-2 text-sm ${
-          isMe
-            ? "bg-background text-primary"
-            : "bg-primary-surface-0 text-background"
-        }`}
-      >
-        {message.text}
-      </div>
-    </div>
-  );
-}
-
-function Chat({
-  send,
-  messages,
-  userId,
-}: {
-  send: (msg: ClientToServer) => void;
-  messages: ChatMessage[];
-  userId: string;
-}) {
-  const [text, setText] = useState("");
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const sendMsg = () => {
-    if (!text.trim()) return;
-
-    send({
-      type: "CHAT",
-      data: {
-        text: text.trim(),
-      },
-    });
-
-    setText("");
-  };
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
-
-  return (
-    <div className="flex h-full flex-col bg-primary-surface-0 font-mulish text-background">
-      <div
-        ref={scrollRef}
-        className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-4 py-4"
-      >
-        {messages.length === 0 && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 text-center">
-            <p className="text-sm text-background/40">No messages yet</p>
-          </div>
-        )}
-
-        {messages.map((message, idx) => (
-          <ChatBubble key={idx} message={message} userId={userId} />
-        ))}
-      </div>
-
-      <div className="border-t border-line p-3">
-        <div className="flex items-center gap-2 rounded-full border border-line bg-primary-surface-0 pl-4 pr-1.5 py-1.5 text-background/70">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMsg()}
-            placeholder="Send a message"
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none text-background placeholder:text-background/40"
-          />
-
-          <button
-            onClick={sendMsg}
-            disabled={!text.trim()}
-            className="shrink-0 p-1 text-background transition hover:text-background/80"
-          >
-            <Send size={13} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { useState, useEffect, useRef } from "react";
+import { Users, ArrowRightFromLine, ArrowDown, ArrowUp } from "lucide-react";
+import { useRoomContext } from "./RoomContext";
+import Chat from "./components/Chat";
 
 export default function ChatSidebar({
-  send,
-  users,
-  messages,
-  userId,
   isCollapsed,
   isMobile,
   onToggleCollapse,
 }: {
-  send: (msg: ClientToServer) => void;
-  users: string[];
-  messages: ChatMessage[];
-  userId: string;
   isCollapsed: boolean;
   isMobile: boolean;
   onToggleCollapse: () => void;
 }) {
+  const { room, userId } = useRoomContext();
+  const users = room.state?.data.users ?? [];
+  const messages = room.state?.data.messages ?? [];
+
   const [showUsers, setShowUsers] = useState(false);
   const usersRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!showUsers) return;
 
@@ -140,18 +28,11 @@ export default function ChatSidebar({
     };
 
     document.addEventListener("mousedown", handleClick);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-    };
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [showUsers]);
 
   const collapseIcon = isMobile ? (
-    isCollapsed ? (
-      <ArrowDown className="text-background" />
-    ) : (
-      <ArrowUp className="text-background" />
-    )
+    isCollapsed ? <ArrowDown className="text-background" /> : <ArrowUp className="text-background" />
   ) : (
     <ArrowRightFromLine className="text-background" size={24} />
   );
@@ -202,7 +83,7 @@ export default function ChatSidebar({
 
       {!isCollapsed && (
         <div className="min-h-0 flex-1 overflow-hidden">
-          <Chat send={send} messages={messages} userId={userId} />
+          <Chat send={room.send} messages={messages} userId={userId} />
         </div>
       )}
     </aside>

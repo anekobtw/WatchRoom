@@ -36,9 +36,9 @@ export default function Home() {
         },
       );
 
-      const data = await roomResponse.json();
+      const roomId = await roomResponse.text();
 
-      navigate(`/room/${data.roomId}`);
+      navigate(`/room/${roomId}`);
     } finally {
       setLoading(false);
     }

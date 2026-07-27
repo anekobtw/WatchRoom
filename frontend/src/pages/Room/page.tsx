@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Modal from "@/components/Modal";
 import { getUserName, setUserName } from "@/scripts/userName";
+import { RoomProvider } from "./RoomContext";
 import RoomLayout from "./RoomLayout";
 
 export default function Room() {
@@ -44,7 +45,9 @@ export default function Room() {
           </form>
         </Modal>
       )}
-      <RoomLayout id={id} />
+      <RoomProvider id={id}>
+        <RoomLayout />
+      </RoomProvider>
     </>
   );
 }
