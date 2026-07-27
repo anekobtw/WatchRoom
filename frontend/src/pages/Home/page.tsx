@@ -19,7 +19,6 @@ export default function Home() {
           import.meta.env.VITE_HTTP_URL + "/api/users/create",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
           },
         );
 

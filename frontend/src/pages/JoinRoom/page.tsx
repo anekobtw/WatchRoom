@@ -1,7 +1,7 @@
-import { setUserId } from "@/scripts/userId";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { getUserId, setUserId } from "@/scripts/userId";
 
 const CODE_LENGTH = 6;
 
@@ -37,28 +37,33 @@ export default function JoinRoom() {
 
   async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
+
     if (loading) return;
 
-    const finalCode = code.join("");
-    if (finalCode.length !== CODE_LENGTH) return;
+    const roomId = code.join("");
+
+    if (!/^[A-Z0-9]{6}$/.test(roomId)) return;
 
     setLoading(true);
 
     try {
-      const response = await fetch(import.meta.env.VITE_HTTP_URL + "/join", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          roomId: finalCode,
-        }),
-      });
+      let userId = getUserId();
 
-      if (response.status != 200) return;
+      if (!userId) {
+        const response = await fetch(
+          import.meta.env.VITE_HTTP_URL + "/api/users/create",
+          {
+            method: "POST",
+          },
+        );
 
-      const data = await response.json();
-      setUserId(data.connectionId);
+        if (!response.ok) return;
 
-      navigate(`/room/${data.roomId}`);
+        userId = await response.text();
+        setUserId(userId);
+      }
+
+      navigate(`/room/${roomId}`);
     } finally {
       setLoading(false);
     }
