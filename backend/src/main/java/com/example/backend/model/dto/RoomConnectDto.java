@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ConnectRoomDto {
+public class RoomConnectDto {
   private String roomId;
-  private String name;
+  private String userId;
 }

@@ -1,4 +1,4 @@
-package com.example.backend.model.view;
+package com.example.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class JoinRoomView {
-  private String roomId;
-  private String connectionId;
+public class ChatMessage {
+  private String userId;
+  private String userName;
+  private String text;
+  private Long ts;
 }

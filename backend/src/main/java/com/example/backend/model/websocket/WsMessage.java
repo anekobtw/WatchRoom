@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WsMessage<T> {
   private WsType type;
-  private String connectionId;
   private T data;
 }

@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JoinRoomDto {
-  private String roomId;
+public class RoomChatDto {
+  private String text;
 }

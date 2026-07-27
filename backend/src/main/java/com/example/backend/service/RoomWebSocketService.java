@@ -1,63 +1,62 @@
 package com.example.backend.service;
 
-import com.example.backend.model.dto.ChatDto;
-import com.example.backend.model.dto.ConnectRoomDto;
+import com.example.backend.model.dto.RoomChatDto;
+import com.example.backend.model.dto.RoomConnectDto;
 import com.example.backend.model.dto.RoomUpdateDto;
-import com.example.backend.model.entity.ChatMessageEntity;
+import com.example.backend.model.entity.ChatMessage;
 import com.example.backend.model.entity.RoomEntity;
-import com.example.backend.repository.ChatMessageRepository;
 import com.example.backend.repository.RoomRepository;
-import com.example.backend.model.websocket.ConnectionToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class RoomWebSocketService {
 
-  private final ConnectionService connectionService;
   private final RoomRepository roomRepository;
-  private final ConnectionService sessionManager;
-  private final ChatMessageRepository messageRepository;
+  private final WebSocketBroadcastService webSocketBroadcastService;
 
-  public void connectRoom(ConnectRoomDto data, ConnectionToken connectionToken, WebSocketSession session) {
-    if (connectionToken == null || !data.getRoomId().equals(connectionToken.getRoomId())) {
-      try {
-        session.close();
-      } catch (Exception ignored) {
-      }
-      return;
-    }
+  private Map<String, Set<WebSocketSession>> rooms = new ConcurrentHashMap<>();
+  private Map<String, List<ChatMessage>> messages = new ConcurrentHashMap<>();
 
-    RoomEntity entity = roomRepository.findById(connectionToken.getRoomId()).orElse(null);
+  public void connectRoom(RoomConnectDto data, WebSocketSession session) {
+    session.getAttributes().put("userId", data.getUserId());
+    session.getAttributes().put("roomId", data.getRoomId());
+    // TODO: change the default username
+    session.getAttributes().put("userName", "John Doe");
+
+    String roomId = data.getRoomId();
+
+    RoomEntity entity = roomRepository.findById(roomId).orElse(null);
 
     if (entity == null) {
       try {
         session.close();
-      } catch (Exception ignored) {
+      } catch (IOException ignored) {
       }
       return;
     }
 
-    if (connectionService.nameExists(data.getRoomId(), data.getName())) {
-      return;
-    }
+    rooms.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet()).add(session);
 
-    connectionToken.setSession(session);
-    connectionToken.setName(data.getName());
-    connectionToken.setConnected(true);
-
-    connectionService.queueBroadcast(connectionToken.getRoomId());
+    webSocketBroadcastService.scheduleSync(roomId, rooms.get(roomId), null, messages.get(roomId));
   }
 
-  public void updateRoom(RoomUpdateDto data, ConnectionToken connectionToken, WebSocketSession session) {
-    if (!connectionService.validateSession(connectionToken.getConnectionId(), session)) {
+  public void updateRoom(RoomUpdateDto data, WebSocketSession session) {
+    String roomId = session.getAttributes().get("roomId").toString();
+    RoomEntity room = roomRepository.findById(roomId).orElse(null);
+    if (room == null) return;
+
+    if (!room.getAdminId().equals(session.getAttributes().get("userId"))) {
       return;
     }
-
-    RoomEntity room = roomRepository.findById(connectionToken.getRoomId()).orElse(null);
-    if (room == null) return;
 
     if (data.getVideoUrl() != null) room.setVideoUrl(data.getVideoUrl());
     if (data.getVideoTimestamp() != null) room.setVideoTimestamp(data.getVideoTimestamp());
@@ -65,24 +64,38 @@ public class RoomWebSocketService {
 
     roomRepository.save(room);
 
-    connectionService.queueBroadcast(room.getRoomId());
+    webSocketBroadcastService.scheduleSync(roomId, rooms.get(roomId), session.getAttributes().get("userName").toString(), messages.get(roomId));
   }
 
-  public void sendChatMessage(ChatDto data, ConnectionToken connectionToken, WebSocketSession session) {
-    if (!connectionService.validateSession(connectionToken.getConnectionId(), session)) {
-      return;
-    }
-
-    ChatMessageEntity message = ChatMessageEntity.builder()
-            .roomId(connectionToken.getRoomId())
-            .senderConnectionId(connectionToken.getConnectionId())
-            .senderName(connectionToken.getName())
+  public void sendChatMessage(RoomChatDto data, WebSocketSession session) {
+    ChatMessage message = ChatMessage.builder()
+            .userId(session.getAttributes().get("userId").toString())
+            .userName(session.getAttributes().get("userName").toString())
             .text(data.getText())
             .ts(System.currentTimeMillis())
             .build();
 
-    messageRepository.save(message);
+    String roomId = session.getAttributes().get("roomId").toString();
+    messages.get(roomId).add(message);
 
-    sessionManager.queueBroadcast(connectionToken.getRoomId());
+    webSocketBroadcastService.scheduleSync(roomId, rooms.get(roomId), null, messages.get(roomId));
+  }
+
+  public void leaveRoom(WebSocketSession session) {
+    String roomId = session.getAttributes().get("roomId").toString();
+    if (roomId == null) return;
+
+    Set<WebSocketSession> sessions = rooms.get(roomId);
+    if (sessions == null) return;
+
+    sessions.remove(session);
+
+    if (sessions.isEmpty()) {
+      rooms.remove(roomId);
+    } else {
+      webSocketBroadcastService.scheduleSync(roomId, rooms.get(roomId), null, messages.get(roomId));
+    }
+
+    session.getAttributes().remove("roomId");
   }
 }

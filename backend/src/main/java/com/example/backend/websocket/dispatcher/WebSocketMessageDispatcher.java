@@ -1,11 +1,9 @@
 package com.example.backend.websocket.dispatcher;
 
-import com.example.backend.model.dto.ChatDto;
-import com.example.backend.model.dto.ConnectRoomDto;
+import com.example.backend.model.dto.RoomChatDto;
+import com.example.backend.model.dto.RoomConnectDto;
 import com.example.backend.model.dto.RoomUpdateDto;
-import com.example.backend.model.websocket.ConnectionToken;
 import com.example.backend.model.websocket.WsMessage;
-import com.example.backend.service.ConnectionService;
 import com.example.backend.service.RoomWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,30 +19,27 @@ import tools.jackson.databind.ObjectMapper;
 public class WebSocketMessageDispatcher {
 
   private final RoomWebSocketService roomService;
-  private final ConnectionService connectionService;
   private final ObjectMapper mapper;
 
   public void handle(String message, WebSocketSession session) {
     try {
       WsMessage<JsonNode> msg = mapper.readValue(message, new TypeReference<>() {});
-      ConnectionToken connectionToken = connectionService.getTokenInfo(msg.getConnectionId());
 
       switch (msg.getType()) {
         case CONNECT -> {
-          roomService.connectRoom(mapper.treeToValue(msg.getData(), ConnectRoomDto.class), connectionToken, session);
+          roomService.connectRoom(mapper.treeToValue(msg.getData(), RoomConnectDto.class), session);
         }
 
         case UPDATE -> {
-          roomService.updateRoom(mapper.treeToValue(msg.getData(), RoomUpdateDto.class), connectionToken, session);
+          roomService.updateRoom(mapper.treeToValue(msg.getData(), RoomUpdateDto.class), session);
         }
 
         case CHAT -> {
-          roomService.sendChatMessage(mapper.treeToValue(msg.getData(), ChatDto.class), connectionToken, session);
+          roomService.sendChatMessage(mapper.treeToValue(msg.getData(), RoomChatDto.class), session);
         }
 
         case LEAVE -> {
-          connectionService.removeConnectionId(connectionService.getTokenInfo(session).getConnectionId());
-          connectionService.queueBroadcast(connectionToken.getRoomId());
+          roomService.leaveRoom(session);
         }
       }
 
