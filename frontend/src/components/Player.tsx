@@ -9,7 +9,11 @@ type Props = {
 };
 
 function getPlayer(url: string) {
-  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+  if (
+    url.includes("youtube.com") ||
+    url.includes("youtu.be") ||
+    /^[\w-]{11}$/.test(url)
+  ) {
     return YouTubePlayer;
   }
 
