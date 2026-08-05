@@ -50,8 +50,9 @@ export default function Home() {
         <div className="max-w-8xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 py-12 mx-4 md:mx-12 items-center">
           <div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-title font-bold leading-tight mb-6">
-              Watching alone is optional. <br />
-              Stay in sync, even when you are apart.
+              Watching alone is optional.
+              <br />
+              Bring everyone to WatchRoom.
             </h1>
 
             <p className="text-lg text-primary/60 mb-12 leading-relaxed max-w-md">
