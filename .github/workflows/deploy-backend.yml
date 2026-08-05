@@ -18,6 +18,16 @@ jobs:
       - name: Install deps
         run: cd frontend && bun install
 
+      - name: Clean VPS directory
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            rm -rf /home/watchroom
+            mkdir -p /home/watchroom
+
       - name: Copy project to VPS
         uses: appleboy/scp-action@v1
         with:
@@ -44,5 +54,5 @@ jobs:
             EOF
 
             docker compose down
-            docker compose up -d --build backend postgres nginx
-
+            docker compose build --no-cache backend
+            docker compose up -d backend postgres nginx
