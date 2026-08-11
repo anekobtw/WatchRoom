@@ -12,7 +12,11 @@ export default function Room() {
 
   return (
     <>
-      {!userName && (
+      {userName ? (
+        <RoomProvider id={id}>
+          <RoomLayout />
+        </RoomProvider>
+      ) : (
         <Modal>
           <form
             className="space-y-4"
@@ -45,9 +49,6 @@ export default function Room() {
           </form>
         </Modal>
       )}
-      <RoomProvider id={id}>
-        <RoomLayout />
-      </RoomProvider>
     </>
   );
 }

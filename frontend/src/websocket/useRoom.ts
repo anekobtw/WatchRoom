@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlayerAPI } from "@/components/PlayerAPI";
 import type { ClientToServer, ServerToClient } from "./types";
 import { getUserId } from "@/scripts/userId";
+import { getUserName } from "@/scripts/userName";
 import { useVideoSync } from "./useVideoSync";
 
 export function useRoom(roomId?: string) {
@@ -11,37 +12,31 @@ export function useRoom(roomId?: string) {
   const [state, setState] = useState<ServerToClient | null>(null);
   const isSyncingRef = useVideoSync(state, playerRef);
 
-  useEffect(() => {
+  const connect = useCallback((userName: string) => {
     if (!roomId || !getUserId()) return;
+    if (wsRef.current) return;
 
     const ws = new WebSocket(import.meta.env.VITE_WS_URL);
     wsRef.current = ws;
 
     ws.onopen = () => {
       console.log("WebSocket connected");
-
       ws.send(
         JSON.stringify({
           type: "CONNECT",
           data: {
             roomId,
             userId: getUserId(),
+            userName,
           },
         } satisfies ClientToServer),
       );
     };
 
     ws.onmessage = (event) => {
-      console.log("RAW:", event.data);
-
-      try {
-        const message = JSON.parse(event.data) as ServerToClient;
-
-        if (message.type === "STATE") {
-          setState(message);
-        }
-      } catch {
-        console.error("FAILED TO PARSE:", event.data);
+      const msg = JSON.parse(event.data);
+      if (msg.type === "STATE") {
+        setState(msg.data);
       }
     };
 
@@ -50,15 +45,22 @@ export function useRoom(roomId?: string) {
     };
 
     ws.onclose = () => {
-      console.log("WebSocket closed");
+      console.log("WebSocket disconnected");
       wsRef.current = null;
-    };
-
-    return () => {
-      ws.close();
-      wsRef.current = null;
+      setState(null);
     };
   }, [roomId]);
+
+  useEffect(() => {
+    const name = getUserName() || "Guest";
+    connect(name);
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, [connect]);
 
   const send = useCallback((message: ClientToServer) => {
     const ws = wsRef.current;
@@ -101,9 +103,9 @@ export function useRoom(roomId?: string) {
     },
     [send],
   );
-
   return {
     state,
+    connect,
     send,
     playerRef,
     isSyncingRef,

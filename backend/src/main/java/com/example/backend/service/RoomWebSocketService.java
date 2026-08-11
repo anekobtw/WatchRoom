@@ -29,9 +29,7 @@ public class RoomWebSocketService {
   public void connectRoom(RoomConnectDto data, WebSocketSession session) {
     session.getAttributes().put("userId", data.getUserId());
     session.getAttributes().put("roomId", data.getRoomId());
-    // TODO: change the default username
-    session.getAttributes().put("userName", "John Doe");
-
+    session.getAttributes().put("userName", data.getUserName());
     String roomId = data.getRoomId();
 
     RoomEntity entity = roomRepository.findById(roomId).orElse(null);

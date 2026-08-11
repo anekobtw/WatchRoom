@@ -41,15 +41,24 @@ public class WebSocketBroadcastService {
         RoomEntity room = roomRepository.findById(roomId).orElse(null);
         if (room == null) return;
 
-        RoomState data = RoomState.builder()
-                .version(version.incrementAndGet())
-                .updatedBy(updatedBy)
-                .videoUrl(room.getVideoUrl())
-                .videoTimestamp(room.getVideoTimestamp())
-                .playing(room.isPlaying())
-                .users(sessions.stream().map(s -> (String) s.getAttributes().get("userName")).collect(Collectors.toSet()))
-                .messages(messages)
-                .build();
+        RoomState data;
+
+        if (updatedBy == null) {
+          data = RoomState.builder()
+                  .version(version.incrementAndGet())
+                  .users(sessions.stream().map(s -> (String) s.getAttributes().get("userName")).collect(Collectors.toSet()))
+                  .build();
+        } else {
+          data = RoomState.builder()
+                  .version(version.incrementAndGet())
+                  .updatedBy(updatedBy)
+                  .videoUrl(room.getVideoUrl())
+                  .videoTimestamp(room.getVideoTimestamp())
+                  .playing(room.isPlaying())
+                  .users(sessions.stream().map(s -> (String) s.getAttributes().get("userName")).collect(Collectors.toSet()))
+                  .messages(messages)
+                  .build();
+        }
 
         WsMessage payload = WsMessage.builder()
                 .type(WsType.STATE)

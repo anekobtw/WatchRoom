@@ -20,21 +20,20 @@ export function RoomProvider({ children, id }: { children: React.ReactNode; id: 
   const navigate = useNavigate();
   const room = useRoom(id);
   const userId = getUserId();
-  const [userName, setUserNameState] = useState(getUserName() ?? "");
-
-  const handleRename = (newName: string) => {
+  const [userName, setUserNameState] = useState(() => getUserName() ?? "");
+  const handleRename = async (newName: string) => {
     setUserName(newName);
     setUserNameState(newName);
+
     room.send({
       type: "CONNECT",
       data: {
         roomId: id ?? "",
         userId,
-        name: newName,
+        userName: newName,
       },
     });
   };
-
   const leaveRoom = () => {
     room.send({ type: "LEAVE" });
     navigate("/");
@@ -43,7 +42,6 @@ export function RoomProvider({ children, id }: { children: React.ReactNode; id: 
   if (room.roomUnavailable) {
     return <RoomUnavailablePage />;
   }
-
   return (
     <RoomContext.Provider
       value={{

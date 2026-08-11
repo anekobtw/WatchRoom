@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class RoomConnectDto {
   private String roomId;
   private String userId;
+  private String userName;
 }

@@ -22,9 +22,9 @@ export default function MainContent({
   const [nameInput, setNameInput] = useState(userName);
 
   const videoUrl =
-    room.state?.type === "STATE" ? room.state.data.videoUrl : null;
+    room.state?.type === "STATE" ? room.state.data?.videoUrl : null;
 
-  const userCount = room.state?.data.users?.length ?? 0;
+  const userCount = room.state?.data?.users?.length ?? 0;
 
   const submitName = () => {
     const trimmed = nameInput.trim();
@@ -70,8 +70,7 @@ export default function MainContent({
             </h1>
 
             <div className="text-sm text-background/60">
-              {userName && (
-                <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                   <span>Your name:</span>
 
                   {editingName ? (
@@ -98,7 +97,7 @@ export default function MainContent({
                         }}
                         className="cursor-pointer text-background transition hover:text-background/90"
                       >
-                        {userName}
+                        {userName || "Set name..."}
                       </button>
 
                       <button
@@ -113,7 +112,6 @@ export default function MainContent({
                     </>
                   )}
                 </div>
-              )}
 
               <p>{userCount} watching</p>
             </div>

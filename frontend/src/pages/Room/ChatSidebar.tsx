@@ -13,8 +13,8 @@ export default function ChatSidebar({
   onToggleCollapse: () => void;
 }) {
   const { room, userId } = useRoomContext();
-  const users = room.state?.data.users ?? [];
-  const messages = room.state?.data.messages ?? [];
+  const users = Array.from(room.state?.data?.users ?? []);
+  const messages = room.state?.data?.messages ?? [];
 
   const [showUsers, setShowUsers] = useState(false);
   const usersRef = useRef<HTMLDivElement>(null);

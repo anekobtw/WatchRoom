@@ -7,7 +7,7 @@ export type ClientToServer =
       data: {
         roomId: string;
         userId: string;
-        name?: string;
+        userName?: string;
       };
     }
   | {
