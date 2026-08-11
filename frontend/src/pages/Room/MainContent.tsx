@@ -144,7 +144,7 @@ export default function MainContent({
           {!isMobile && isChatCollapsed && (
             <button
               onClick={onExpandChat}
-              className="relative cursor-pointer rounded-xl p-2 hover:bg-primary-surface-1"
+              className="relative cursor-pointer rounded-xl p-2 transition duration-200 hover:bg-primary-surface-1"
             >
               {hasUnread && (
                 <span className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full bg-red-500" />

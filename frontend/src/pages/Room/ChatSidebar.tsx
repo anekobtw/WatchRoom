@@ -31,8 +31,6 @@ export default function ChatSidebar({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showUsers]);
 
-  // Track new messages while the panel is collapsed, and clear the
-  // indicator once the panel is opened again.
   useEffect(() => {
     if (messages.length > lastMessageCountRef.current && isCollapsed) {
       setHasUnread(true);
@@ -46,7 +44,6 @@ export default function ChatSidebar({
     }
   }, [isCollapsed]);
 
-  // Mobile: down arrow means "tap to open", up arrow means "tap to close".
   const collapseIcon = isMobile ? (
     isCollapsed ? (
       <ArrowUp className="text-background" />
@@ -57,9 +54,6 @@ export default function ChatSidebar({
     <ArrowRightFromLine className="text-background" size={24} />
   );
 
-  // On desktop, when collapsed the panel shrinks to 0 width, so the
-  // reopen button lives in RoomLayout instead (outside the panel tree,
-  // where it stays visible and unaffected by panel transforms).
   if (isCollapsed && !isMobile) {
     return null;
   }

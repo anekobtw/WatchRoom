@@ -13,8 +13,6 @@ export default function RoomLayout() {
   const { room } = useRoomContext();
   const messages = room.state?.data?.messages ?? [];
 
-  // Real React state, kept in sync via the panel's own callbacks, so
-  // components re-render when the chat panel collapses/expands.
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const lastMessageCountRef = useRef(messages.length);
@@ -50,7 +48,6 @@ export default function RoomLayout() {
     setIsChatCollapsed(nextCollapsed);
   };
 
-
   return (
     <div className="h-screen overflow-auto bg-primary font-mulish text-background">
       <Group
@@ -83,7 +80,6 @@ export default function RoomLayout() {
           />
         </Panel>
       </Group>
-
     </div>
   );
 }
