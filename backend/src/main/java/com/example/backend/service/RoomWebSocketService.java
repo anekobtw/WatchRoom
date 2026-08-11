@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class RoomWebSocketService {
     }
 
     rooms.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet()).add(session);
+    messages.computeIfAbsent(roomId, k -> new CopyOnWriteArrayList<>());
 
     webSocketBroadcastService.scheduleSync(roomId, rooms.get(roomId), null, messages.get(roomId));
   }
@@ -77,7 +79,7 @@ public class RoomWebSocketService {
             .build();
 
     String roomId = session.getAttributes().get("roomId").toString();
-    messages.get(roomId).add(message);
+    messages.computeIfAbsent(roomId, k -> new CopyOnWriteArrayList<>()).add(message);
 
     webSocketBroadcastService.scheduleSync(roomId, rooms.get(roomId), null, messages.get(roomId));
   }

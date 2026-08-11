@@ -65,9 +65,6 @@ export function useRoom(roomId?: string) {
   const send = useCallback((message: ClientToServer) => {
     const ws = wsRef.current;
 
-    console.log("Trying to send:", message);
-    console.log("Socket state:", ws?.readyState);
-
     if (!ws) {
       console.error("No websocket instance");
       return;

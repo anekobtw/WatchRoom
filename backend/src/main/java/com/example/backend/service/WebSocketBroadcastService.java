@@ -47,6 +47,7 @@ public class WebSocketBroadcastService {
           data = RoomState.builder()
                   .version(version.incrementAndGet())
                   .users(sessions.stream().map(s -> (String) s.getAttributes().get("userName")).collect(Collectors.toSet()))
+                  .messages(messages)
                   .build();
         } else {
           data = RoomState.builder()
