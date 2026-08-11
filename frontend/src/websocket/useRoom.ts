@@ -36,7 +36,7 @@ export function useRoom(roomId?: string) {
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
       if (msg.type === "STATE") {
-        setState(msg.data);
+        setState(msg);
       }
     };
 
