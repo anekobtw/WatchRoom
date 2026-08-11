@@ -15,27 +15,54 @@ export default function ChatSidebar({
   const { room, userId } = useRoomContext();
   const users = Array.from(room.state?.data?.users ?? []);
   const messages = room.state?.data?.messages ?? [];
-
   const [showUsers, setShowUsers] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
   const usersRef = useRef<HTMLDivElement>(null);
+  const lastMessageCountRef = useRef(messages.length);
+
   useEffect(() => {
     if (!showUsers) return;
-
     const handleClick = (e: MouseEvent) => {
       if (!usersRef.current?.contains(e.target as Node)) {
         setShowUsers(false);
       }
     };
-
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showUsers]);
 
+  // Track new messages while the panel is collapsed, and clear the
+  // indicator once the panel is opened again.
+  useEffect(() => {
+    if (messages.length > lastMessageCountRef.current && isCollapsed) {
+      setHasUnread(true);
+    }
+    lastMessageCountRef.current = messages.length;
+  }, [messages.length, isCollapsed]);
+
+  useEffect(() => {
+    if (!isCollapsed) {
+      setHasUnread(false);
+    }
+  }, [isCollapsed]);
+
+  // Mobile: down arrow means "tap to open", up arrow means "tap to close".
   const collapseIcon = isMobile ? (
-    isCollapsed ? <ArrowDown className="text-background" /> : <ArrowUp className="text-background" />
+    isCollapsed ? (
+      <ArrowUp className="text-background" />
+    ) : (
+      <ArrowDown className="text-background" />
+    )
   ) : (
     <ArrowRightFromLine className="text-background" size={24} />
   );
+
+  // On desktop, when collapsed the panel shrinks to 0 width, so the
+  // reopen button lives in RoomLayout instead (outside the panel tree,
+  // where it stays visible and unaffected by panel transforms).
+  if (isCollapsed && !isMobile) {
+    return null;
+  }
 
   return (
     <aside className="flex h-full flex-col border-l border-line bg-primary-surface-0 font-mulish">
@@ -44,13 +71,14 @@ export default function ChatSidebar({
           type="button"
           onClick={onToggleCollapse}
           aria-label={isCollapsed ? "Expand chat" : "Collapse chat"}
-          className="hover:bg-primary-surface-1 cursor-pointer rounded-xl p-2 transition duration-200"
+          className="relative hover:bg-primary-surface-1 cursor-pointer rounded-xl p-2 transition duration-200"
         >
           {collapseIcon}
+          {isCollapsed && hasUnread && (
+            <span className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full bg-red-500" />
+          )}
         </button>
-
         <span>Chat</span>
-
         <div ref={usersRef} className="relative">
           <button
             onClick={() => setShowUsers((v) => !v)}
@@ -58,13 +86,11 @@ export default function ChatSidebar({
           >
             <Users className="text-background" />
           </button>
-
           {showUsers && (
             <div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-2xl border border-line bg-primary-surface-0 shadow-xl">
               <div className="border-b border-line px-4 py-3 text-sm font-semibold text-background">
                 Users ({users.length})
               </div>
-
               <div className="max-h-72 overflow-y-auto py-2">
                 {users.map((user) => (
                   <div
@@ -80,7 +106,6 @@ export default function ChatSidebar({
           )}
         </div>
       </div>
-
       {!isCollapsed && (
         <div className="min-h-0 flex-1 overflow-hidden">
           <Chat send={room.send} messages={messages} userId={userId} />

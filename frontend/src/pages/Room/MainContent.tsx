@@ -8,12 +8,14 @@ type Props = {
   isChatCollapsed: boolean;
   isMobile: boolean;
   onExpandChat: () => void;
+  hasUnread: boolean;
 };
 
 export default function MainContent({
   isChatCollapsed,
   isMobile,
   onExpandChat,
+  hasUnread,
 }: Props) {
   const { room, roomId, leaveRoom, setUserName, userName } = useRoomContext();
 
@@ -142,8 +144,11 @@ export default function MainContent({
           {!isMobile && isChatCollapsed && (
             <button
               onClick={onExpandChat}
-              className="rounded-xl p-2 hover:bg-primary-surface-1"
+              className="relative cursor-pointer rounded-xl p-2 hover:bg-primary-surface-1"
             >
+              {hasUnread && (
+                <span className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full bg-red-500" />
+              )}
               <ArrowLeftFromLine />
             </button>
           )}
