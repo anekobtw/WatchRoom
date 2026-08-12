@@ -3,7 +3,13 @@ import { useRoomContext } from "../RoomContext";
 import { Copy, X } from "lucide-react";
 import QRCode from "qrcode";
 
-export function ShareRoomModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function ShareRoomModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   const { roomId } = useRoomContext();
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
@@ -24,14 +30,15 @@ export function ShareRoomModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
     if (isOpen && roomId) {
       QRCode.toDataURL(roomUrl, {
         width: 256,
-        margin: 0,
+        margin: 1,
         color: {
-          dark: "#d9cfc7",
-          light: "#2b2623",
+          light: "#d9cfc7", // whiteish foreground = your --background token
+          dark: "#221e1c", // matches modal's --primary-surface-0
         },
       }).then(setQrCodeUrl);
     }
   }, [isOpen, roomId]);
+
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(roomUrl);
     setCopied(true);
@@ -60,15 +67,12 @@ export function ShareRoomModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/60 backdrop-blur-sm">
-      <div 
-        className="absolute inset-0 cursor-pointer" 
-        onClick={onClose}
-      />
-      <div 
+      <div className="absolute inset-0 cursor-pointer" onClick={onClose} />
+      <div
         className="relative bg-primary-surface-0 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 text-background"
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-surface-0 transition-colors text-background/60 hover:text-background cursor-pointer"
         >
@@ -76,28 +80,32 @@ export function ShareRoomModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
         </button>
 
         <div className="p-8 flex flex-col items-center text-center">
-          <h2 className="font-title text-3xl font-bold text-background mb-2">Share Room</h2>
-          <p className="text-background/60 text-sm mb-8">Invite your friends to watch together!</p>
+          <h2 className="font-title text-3xl font-bold text-background mb-2">
+            Share Room
+          </h2>
+          <p className="text-background/60 text-sm mb-8">
+            Invite your friends to watch together!
+          </p>
 
-          <div className="relative p-0 bg-background rounded-none overflow-hidden shadow-inner mb-8">
+          <div className="relative overflow-hidden mb-8 p-4 rounded-2xl bg-primary-surface-0">
             {qrCodeUrl && (
-              <img 
-                src={qrCodeUrl} 
-                alt="Room QR Code" 
-                className="w-48 h-48"
-              />
+              <img src={qrCodeUrl} alt="Room QR Code" className="w-48 h-48" />
             )}
           </div>
 
-          <div className="w-full flex items-center gap-2 p-2 bg-primary-surface-1 rounded-2xl border border-line mb-8">
-            <span className="flex-1 text-sm text-background/80 truncate px-2 font-medium">
+          <div className="w-full flex items-center gap-2 px-3 py-1.5 bg-primary-surface-1 rounded-xl border border-line mb-8">
+            <span className="flex-1 text-md text-background/80 truncate px-1 font-medium">
               {roomUrl}
             </span>
-            <button 
+            <button
               onClick={copyToClipboard}
-              className="p-2 bg-surface-0 text-primary rounded-xl hover:bg-surface-1 transition-colors cursor-pointer w-10 h-10 flex items-center justify-center shrink-0"
+              className="p-1.5 bg-surface-0 text-primary rounded-lg hover:bg-surface-1 transition-colors cursor-pointer w-8 h-8 flex items-center justify-center shrink-0"
             >
-              {copied ? <span className="text-green-500 font-bold">✔</span> : <Copy size={16} />}
+              {copied ? (
+                <span className="text-green-900 font-bold text-xs">✔</span>
+              ) : (
+                <Copy size={14} />
+              )}
             </button>
           </div>
 

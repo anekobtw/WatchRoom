@@ -81,7 +81,11 @@ export default function ChatSidebar({
             <Users className="text-background" />
           </button>
           {showUsers && (
-            <div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-2xl border border-line bg-primary-surface-0 shadow-xl">
+            <div
+              className={`absolute right-0 z-20 w-56 overflow-hidden rounded-2xl border border-line bg-primary-surface-0 shadow-xl ${
+                isMobile ? "bottom-full mb-2" : "top-12"
+              }`}
+            >
               <div className="border-b border-line px-4 py-3 text-sm font-semibold text-background">
                 Users ({users.length})
               </div>

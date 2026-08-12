@@ -70,18 +70,18 @@ export default function MainContent({
           </button>
 
           <div className="flex flex-col">
-            <h1 className="font-title text-xl font-semibold sm:text-2xl flex items-center gap-3">
+            <h1 className="font-title flex items-center gap-3 text-xl font-semibold sm:text-2xl">
               WatchRoom {roomId}
-              <div className="flex items-center gap-2 ml-3">
-                <ConnectionBadge />
-                <button 
+              <ConnectionBadge />
+              {isMobile && (
+                <button
                   onClick={() => setShowShareModal(true)}
-                  className="cursor-pointer rounded-xl p-2 transition duration-200 hover:bg-primary-surface-1 text-background"
+                  className="cursor-pointer rounded-xl p-2 text-background transition duration-200 hover:bg-primary-surface-1"
                   title="Share Room"
                 >
                   <Upload size={20} />
                 </button>
-              </div>
+              )}
             </h1>
             <div className="flex items-center gap-1">
               <span className="text-sm opacity-60">Your name:</span>
@@ -99,7 +99,7 @@ export default function MainContent({
                       setNameInput(userName);
                     }
                   }}
-                  className="rounded bg-primary-surface-1 px-1 outline-none text-sm"
+                  className="rounded bg-primary-surface-1 px-1 text-sm outline-none"
                 />
               ) : (
                 <>
@@ -108,7 +108,7 @@ export default function MainContent({
                       setNameInput(userName);
                       setEditingName(true);
                     }}
-                    className="cursor-pointer text-background transition hover:text-background/90 text-sm"
+                    className="cursor-pointer text-sm text-background transition hover:text-background/90"
                   >
                     {userName || "Set name..."}
                   </button>
@@ -125,7 +125,6 @@ export default function MainContent({
                 </>
               )}
             </div>
-
             <p className="text-sm opacity-60">{userCount} watching</p>
           </div>
         </div>
@@ -150,7 +149,16 @@ export default function MainContent({
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-2">
+          {!isMobile && (
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="cursor-pointer rounded-xl p-2 text-background transition duration-200 hover:bg-primary-surface-1"
+              title="Share Room"
+            >
+              <Upload size={20} />
+            </button>
+          )}
           {!isMobile && isChatCollapsed && (
             <button
               onClick={onExpandChat}
