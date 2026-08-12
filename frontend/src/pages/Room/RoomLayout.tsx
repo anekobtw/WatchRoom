@@ -5,40 +5,32 @@ import useOrientation from "@/scripts/useOrientation";
 import { useRoomContext } from "./RoomContext";
 import MainContent from "./MainContent";
 import ChatSidebar from "./ChatSidebar";
+import { ShareRoomModal } from "./components/ShareRoomModal";
 
 export default function RoomLayout() {
   const orientation = useOrientation();
   const isMobile = orientation === "vertical";
   const chatPanelRef = usePanelRef();
-  const { room } = useRoomContext();
-  const messages = room.state?.data?.messages ?? [];
+  const { room, showShareModal, setShowShareModal } = useRoomContext();
 
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
-  const lastMessageCountRef = useRef(messages.length);
-  useEffect(() => {
-    const panel = chatPanelRef.current;
-    if (!panel) return;
-
-    const updateCollapsedState = () => {
-      setIsChatCollapsed(panel.isCollapsed());
-    };
-
-    updateCollapsedState();
-  }, [chatPanelRef]);
+  const lastMessageCountRef = useRef((room.state?.data?.messages ?? []).length);
 
   useEffect(() => {
-    if (messages.length > lastMessageCountRef.current && isChatCollapsed) {
+    const messageCount = room.state?.data?.messages?.length ?? 0;
+
+    if (messageCount > lastMessageCountRef.current && isChatCollapsed) {
       setHasUnread(true);
     }
-    lastMessageCountRef.current = messages.length;
-  }, [messages.length, isChatCollapsed]);
 
-  useEffect(() => {
     if (!isChatCollapsed) {
       setHasUnread(false);
     }
-  }, [isChatCollapsed]);
+
+    lastMessageCountRef.current = messageCount;
+  }, [room.state?.data?.messages?.length, isChatCollapsed]);
+
   const toggleChat = () => {
     const panel = chatPanelRef.current;
     if (!panel) return;
@@ -80,6 +72,10 @@ export default function RoomLayout() {
           />
         </Panel>
       </Group>
+      <ShareRoomModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 }
