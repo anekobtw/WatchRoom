@@ -3,6 +3,7 @@ import { ArrowLeftFromLine, Link2, LogOut, Pencil } from "lucide-react";
 
 import Player from "@/components/Player";
 import { useRoomContext } from "./RoomContext";
+import { ConnectionBadge } from "./components/ConnectionBadge";
 
 type Props = {
   isChatCollapsed: boolean;
@@ -57,19 +58,20 @@ export default function MainContent({
 
   return (
     <main className="flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-primary font-mulish text-background">
-      <div className="grid grid-cols-1 gap-4 px-6 py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={leaveRoom}
-            className="cursor-pointer rounded-xl p-2 text-critical transition hover:bg-critical/20"
-          >
-            <LogOut />
-          </button>
+    <div className="grid grid-cols-1 gap-4 px-6 py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={leaveRoom}
+          className="cursor-pointer rounded-xl p-2 text-critical transition hover:bg-critical/20"
+        >
+          <LogOut />
+        </button>
 
-          <div>
-            <h1 className="font-title text-xl font-semibold sm:text-2xl">
-              Room {roomId}
-            </h1>
+        <div className="flex flex-col">
+          <h1 className="font-title text-xl font-semibold sm:text-2xl flex items-center gap-3">
+            WatchRoom {roomId}
+            <ConnectionBadge />
+          </h1>
 
             <div className="text-sm text-background/60">
               <div className="flex items-center gap-1">

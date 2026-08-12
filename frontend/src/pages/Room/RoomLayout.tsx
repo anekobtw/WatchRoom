@@ -49,7 +49,7 @@ export default function RoomLayout() {
   };
 
   return (
-    <div className="h-screen overflow-auto bg-primary font-mulish text-background">
+    <div className="h-screen overflow-auto bg-primary font-mulish text-background relative">
       <Group
         orientation={orientation}
         resizeTargetMinimumSize={{ fine: 24, coarse: 36 }}

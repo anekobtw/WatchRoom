@@ -1,12 +1,15 @@
 import { createContext, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRoom } from "@/websocket/useRoom";
+import { useRoom, type ConnectionStatus } from "@/websocket/useRoom";
 import { getUserName, setUserName } from "@/scripts/userName";
 import { getUserId } from "@/scripts/userId";
 import type { RoomController } from "@/websocket/types";
 
 interface RoomContextValue {
-  room: RoomController;
+  room: RoomController & {
+    status: ConnectionStatus;
+    reconnect: () => void;
+  };
   roomId: string | undefined;
   userName: string;
   setUserName: (name: string) => void;

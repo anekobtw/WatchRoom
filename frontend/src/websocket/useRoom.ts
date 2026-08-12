@@ -5,8 +5,13 @@ import { getUserId } from "@/scripts/userId";
 import { getUserName } from "@/scripts/userName";
 import { useVideoSync } from "./useVideoSync";
 
+export type ConnectionStatus = "connected" | "reconnecting" | "disconnected";
+
 export function useRoom(roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const statusRef = useRef<ConnectionStatus>("disconnected");
+  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
 
   const playerRef = useRef<PlayerAPI | null>(null);
   const [state, setState] = useState<ServerToClient | null>(null);
@@ -21,6 +26,9 @@ export function useRoom(roomId?: string) {
 
     ws.onopen = () => {
       console.log("WebSocket connected");
+      reconnectAttemptsRef.current = 0;
+      statusRef.current = "connected";
+      setStatus("connected");
       ws.send(
         JSON.stringify({
           type: "CONNECT",
@@ -48,6 +56,20 @@ export function useRoom(roomId?: string) {
       console.log("WebSocket disconnected");
       wsRef.current = null;
       setState(null);
+
+      if (statusRef.current === "connected" || statusRef.current === "reconnecting") {
+        if (reconnectAttemptsRef.current < 3) {
+          statusRef.current = "reconnecting";
+          setStatus("reconnecting");
+          reconnectAttemptsRef.current++;
+          setTimeout(() => {
+            connect(getUserName() || "Guest");
+          }, 2000);
+        } else {
+          statusRef.current = "disconnected";
+          setStatus("disconnected");
+        }
+      }
     };
   }, [roomId]);
 
@@ -108,5 +130,10 @@ export function useRoom(roomId?: string) {
     isSyncingRef,
     onPlayerStateChange,
     roomUnavailable: false,
+    status,
+    reconnect: () => {
+      reconnectAttemptsRef.current = 0;
+      connect(getUserName() || "Guest");
+    },
   };
 }
