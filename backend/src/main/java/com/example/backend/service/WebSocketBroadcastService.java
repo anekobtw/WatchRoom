@@ -13,6 +13,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
@@ -43,11 +44,15 @@ public class WebSocketBroadcastService {
 
         RoomState data;
 
+        List<ChatMessage> slicedMessages = messages.size() > 150
+                ? messages.subList(messages.size() - 150, messages.size())
+                : messages;
+
         if (updatedBy == null) {
           data = RoomState.builder()
                   .version(version.incrementAndGet())
                   .users(sessions.stream().map(s -> (String) s.getAttributes().get("userName")).collect(Collectors.toSet()))
-                  .messages(messages)
+                  .messages(slicedMessages)
                   .build();
         } else {
           data = RoomState.builder()
@@ -57,7 +62,7 @@ public class WebSocketBroadcastService {
                   .videoTimestamp(room.getVideoTimestamp())
                   .playing(room.isPlaying())
                   .users(sessions.stream().map(s -> (String) s.getAttributes().get("userName")).collect(Collectors.toSet()))
-                  .messages(messages)
+                  .messages(slicedMessages)
                   .build();
         }
 
@@ -85,17 +90,16 @@ public class WebSocketBroadcastService {
     }
 
     for (WebSocketSession session : sessions) {
-      if (!session.isOpen()) {
-        sessions.remove(session);
-        continue;
-      }
-
       try {
-        synchronized (session) {
-          session.sendMessage(new TextMessage(json));
+        if (session.isOpen()) {
+          synchronized (session) {
+            session.sendMessage(new TextMessage(json));
+          }
+        } else {
+          sessions.remove(session);
         }
-      } catch (Exception e) {
-        log.error("Failed to send websocket message", e);
+      } catch (IOException e) {
+        log.debug("Failed to send to session {} (likely just disconnected): {}", session.getId(), e.getMessage());
         sessions.remove(session);
       }
     }

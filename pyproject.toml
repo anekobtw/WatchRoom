@@ -1,0 +1,25 @@
+[project]
+name = "tests"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "anekobtw",email = "elmars0608@gmail.com"}
+]
+requires-python = ">=3.14"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "websockets (>=17.0.1,<18.0.0)"
+]
