@@ -60,31 +60,31 @@ export default function MainContent({
 
   return (
     <main className="flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-primary font-mulish text-background">
-      <div className="grid grid-cols-1 gap-4 px-6 py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
-        <div className="flex items-center gap-2">
+      <div className="grid grid-cols-1 gap-3 px-3 py-3 sm:gap-4 sm:px-6 sm:py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={leaveRoom}
-            className="cursor-pointer rounded-xl p-2 text-critical transition hover:bg-critical/20"
+            className="cursor-pointer rounded-xl p-1.5 text-critical transition hover:bg-critical/20 sm:p-2"
           >
             <LogOut />
           </button>
 
-          <div className="flex flex-col">
-            <h1 className="font-title flex items-center gap-3 text-xl font-semibold sm:text-2xl">
+          <div className="flex min-w-0 flex-col">
+            <h1 className="font-title flex items-center gap-2 text-base font-semibold sm:gap-3 sm:text-2xl">
               WatchRoom {roomId}
               <ConnectionBadge />
               {isMobile && (
                 <button
                   onClick={() => setShowShareModal(true)}
-                  className="cursor-pointer rounded-xl p-2 text-background transition duration-200 hover:bg-primary-surface-1"
+                  className="cursor-pointer rounded-xl p-1.5 text-background transition duration-200 hover:bg-primary-surface-1 sm:p-2"
                   title="Share Room"
                 >
-                  <Upload size={20} />
+                  <Upload size={16} />
                 </button>
               )}
             </h1>
-            <div className="flex items-center gap-1">
-              <span className="text-sm opacity-60">Your name:</span>
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
+              <span className="opacity-60">Your name:</span>
 
               {editingName ? (
                 <input
@@ -99,7 +99,7 @@ export default function MainContent({
                       setNameInput(userName);
                     }
                   }}
-                  className="rounded bg-primary-surface-1 px-1 text-sm outline-none"
+                  className="rounded bg-primary-surface-1 px-1 text-xs outline-none sm:text-sm"
                 />
               ) : (
                 <>
@@ -108,7 +108,7 @@ export default function MainContent({
                       setNameInput(userName);
                       setEditingName(true);
                     }}
-                    className="cursor-pointer text-sm text-background transition hover:text-background/90"
+                    className="cursor-pointer text-xs text-background transition hover:text-background/90 sm:text-sm"
                   >
                     {userName || "Set name..."}
                   </button>
@@ -118,38 +118,39 @@ export default function MainContent({
                       setNameInput(userName);
                       setEditingName(true);
                     }}
-                    className="cursor-pointer rounded p-1 transition hover:bg-primary-surface-1"
+                    className="cursor-pointer rounded p-0.5 transition hover:bg-primary-surface-1 sm:p-1"
                   >
-                    <Pencil size={14} />
+                    <Pencil size={12} className="sm:hidden" />
+                    <Pencil size={14} className="hidden sm:block" />
                   </button>
                 </>
               )}
             </div>
-            <p className="text-sm opacity-60">{userCount} watching</p>
+            <p className="text-xs opacity-60 sm:text-sm">{userCount} watching</p>
           </div>
         </div>
 
         <div className="min-w-0 w-full max-w-xl justify-self-center">
-          <div className="flex min-w-0 w-full items-center gap-2 rounded-xl border border-line bg-primary-surface-0 px-3 py-2">
+          <div className="flex min-w-0 w-full items-center gap-2 rounded-xl border border-line bg-primary-surface-0 px-2 py-1.5 sm:px-3 sm:py-2">
             <Link2 size={16} className="shrink-0 text-background/60" />
 
             <input
               value={videoInput}
               onChange={(e) => setVideoInput(e.target.value)}
               placeholder="Paste video link..."
-              className="min-w-0 flex-1 bg-transparent text-sm text-background/90 outline-none placeholder:text-background/40"
+              className="min-w-0 flex-1 bg-transparent text-xs text-background/90 outline-none placeholder:text-background/40 sm:text-sm"
             />
 
             <button
               onClick={addVideo}
-              className="shrink-0 cursor-pointer rounded-lg bg-background px-3 py-1 text-xs text-primary transition hover:bg-background/90"
+              className="shrink-0 cursor-pointer rounded-lg bg-background px-2.5 py-1 text-xs text-primary transition hover:bg-background/90 sm:px-3"
             >
               Add
             </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2">
+        <div className="hidden items-center justify-end gap-2 lg:flex">
           {!isMobile && (
             <button
               onClick={() => setShowShareModal(true)}
@@ -173,8 +174,8 @@ export default function MainContent({
         </div>
       </div>
 
-      <div className="flex-1 p-6">
-        <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-primary-surface-0 shadow-2xl">
+      <div className="flex-1">
+        <div className="relative h-full overflow-hidden border border-line bg-primary-surface-0 shadow-2xl">
           {videoUrl ? (
             <Player
               ref={room.playerRef}
