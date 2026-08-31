@@ -3,9 +3,12 @@ package com.example.backend.service;
 import com.example.backend.model.dto.RoomChatDto;
 import com.example.backend.model.dto.RoomConnectDto;
 import com.example.backend.model.dto.RoomUpdateDto;
+import com.example.backend.model.dto.RoomErrorDto;
 import com.example.backend.model.entity.ChatMessage;
 import com.example.backend.model.entity.RoomEntity;
 import com.example.backend.repository.RoomRepository;
+import com.example.backend.model.enums.WsType;
+import com.example.backend.model.websocket.WsMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -36,6 +39,10 @@ public class RoomWebSocketService {
     RoomEntity entity = roomRepository.findById(roomId).orElse(null);
 
     if (entity == null) {
+      webSocketBroadcastService.send(session, WsMessage.builder()
+              .type(WsType.ERROR)
+              .data(RoomErrorDto.builder().code("ROOM_NOT_FOUND").build())
+              .build());
       try {
         session.close();
       } catch (IOException ignored) {

@@ -77,6 +77,18 @@ public class WebSocketBroadcastService {
     });
   }
 
+  public void send(WebSocketSession session, Object payload) {
+    try {
+      if (session.isOpen()) {
+        synchronized (session) {
+          session.sendMessage(new TextMessage(mapper.writeValueAsString(payload)));
+        }
+      }
+    } catch (IOException e) {
+      log.debug("Failed to send to session {} (likely just disconnected): {}", session.getId(), e.getMessage());
+    }
+  }
+
   private void broadcast(Set<WebSocketSession> sessions, Object payload) {
     if (sessions.isEmpty()) return;
 

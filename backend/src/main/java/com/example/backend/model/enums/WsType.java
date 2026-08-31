@@ -5,5 +5,6 @@ public enum WsType {
   UPDATE,
   CHAT,
   STATE,
+  ERROR,
   LEAVE
 }

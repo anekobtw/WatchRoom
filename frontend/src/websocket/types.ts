@@ -28,7 +28,9 @@ export type ClientToServer =
       type: "LEAVE";
     };
 
-export type ServerToClient = {
+export type ServerToClient = RoomStateMessage | RoomErrorMessage;
+
+export type RoomStateMessage = {
   type: "STATE";
   data: {
     version: number;
@@ -41,6 +43,13 @@ export type ServerToClient = {
   };
 };
 
+export type RoomErrorMessage = {
+  type: "ERROR";
+  data: {
+    code: "ROOM_NOT_FOUND";
+  };
+};
+
 export type ChatMessage = {
   userId: string; // TODO: remove it and instead return ChatMessageView without exposing userId
   userName: string;
@@ -49,7 +58,7 @@ export type ChatMessage = {
 };
 
 export type RoomController = {
-  state: ServerToClient | null;
+  state: RoomStateMessage | null;
   send: (msg: ClientToServer) => void;
   roomUnavailable?: boolean;
   playerRef: RefObject<PlayerAPI | null>;

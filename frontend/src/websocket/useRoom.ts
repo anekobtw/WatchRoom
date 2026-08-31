@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlayerAPI } from "@/components/PlayerAPI";
-import type { ClientToServer, ServerToClient } from "./types";
+import type { ClientToServer, RoomStateMessage, ServerToClient } from "./types";
 import { getUserId } from "@/scripts/userId";
 import { getUserName } from "@/scripts/userName";
 import { useVideoSync } from "./useVideoSync";
@@ -13,12 +13,15 @@ export function useRoom(roomId?: string) {
   const statusRef = useRef<ConnectionStatus>("reconnecting");
   const [status, setStatus] = useState<ConnectionStatus>("reconnecting");
 
+  const roomUnavailableRef = useRef(false);
+  const [roomUnavailable, setRoomUnavailable] = useState(false);
+
   const playerRef = useRef<PlayerAPI | null>(null);
-  const [state, setState] = useState<ServerToClient | null>(null);
+  const [state, setState] = useState<RoomStateMessage | null>(null);
   const isSyncingRef = useVideoSync(state, playerRef);
 
   const connect = useCallback((userName: string) => {
-    if (!roomId || !getUserId()) return;
+    if (!roomId || !getUserId() || roomUnavailableRef.current) return;
     if (wsRef.current) return;
 
     const ws = new WebSocket(import.meta.env.VITE_WS_URL);
@@ -42,9 +45,15 @@ export function useRoom(roomId?: string) {
     };
 
     ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
+      const msg: ServerToClient = JSON.parse(event.data);
       if (msg.type === "STATE") {
         setState(msg);
+        return;
+      }
+
+      if (msg.type === "ERROR" && msg.data.code === "ROOM_NOT_FOUND") {
+        roomUnavailableRef.current = true;
+        setRoomUnavailable(true);
       }
     };
 
@@ -56,6 +65,10 @@ export function useRoom(roomId?: string) {
       console.log("WebSocket disconnected");
       wsRef.current = null;
       setState(null);
+
+      if (roomUnavailableRef.current) {
+        return;
+      }
 
       if (
         (statusRef.current === "connected" || statusRef.current === "reconnecting") &&
@@ -71,6 +84,11 @@ export function useRoom(roomId?: string) {
       statusRef.current = "disconnected";
       setStatus("disconnected");
     };
+  }, [roomId]);
+
+  useEffect(() => {
+    roomUnavailableRef.current = false;
+    setRoomUnavailable(false);
   }, [roomId]);
 
   useEffect(() => {
@@ -101,7 +119,7 @@ export function useRoom(roomId?: string) {
   }, []);
 
   const reconnect = useCallback(() => {
-    if (wsRef.current) return;
+    if (wsRef.current || roomUnavailableRef.current) return;
     reconnectAttemptsRef.current = 0;
 
     statusRef.current = "reconnecting";
@@ -137,7 +155,7 @@ export function useRoom(roomId?: string) {
     playerRef,
     isSyncingRef,
     onPlayerStateChange,
-    roomUnavailable: false,
+    roomUnavailable,
     status,
     reconnect,
   };
