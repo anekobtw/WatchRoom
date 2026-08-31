@@ -6,6 +6,7 @@ import { useRoomContext } from "./RoomContext";
 import MainContent from "./MainContent";
 import ChatSidebar from "./ChatSidebar";
 import { ShareRoomModal } from "./components/ShareRoomModal";
+import Modal from "@/components/Modal";
 
 export default function RoomLayout() {
   const orientation = useOrientation();
@@ -41,11 +42,11 @@ export default function RoomLayout() {
   };
 
   return (
-    <div className="h-screen overflow-auto bg-primary font-mulish text-background relative">
+    <div className="relative h-dvh overflow-hidden bg-primary font-mulish text-background">
       <Group
         orientation={orientation}
         resizeTargetMinimumSize={{ fine: 24, coarse: 36 }}
-        className="h-full"
+        className="h-full min-h-0"
       >
         <Panel minSize={40}>
           <MainContent
@@ -76,6 +77,24 @@ export default function RoomLayout() {
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
       />
+      {room.status === "disconnected" && (
+        <Modal>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold">Oopsie, you got disconnected.</h2>
+              <p className="text-sm text-background/70">
+                This is usually caused by a network interruption, such as unstable Wi-Fi or because you don't have access to the room.
+              </p>
+            </div>
+            <button
+              onClick={room.reconnect}
+              className="w-full cursor-pointer rounded-md bg-background py-2 font-medium text-primary transition hover:bg-background/90"
+            >
+              Reconnect
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

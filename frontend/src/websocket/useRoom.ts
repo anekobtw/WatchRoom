@@ -10,8 +10,8 @@ export type ConnectionStatus = "connected" | "reconnecting" | "disconnected";
 export function useRoom(roomId?: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
-  const statusRef = useRef<ConnectionStatus>("disconnected");
-  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
+  const statusRef = useRef<ConnectionStatus>("reconnecting");
+  const [status, setStatus] = useState<ConnectionStatus>("reconnecting");
 
   const playerRef = useRef<PlayerAPI | null>(null);
   const [state, setState] = useState<ServerToClient | null>(null);
@@ -57,19 +57,19 @@ export function useRoom(roomId?: string) {
       wsRef.current = null;
       setState(null);
 
-      if (statusRef.current === "connected" || statusRef.current === "reconnecting") {
-        if (reconnectAttemptsRef.current < 3) {
-          statusRef.current = "reconnecting";
-          setStatus("reconnecting");
-          reconnectAttemptsRef.current++;
-          setTimeout(() => {
-            connect(getUserName() || "Guest");
-          }, 2000);
-        } else {
-          statusRef.current = "disconnected";
-          setStatus("disconnected");
-        }
+      if (
+        (statusRef.current === "connected" || statusRef.current === "reconnecting") &&
+        reconnectAttemptsRef.current === 0
+      ) {
+        reconnectAttemptsRef.current = 1;
+        statusRef.current = "reconnecting";
+        setStatus("reconnecting");
+        setTimeout(() => connect(getUserName() || "Guest"), 2000);
+        return;
       }
+
+      statusRef.current = "disconnected";
+      setStatus("disconnected");
     };
   }, [roomId]);
 
@@ -100,6 +100,14 @@ export function useRoom(roomId?: string) {
     ws.send(JSON.stringify(message));
   }, []);
 
+  const reconnect = useCallback(() => {
+    if (wsRef.current) return;
+    reconnectAttemptsRef.current = 0;
+
+    statusRef.current = "reconnecting";
+    setStatus("reconnecting");
+    connect(getUserName() || "Guest");
+  }, [connect]);
   const onPlayerStateChange = useCallback(
     async ({ data }: { data: number }) => {
       if (isSyncingRef.isSyncingRef.current) return;
@@ -131,9 +139,6 @@ export function useRoom(roomId?: string) {
     onPlayerStateChange,
     roomUnavailable: false,
     status,
-    reconnect: () => {
-      reconnectAttemptsRef.current = 0;
-      connect(getUserName() || "Guest");
-    },
+    reconnect,
   };
 }
