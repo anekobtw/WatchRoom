@@ -46,8 +46,8 @@ export default function Home() {
   return (
     <div className="bg-background text-primary font-mulish">
       {/* Hero Section */}
-      <section className="w-full flex items-center px-6 py-20 lg:py-45">
-        <div className="max-w-8xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 py-12 mx-4 md:mx-12 items-center">
+      <section className="w-full px-6 py-20 lg:py-45">
+        <div className="max-w-8xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 py-12 mx-auto px-4 md:px-12 items-center">
           <div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-title font-bold leading-tight mb-6">
               Watching alone is optional.
@@ -56,7 +56,8 @@ export default function Home() {
             </h1>
 
             <p className="text-lg text-primary/60 mb-12 leading-relaxed max-w-md">
-              Pick a movie, send the link, and watch together.
+              Pick a movie, send the link, and watch together. No account
+              required.
             </p>
 
             <div className="flex gap-2 w-full">
@@ -95,7 +96,15 @@ export default function Home() {
               </h2>
 
               <p className="text-lg md:text-xl lg:text-2xl pl-6 mt-3">
-                <span className="text-accent">@thegeneralist01</span>, 2026
+                <a
+                  href="https://x.com/thegeneralist01/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer text-accent underline underline-offset-4 hover:text-accent/80"
+                >
+                  @thegeneralist01
+                </a>
+                , 2026
               </p>
             </div>
 
@@ -105,7 +114,15 @@ export default function Home() {
               </h2>
 
               <p className="text-lg md:text-xl lg:text-2xl pl-6 mt-3">
-                <span className="text-accent">@zverskly</span>, 2026
+                <a
+                  href="https://www.behance.net/zverskly"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer text-accent underline underline-offset-4 hover:text-accent/80"
+                >
+                  @zverskly
+                </a>
+                , 2026
               </p>
             </div>
           </div>
@@ -136,7 +153,7 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-title font-bold mb-3">Any content</h3>
               <p className="text-background/60">
-                YouTube, something, something, etc. is supported
+                YouTube and SoundCloud are supported.
               </p>
             </div>
           </div>
