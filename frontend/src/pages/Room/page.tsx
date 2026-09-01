@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Modal from "@/components/Modal";
 import { getUserName, setUserName } from "@/scripts/userName";
-import { RoomProvider } from "./RoomContext";
+import { RoomProvider } from "./RoomProvider";
 import RoomLayout from "./RoomLayout";
 
 export default function Room() {
@@ -13,7 +13,7 @@ export default function Room() {
   return (
     <>
       {userName ? (
-        <RoomProvider id={id}>
+        <RoomProvider key={id} id={id}>
           <RoomLayout />
         </RoomProvider>
       ) : (

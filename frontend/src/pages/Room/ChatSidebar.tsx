@@ -7,18 +7,18 @@ export default function ChatSidebar({
   isCollapsed,
   isMobile,
   onToggleCollapse,
+  hasUnread,
 }: {
   isCollapsed: boolean;
   isMobile: boolean;
   onToggleCollapse: () => void;
+  hasUnread: boolean;
 }) {
   const { room, userId } = useRoomContext();
   const users = Array.from(room.state?.data?.users ?? []);
   const messages = room.state?.data?.messages ?? [];
   const [showUsers, setShowUsers] = useState(false);
-  const [hasUnread, setHasUnread] = useState(false);
   const usersRef = useRef<HTMLDivElement>(null);
-  const lastMessageCountRef = useRef(messages.length);
 
   useEffect(() => {
     if (!showUsers) return;
@@ -31,18 +31,6 @@ export default function ChatSidebar({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showUsers]);
 
-  useEffect(() => {
-    if (messages.length > lastMessageCountRef.current && isCollapsed) {
-      setHasUnread(true);
-    }
-    lastMessageCountRef.current = messages.length;
-  }, [messages.length, isCollapsed]);
-
-  useEffect(() => {
-    if (!isCollapsed) {
-      setHasUnread(false);
-    }
-  }, [isCollapsed]);
 
   const collapseIcon = isMobile ? (
     isCollapsed ? (

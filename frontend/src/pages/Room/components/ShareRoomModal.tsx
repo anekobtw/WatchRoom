@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { useRoomContext } from "../RoomContext";
 import { Copy, X } from "lucide-react";
 import QRCode from "qrcode";
 
 export function ShareRoomModal({
   isOpen,
   onClose,
+  roomId,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  roomId: string | undefined;
 }) {
-  const { roomId } = useRoomContext();
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -27,16 +27,17 @@ export function ShareRoomModal({
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    if (isOpen && roomId) {
-      QRCode.toDataURL(roomUrl, {
-        width: 256,
-        margin: 1,
-        color: {
-          light: "#d9cfc7", // whiteish foreground = your --background token
-          dark: "#221e1c", // matches modal's --primary-surface-0
-        },
-      }).then(setQrCodeUrl);
-    }
+    if (!isOpen || !roomId) return;
+
+    const qrRoomUrl = `${window.location.origin}/room/${roomId}`;
+    QRCode.toDataURL(qrRoomUrl, {
+      width: 256,
+      margin: 1,
+      color: {
+        light: "#d9cfc7",
+        dark: "#221e1c",
+      },
+    }).then(setQrCodeUrl);
   }, [isOpen, roomId]);
 
   const copyToClipboard = async () => {

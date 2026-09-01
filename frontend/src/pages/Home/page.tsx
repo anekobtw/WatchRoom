@@ -1,43 +1,25 @@
 import { ChevronRight, Loader2 } from "lucide-react";
-import { setUserId, getUserId } from "@/scripts/userId";
+import { createRoom, ensureUserId } from "@/api/rooms";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function Home() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   async function handleCreateRoom() {
     if (loading) return;
+    setError(false);
     setLoading(true);
 
     try {
-      let userId = getUserId();
-
-      if (!userId) {
-        const userResponse = await fetch(
-          import.meta.env.VITE_HTTP_URL + "/api/users/create",
-          {
-            method: "POST",
-          },
-        );
-
-        userId = await userResponse.text();
-        setUserId(userId);
-      }
-
-      const roomResponse = await fetch(
-        import.meta.env.VITE_HTTP_URL + "/api/rooms/create",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        },
-      );
-
-      const roomId = await roomResponse.text();
+      const userId = await ensureUserId();
+      const roomId = await createRoom(userId);
 
       navigate(`/room/${roomId}`);
+    } catch {
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -87,6 +69,12 @@ export default function Home() {
                 <ChevronRight size={18} />
               </button>
             </div>
+
+            {error && (
+              <p role="alert" className="mt-4 text-sm text-red-600">
+                Unable to prepare your session. Please try again.
+              </p>
+            )}
           </div>
 
           <div className="font-title grid gap-16">

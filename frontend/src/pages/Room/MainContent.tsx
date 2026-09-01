@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowLeftFromLine, Link2, LogOut, Pencil, Upload } from "lucide-react";
 import Player from "@/components/Player";
+import type { PlayerAPI, PlayerStateChange } from "@/components/PlayerAPI";
 import { useRoomContext } from "./RoomContext";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
   isMobile: boolean;
   onExpandChat: () => void;
   hasUnread: boolean;
+  onOpenShareModal: () => void;
 };
 
 export default function MainContent({
@@ -15,14 +17,33 @@ export default function MainContent({
   isMobile,
   onExpandChat,
   hasUnread,
+  onOpenShareModal,
 }: Props) {
-  const { room, roomId, leaveRoom, setUserName, userName, setShowShareModal } =
-    useRoomContext();
+  const { room, roomId, leaveRoom, setUserName, userName } = useRoomContext();
+  const {
+    setPlayer: setRoomPlayer,
+    onPlayerStateChange: handleRoomPlayerStateChange,
+  } = room;
+
   useEffect(() => {
-    setShowShareModal(true);
-  }, []);
+    onOpenShareModal();
+  }, [onOpenShareModal]);
 
   const [videoInput, setVideoInput] = useState("");
+  const setPlayer = useCallback(
+    (player: PlayerAPI | null) => {
+      setRoomPlayer(player);
+    },
+    [setRoomPlayer],
+  );
+
+  const onPlayerStateChange = useCallback(
+    (event: PlayerStateChange) => {
+      handleRoomPlayerStateChange(event);
+    },
+    [handleRoomPlayerStateChange],
+  );
+
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(userName);
 
@@ -74,7 +95,7 @@ export default function MainContent({
               WatchRoom {roomId}
               {isMobile && (
                 <button
-                  onClick={() => setShowShareModal(true)}
+                  onClick={onOpenShareModal}
                   className="cursor-pointer rounded-xl p-1.5 text-background transition duration-200 hover:bg-primary-surface-1 sm:p-2"
                   title="Share Room"
                 >
@@ -154,7 +175,7 @@ export default function MainContent({
         <div className="hidden items-center justify-end gap-2 lg:flex">
           {!isMobile && (
             <button
-              onClick={() => setShowShareModal(true)}
+              onClick={onOpenShareModal}
               className="cursor-pointer rounded-xl p-2 text-background transition duration-200 hover:bg-primary-surface-1"
               title="Share Room"
             >
@@ -179,9 +200,9 @@ export default function MainContent({
         <div className="relative h-full overflow-hidden border border-line bg-primary-surface-0 shadow-2xl">
           {videoUrl ? (
             <Player
-              ref={room.playerRef}
+              ref={setPlayer}
               url={videoUrl}
-              onStateChange={room.onPlayerStateChange}
+              onStateChange={onPlayerStateChange}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-base lg:text-lg">

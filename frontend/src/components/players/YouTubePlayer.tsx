@@ -1,6 +1,9 @@
-import { useRef, forwardRef, useImperativeHandle } from "react";
-import YouTube from "react-youtube";
-import type { PlayerAPI } from "../PlayerAPI";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import YouTube, {
+  type YouTubeEvent,
+  type YouTubePlayer as YouTubePlayerInstance,
+} from "react-youtube";
+import type { PlayerAPI, PlayerStateChange } from "../PlayerAPI";
 
 const YOUTUBE_ID_REGEX =
   /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
@@ -18,15 +21,20 @@ function extractYouTubeId(url?: string | null): string | null {
 
 type Props = {
   videoId: string | null;
-  onStateChange?: (e: any) => void;
+  onStateChange?: (event: PlayerStateChange) => void;
 };
 
 const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
   { videoId, onStateChange },
   ref,
 ) {
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<YouTubePlayerInstance | null>(null);
 
+  const sourceUrlRef = useRef(videoId);
+
+  useEffect(() => {
+    sourceUrlRef.current = videoId;
+  }, [videoId]);
   const resolvedId = extractYouTubeId(videoId);
 
   useImperativeHandle(ref, () => ({
@@ -38,6 +46,8 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
       }
 
       playerRef.current?.loadVideoById(id, timestamp);
+
+      sourceUrlRef.current = url;
     },
 
     play: () => {
@@ -53,21 +63,13 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
     },
 
     getTime: () => {
-      if (!playerRef.current) {
-        throw new Error("Player not ready");
-      }
-
-      return playerRef.current.getCurrentTime();
+      return playerRef.current?.getCurrentTime() ?? 0;
     },
 
     getUrl: () => {
-      if (!playerRef.current) {
-        return null;
-      }
-
-      return playerRef.current.getVideoData().video_id ?? null;
+      return sourceUrlRef.current;
     },
-  }));
+  }), []);
 
   return (
     <YouTube
@@ -82,8 +84,8 @@ const YouTubePlayer = forwardRef<PlayerAPI, Props>(function YouTubePlayer(
       }}
       className="absolute inset-0 h-full w-full"
       iframeClassName="h-full w-full"
-      onReady={(e) => {
-        playerRef.current = e.target;
+      onReady={(event: YouTubeEvent<number>) => {
+        playerRef.current = event.target;
       }}
       onStateChange={onStateChange}
     />

@@ -1,12 +1,13 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { getUserId, setUserId } from "@/scripts/userId";
+import { ensureUserId } from "@/api/rooms";
 
 const CODE_LENGTH = 6;
 
 export default function JoinRoom() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function JoinRoom() {
 
     if (loading) return;
 
+    setError(false);
     const roomId = code.join("");
 
     if (!/^[A-Z0-9]{6}$/.test(roomId)) return;
@@ -47,23 +49,10 @@ export default function JoinRoom() {
     setLoading(true);
 
     try {
-      let userId = getUserId();
-
-      if (!userId) {
-        const response = await fetch(
-          import.meta.env.VITE_HTTP_URL + "/api/users/create",
-          {
-            method: "POST",
-          },
-        );
-
-        if (!response.ok) return;
-
-        userId = await response.text();
-        setUserId(userId);
-      }
-
+      await ensureUserId();
       navigate(`/room/${roomId}`);
+    } catch {
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -99,6 +88,12 @@ export default function JoinRoom() {
             />
           ))}
         </div>
+
+        {error && (
+          <p role="alert" className="text-sm text-red-600">
+            Unable to prepare your session. Please try again.
+          </p>
+        )}
 
         <button
           type="submit"

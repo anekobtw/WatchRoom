@@ -1,5 +1,4 @@
-import type { RefObject } from "react";
-import type { PlayerAPI } from "@/components/PlayerAPI";
+import type { PlayerAPI, PlayerStateChange } from "@/components/PlayerAPI";
 
 export type ClientToServer =
   | {
@@ -61,6 +60,6 @@ export type RoomController = {
   state: RoomStateMessage | null;
   send: (msg: ClientToServer) => void;
   roomUnavailable?: boolean;
-  playerRef: RefObject<PlayerAPI | null>;
-  onPlayerStateChange: (event: { data: number }) => void;
+  setPlayer: (player: PlayerAPI | null) => void;
+  onPlayerStateChange: (event: PlayerStateChange) => void;
 };

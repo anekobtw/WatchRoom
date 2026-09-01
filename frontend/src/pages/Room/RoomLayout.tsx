@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useState } from "react";
 import { Panel, Separator, Group, usePanelRef } from "react-resizable-panels";
 
 import useOrientation from "@/scripts/useOrientation";
@@ -12,37 +12,42 @@ export default function RoomLayout() {
   const orientation = useOrientation();
   const isMobile = orientation === "vertical";
   const chatPanelRef = usePanelRef();
-  const { room, showShareModal, setShowShareModal } = useRoomContext();
-
+  const { room, roomId } = useRoomContext();
+  const messageCount = room.state?.data?.messages?.length ?? 0;
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
-  const [hasUnread, setHasUnread] = useState(false);
-  const lastMessageCountRef = useRef((room.state?.data?.messages ?? []).length);
+  const [lastReadMessageCount, setLastReadMessageCount] = useState(messageCount);
+  const hasUnread = isChatCollapsed && messageCount > lastReadMessageCount;
 
-  useEffect(() => {
-    const messageCount = room.state?.data?.messages?.length ?? 0;
-
-    if (messageCount > lastMessageCountRef.current && isChatCollapsed) {
-      setHasUnread(true);
-    }
-
-    if (!isChatCollapsed) {
-      setHasUnread(false);
-    }
-
-    lastMessageCountRef.current = messageCount;
-  }, [room.state?.data?.messages?.length, isChatCollapsed]);
+  const openShareModal = useCallback(() => {
+    setIsShareModalOpen(true);
+  }, []);
 
   const toggleChat = () => {
     const panel = chatPanelRef.current;
     if (!panel) return;
 
     const nextCollapsed = !panel.isCollapsed();
-    nextCollapsed ? panel.collapse() : panel.expand();
+    if (nextCollapsed) {
+      panel.collapse();
+    } else {
+      panel.expand();
+      setLastReadMessageCount(messageCount);
+    }
+
     setIsChatCollapsed(nextCollapsed);
   };
 
   const syncChatCollapsedState = () => {
-    setIsChatCollapsed(chatPanelRef.current?.isCollapsed() ?? false);
+    const panel = chatPanelRef.current;
+    if (!panel) return;
+
+    const collapsed = panel.isCollapsed();
+    setIsChatCollapsed(collapsed);
+
+    if (!collapsed) {
+      setLastReadMessageCount(messageCount);
+    }
   };
 
   return (
@@ -58,6 +63,7 @@ export default function RoomLayout() {
             isMobile={isMobile}
             onExpandChat={toggleChat}
             hasUnread={hasUnread}
+            onOpenShareModal={openShareModal}
           />
         </Panel>
 
@@ -76,12 +82,14 @@ export default function RoomLayout() {
             isCollapsed={isChatCollapsed}
             isMobile={isMobile}
             onToggleCollapse={toggleChat}
+            hasUnread={hasUnread}
           />
         </Panel>
       </Group>
       <ShareRoomModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
+        isOpen={isShareModalOpen}
+        roomId={roomId}
+        onClose={() => setIsShareModalOpen(false)}
       />
       {room.status === "disconnected" && (
         <Modal>

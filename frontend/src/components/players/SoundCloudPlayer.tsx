@@ -1,19 +1,37 @@
-import { useRef, forwardRef, useImperativeHandle } from "react";
-import type { PlayerAPI } from "../PlayerAPI";
+import { useCallback, useRef, forwardRef, useImperativeHandle } from "react";
+import type { PlayerAPI, PlayerStateChange } from "../PlayerAPI";
+
+type SoundCloudSeekEvent = {
+  currentPosition?: number;
+};
+
+type SoundCloudWidget = {
+  bind: (event: string, callback: (event?: SoundCloudSeekEvent) => void) => void;
+  load: (
+    url: string,
+    options: { auto_play: boolean; callback?: () => void },
+  ) => void;
+  play: () => void;
+  pause: () => void;
+  seekTo: (position: number) => void;
+  getPosition: (callback: (position: number) => void) => void;
+};
+
+type SoundCloudWidgetFactory = ((iframe: HTMLIFrameElement) => SoundCloudWidget) & {
+  Events: {
+    READY: string;
+    PLAY: string;
+    PAUSE: string;
+    SEEK: string;
+    FINISH: string;
+    ERROR: string;
+  };
+};
 
 declare global {
   interface Window {
     SC: {
-      Widget: ((iframe: HTMLIFrameElement) => any) & {
-        Events: {
-          READY: string;
-          PLAY: string;
-          PAUSE: string;
-          SEEK: string;
-          FINISH: string;
-          ERROR: string;
-        };
-      };
+      Widget: SoundCloudWidgetFactory;
     };
   }
 }
@@ -46,7 +64,7 @@ function sanitizeSoundCloudUrl(url: string): string {
 
 type Props = {
   trackUrl: string | null;
-  onStateChange?: (e: { data: number; time?: number }) => void;
+  onStateChange?: (event: PlayerStateChange) => void;
 };
 
 const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
@@ -54,10 +72,10 @@ const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
   ref,
 ) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const widgetRef = useRef<any>(null);
+  const widgetRef = useRef<SoundCloudWidget | null>(null);
   const currentUrlRef = useRef<string | null>(trackUrl);
 
-  const initWidget = async () => {
+  const initWidget = useCallback(async () => {
     if (widgetRef.current || !iframeRef.current) return;
 
     await loadSoundCloudScript();
@@ -75,25 +93,22 @@ const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
       onStateChange?.({ data: 2 });
     });
 
-    widget.bind(events.SEEK, (e: any) => {
-      if (e?.currentPosition !== undefined) {
-        onStateChange?.({
-          data: 3,
-          time: e.currentPosition / 1000,
-        });
+    widget.bind(events.SEEK, (event) => {
+      if (event?.currentPosition !== undefined) {
+        onStateChange?.({ data: 3 });
       }
     });
 
     widget.bind(events.FINISH, () => {
       onStateChange?.({ data: 0 });
     });
-  };
+  }, [onStateChange]);
 
-  const ensureWidget = async () => {
+  const ensureWidget = useCallback(async () => {
     if (!widgetRef.current) {
       await initWidget();
     }
-  };
+  }, [initWidget]);
 
   useImperativeHandle(ref, () => ({
     load: async (url: string, timestamp = 0) => {
@@ -145,7 +160,7 @@ const SoundCloudPlayer = forwardRef<PlayerAPI, Props>(function SoundCloudPlayer(
     getUrl: () => {
       return currentUrlRef.current;
     },
-  }));
+  }), [ensureWidget]);
 
   return (
     <iframe

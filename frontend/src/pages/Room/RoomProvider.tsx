@@ -1,66 +1,71 @@
-import { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useRoom, type ConnectionStatus } from "@/websocket/useRoom";
+import { useEffect, useState, type ReactNode } from "react";
+import { useNavigate, type NavigateFunction } from "react-router-dom";
+import { ensureUserId } from "@/api/rooms";
 import { getUserName, setUserName } from "@/scripts/userName";
-import { getUserId, setUserId } from "@/scripts/userId";
-import type { RoomController } from "@/websocket/types";
-import { useEffect } from "react";
-
-interface RoomContextValue {
-  room: RoomController & {
-    status: ConnectionStatus;
-    reconnect: () => void;
-  };
-  roomId: string | undefined;
-  userName: string;
-  setUserName: (name: string) => void;
-  leaveRoom: () => void;
-  userId: string;
-  showShareModal: boolean;
-  setShowShareModal: (show: boolean) => void;
-}
-
-const RoomContext = createContext<RoomContextValue | null>(null);
+import { useRoom } from "@/websocket/useRoom";
+import { RoomContext } from "./RoomContext";
 
 export function RoomProvider({
   children,
   id,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   id: string | undefined;
 }) {
   const navigate = useNavigate();
-
-  const [userId, setUserIdState] = useState<string | null>(getUserId());
-  const [showShareModal, setShowShareModal] = useState(false);
+  const [userId, setUserIdState] = useState<string | null>(null);
+  const [initializationAttempt, setInitializationAttempt] = useState(0);
+  const [initializationError, setInitializationError] = useState(false);
   const [userName, setUserNameState] = useState(() => getUserName() ?? "");
 
   useEffect(() => {
-    const initUser = async () => {
-      let id = getUserId();
+    let active = true;
 
-      if (!id) {
-        const response = await fetch(
-          import.meta.env.VITE_HTTP_URL + "/api/users/create",
-          {
-            method: "POST",
-          },
-        );
+    void ensureUserId().then(
+      (id) => {
+        if (!active) return;
+        setUserIdState(id);
+        setInitializationError(false);
+      },
+      () => {
+        if (active) setInitializationError(true);
+      },
+    );
 
-        if (!response.ok) return;
-
-        id = await response.text();
-        setUserId(id);
-      }
-
-      setUserIdState(id);
+    return () => {
+      active = false;
     };
+  }, [initializationAttempt]);
 
-    initUser();
-  }, []);
+  if (initializationError) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-primary text-background">
+        <div className="text-center">
+          <p role="alert">Unable to prepare your session. Please try again.</p>
+          <button
+            type="button"
+            className="mt-4 px-4 py-2 bg-background text-primary rounded-lg font-medium"
+            onClick={() => {
+              setInitializationError(false);
+              setInitializationAttempt((attempt) => attempt + 1);
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!userId) {
-    return null;
+    return (
+      <div
+        className="h-screen flex items-center justify-center bg-primary text-background"
+        role="status"
+      >
+        Preparing your session...
+      </div>
+    );
   }
 
   return (
@@ -69,8 +74,6 @@ export function RoomProvider({
       userId={userId}
       userName={userName}
       setUserNameState={setUserNameState}
-      showShareModal={showShareModal}
-      setShowShareModal={setShowShareModal}
       navigate={navigate}
     >
       {children}
@@ -84,18 +87,14 @@ function RoomProviderContent({
   userId,
   userName,
   setUserNameState,
-  showShareModal,
-  setShowShareModal,
   navigate,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   id: string | undefined;
   userId: string;
   userName: string;
-  setUserNameState: React.Dispatch<React.SetStateAction<string>>;
-  showShareModal: boolean;
-  setShowShareModal: React.Dispatch<React.SetStateAction<boolean>>;
-  navigate: ReturnType<typeof useNavigate>;
+  setUserNameState: (name: string) => void;
+  navigate: NavigateFunction;
 }) {
   const room = useRoom(id);
 
@@ -131,8 +130,6 @@ function RoomProviderContent({
         setUserName: handleRename,
         leaveRoom,
         userId,
-        showShareModal,
-        setShowShareModal,
       }}
     >
       {children}
@@ -155,11 +152,4 @@ function RoomUnavailablePage() {
       </div>
     </div>
   );
-}
-
-export function useRoomContext() {
-  const context = useContext(RoomContext);
-  if (!context)
-    throw new Error("useRoomContext must be used within a RoomProvider");
-  return context;
 }

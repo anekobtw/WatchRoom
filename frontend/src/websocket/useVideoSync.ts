@@ -7,6 +7,7 @@ const SYNC_THRESHOLD_SECONDS = 1;
 export function useVideoSync(
   state: ServerToClient | null,
   playerRef: React.RefObject<PlayerAPI | null>,
+  player: PlayerAPI | null,
 ) {
   const isSyncingRef = useRef(false);
 
@@ -50,9 +51,7 @@ export function useVideoSync(
     };
 
     sync();
-  }, [state, playerRef]);
+  }, [player, playerRef, state]);
 
-  return {
-    isSyncingRef,
-  };
+  return isSyncingRef;
 }

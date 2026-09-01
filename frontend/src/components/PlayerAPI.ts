@@ -1,3 +1,7 @@
+export type PlayerStateChange = {
+  data: number;
+};
+
 export type PlayerAPI = {
   load: (url: string, timestamp?: number) => void;
   play: () => void;

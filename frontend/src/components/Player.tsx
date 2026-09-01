@@ -1,11 +1,11 @@
 import { forwardRef } from "react";
-import type { PlayerAPI } from "./PlayerAPI";
+import type { PlayerAPI, PlayerStateChange } from "./PlayerAPI";
 import YouTubePlayer from "./players/YouTubePlayer";
 import SoundCloudPlayer from "./players/SoundCloudPlayer";
 
 type Props = {
   url: string;
-  onStateChange?: (event: any) => void;
+  onStateChange?: (event: PlayerStateChange) => void;
 };
 
 function getPlayer(url: string) {
