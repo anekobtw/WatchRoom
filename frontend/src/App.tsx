@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -34,9 +35,30 @@ function Page({
 
 export default function App() {
   const location = useLocation();
+  const isPrimaryBackground =
+    location.pathname !== "/" && location.pathname !== "/join-room";
+  const viewportBackground = isPrimaryBackground
+    ? "var(--primary)"
+    : "var(--background)";
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--viewport-background", viewportBackground);
+
+    return () => {
+      root.style.removeProperty("--viewport-background");
+    };
+  }, [viewportBackground]);
+
 
   return (
-    <div className="min-h-screen bg-background text-primary overflow-hidden">
+    <div
+      className={`min-h-screen overflow-hidden ${
+        isPrimaryBackground
+          ? "bg-primary text-background"
+          : "bg-background text-primary"
+      }`}
+    >
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route

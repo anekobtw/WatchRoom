@@ -15,12 +15,15 @@
 }
 
 html,
-body {
-  height: 100%;
+body,
+#root {
+  min-height: 100%;
+  background-color: var(--viewport-background);
   color: var(--primary);
 }
 
 :root {
+  --viewport-background: var(--background);
   --background: #d9cfc7;
   --surface-0: #cfc2b9;
   --surface-1: #c5b5aa;
