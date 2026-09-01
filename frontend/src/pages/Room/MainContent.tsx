@@ -81,7 +81,7 @@ export default function MainContent({
 
   return (
     <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-primary font-mulish text-background">
-      <div className="grid grid-cols-1 gap-3 px-3 py-3 sm:gap-4 sm:py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+      <div className="relative grid grid-cols-1 gap-3 px-3 py-3 sm:gap-4 sm:py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             onClick={leaveRoom}
@@ -90,18 +90,9 @@ export default function MainContent({
             <LogOut />
           </button>
 
-          <div className="flex min-w-0 flex-col">
+          <div className="flex min-w-0 flex-col pr-12 sm:pr-0">
             <h1 className="font-title flex items-center gap-2 text-base font-semibold sm:gap-3 sm:text-2xl">
               WatchRoom {roomId}
-              {isMobile && (
-                <button
-                  onClick={onOpenShareModal}
-                  className="cursor-pointer rounded-xl p-1.5 text-background transition duration-200 hover:bg-primary-surface-1 sm:p-2"
-                  title="Share Room"
-                >
-                  <Upload size={16} />
-                </button>
-              )}
             </h1>
             <div className="flex items-center gap-1 text-xs sm:text-sm">
               <span className="opacity-60">Your name:</span>
@@ -151,6 +142,16 @@ export default function MainContent({
             </p>
           </div>
         </div>
+
+        {isMobile && (
+          <button
+            onClick={onOpenShareModal}
+            className="absolute right-3 top-3 cursor-pointer rounded-xl p-3 text-background transition duration-200 hover:bg-primary-surface-1"
+            title="Share Room"
+          >
+            <Upload size={24} />
+          </button>
+        )}
 
         <div className="min-w-0 w-full max-w-xl justify-self-center">
           <div className="flex min-w-0 w-full items-center gap-2 rounded-xl border border-line bg-primary-surface-0 px-2 py-1.5 sm:px-3 sm:py-2">

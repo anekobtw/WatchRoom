@@ -17,7 +17,7 @@ function Page({
   animated?: boolean;
 }) {
   if (!animated) {
-    return <div className="min-h-screen">{children}</div>;
+    return <div className="h-full">{children}</div>;
   }
 
   return (
@@ -35,6 +35,7 @@ function Page({
 
 export default function App() {
   const location = useLocation();
+  const isRoomRoute = location.pathname.startsWith("/room/");
   const isPrimaryBackground =
     location.pathname !== "/" && location.pathname !== "/join-room";
   const viewportBackground = isPrimaryBackground
@@ -53,7 +54,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen overflow-hidden ${
+      className={`${isRoomRoute ? "h-dvh" : "min-h-screen"} overflow-hidden ${
         isPrimaryBackground
           ? "bg-primary text-background"
           : "bg-background text-primary"

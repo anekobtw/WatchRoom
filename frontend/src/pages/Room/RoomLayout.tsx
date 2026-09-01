@@ -51,7 +51,7 @@ export default function RoomLayout() {
   };
 
   return (
-    <div className="relative h-svh max-h-dvh overflow-hidden overscroll-none bg-primary font-mulish text-background">
+    <div className="relative h-dvh overflow-hidden overscroll-none bg-primary font-mulish text-background">
       <Group
         orientation={orientation}
         resizeTargetMinimumSize={{ fine: 24, coarse: 36 }}
