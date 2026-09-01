@@ -42,13 +42,13 @@ export default function RoomLayout() {
   };
 
   return (
-    <div className="relative h-dvh overflow-hidden bg-primary font-mulish text-background">
+    <div className="relative h-svh max-h-dvh overflow-hidden overscroll-none bg-primary font-mulish text-background">
       <Group
         orientation={orientation}
         resizeTargetMinimumSize={{ fine: 24, coarse: 36 }}
         className="h-full min-h-0"
       >
-        <Panel minSize={40}>
+        <Panel minSize={40} className="min-h-0">
           <MainContent
             isChatCollapsed={isChatCollapsed}
             isMobile={isMobile}
@@ -65,6 +65,7 @@ export default function RoomLayout() {
           minSize={isMobile ? 60 : 0}
           collapsedSize={isMobile ? 70 : 0}
           collapsible
+          className="min-h-0"
         >
           <ChatSidebar
             isCollapsed={isChatCollapsed}

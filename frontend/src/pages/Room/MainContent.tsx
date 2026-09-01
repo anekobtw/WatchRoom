@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { ArrowLeftFromLine, Link2, LogOut, Pencil, Upload } from "lucide-react";
+import {
+  ArrowLeftFromLine,
+  ArrowUp,
+  Link2,
+  LogOut,
+  Pencil,
+  Upload,
+} from "lucide-react";
 import Player from "@/components/Player";
 import { useRoomContext } from "./RoomContext";
 
@@ -59,7 +66,7 @@ export default function MainContent({
   };
 
   return (
-    <main className="flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-primary font-mulish text-background">
+    <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-primary font-mulish text-background">
       <div className="grid grid-cols-1 gap-3 px-3 py-3 sm:gap-4 sm:py-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <button
@@ -79,6 +86,18 @@ export default function MainContent({
                   title="Share Room"
                 >
                   <Upload size={16} />
+                </button>
+              )}
+              {isMobile && isChatCollapsed && (
+                <button
+                  onClick={onExpandChat}
+                  aria-label="Expand chat"
+                  className="relative cursor-pointer rounded-xl p-1.5 text-background transition duration-200 hover:bg-primary-surface-1 sm:p-2"
+                >
+                  {hasUnread && (
+                    <span className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full bg-red-500" />
+                  )}
+                  <ArrowUp size={16} />
                 </button>
               )}
             </h1>
@@ -175,7 +194,7 @@ export default function MainContent({
         </div>
       </div>
 
-      <div className="flex-1">
+      <div className="min-h-0 flex-1 overflow-hidden">
         <div className="relative h-full overflow-hidden border border-line bg-primary-surface-0 shadow-2xl">
           {videoUrl ? (
             <Player
