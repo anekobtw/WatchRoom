@@ -41,6 +41,10 @@ export default function RoomLayout() {
     setIsChatCollapsed(nextCollapsed);
   };
 
+  const syncChatCollapsedState = () => {
+    setIsChatCollapsed(chatPanelRef.current?.isCollapsed() ?? false);
+  };
+
   return (
     <div className="relative h-svh max-h-dvh overflow-hidden overscroll-none bg-primary font-mulish text-background">
       <Group
@@ -66,6 +70,7 @@ export default function RoomLayout() {
           collapsedSize={isMobile ? 70 : 0}
           collapsible
           className="min-h-0"
+          onResize={syncChatCollapsedState}
         >
           <ChatSidebar
             isCollapsed={isChatCollapsed}

@@ -1,12 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  ArrowLeftFromLine,
-  ArrowUp,
-  Link2,
-  LogOut,
-  Pencil,
-  Upload,
-} from "lucide-react";
+import { ArrowLeftFromLine, Link2, LogOut, Pencil, Upload } from "lucide-react";
 import Player from "@/components/Player";
 import { useRoomContext } from "./RoomContext";
 
@@ -86,18 +79,6 @@ export default function MainContent({
                   title="Share Room"
                 >
                   <Upload size={16} />
-                </button>
-              )}
-              {isMobile && isChatCollapsed && (
-                <button
-                  onClick={onExpandChat}
-                  aria-label="Expand chat"
-                  className="relative cursor-pointer rounded-xl p-1.5 text-background transition duration-200 hover:bg-primary-surface-1 sm:p-2"
-                >
-                  {hasUnread && (
-                    <span className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full bg-red-500" />
-                  )}
-                  <ArrowUp size={16} />
                 </button>
               )}
             </h1>
