@@ -1,36 +1,27 @@
 import { forwardRef } from "react";
 import type { PlayerAPI, PlayerStateChange } from "./PlayerAPI";
 import YouTubePlayer from "./players/YouTubePlayer";
-import SoundCloudPlayer from "./players/SoundCloudPlayer";
 
 type Props = {
   url: string;
   onStateChange?: (event: PlayerStateChange) => void;
 };
 
-function getPlayer(url: string) {
-  if (
+function isYouTubeUrl(url: string) {
+  return (
     url.includes("youtube.com") ||
     url.includes("youtu.be") ||
     /^[\w-]{11}$/.test(url)
-  ) {
-    return YouTubePlayer;
-  }
-
-  if (url.includes("soundcloud.com")) {
-    return SoundCloudPlayer;
-  }
-
-  return null;
+  );
 }
 
 const Player = forwardRef<PlayerAPI, Props>(function Player(
   { url, onStateChange },
   ref,
 ) {
-  const Component = getPlayer(url);
+  const isYouTube = isYouTubeUrl(url);
 
-  if (!Component) {
+  if (!isYouTube) {
     return (
       <div className="absolute inset-0 flex items-center justify-center">
         Unsupported player
@@ -38,15 +29,7 @@ const Player = forwardRef<PlayerAPI, Props>(function Player(
     );
   }
 
-  if (Component === YouTubePlayer) {
-    return <Component ref={ref} videoId={url} onStateChange={onStateChange} />;
-  }
-
-  if (Component === SoundCloudPlayer) {
-    return <Component ref={ref} trackUrl={url} onStateChange={onStateChange} />;
-  }
-
-  return null;
+  return <YouTubePlayer ref={ref} videoId={url} onStateChange={onStateChange} />;
 });
 
 export default Player;

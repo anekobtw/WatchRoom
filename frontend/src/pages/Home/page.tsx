@@ -140,9 +140,7 @@ export default function Home() {
             </div>
             <div>
               <h3 className="text-xl font-title font-bold mb-3">Any content</h3>
-              <p className="text-background/60">
-                YouTube and SoundCloud are supported.
-              </p>
+              <p className="text-background/60">YouTube is supported.</p>
             </div>
           </div>
         </div>
